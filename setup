@@ -1,0 +1,60 @@
+Setup:
+
+---
+---0. Hardware & OS---
+GPU: NVIDIA Corporation GP104GLM [Quadro P5200 Mobile]
+Compute Capability: 6.1
+Ubuntu 18.04 normal installation
+
+
+---1. CUDA---
+
+---
+% CUDA needs gcc
+$ apt install build-essentials
+
+---
+% CUDA Toolkit 10.1 (x86_64)
+https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=deblocal
+
+
+	
+---2.1. Conda Environment--- 
+!!Be careful while using pip in a conda environment!!
+(more at:https://www.anaconda.com/using-pip-in-a-conda-environment/)
+
+---
+snap - conda (beta)
+---
+
+$ conda init bash
+(didn't work for me)
+
+---
+Add to you your .bashrc
+
+# manual hack because based on:
+# https://github.com/conda/conda/issues/7980
+eval "$(conda shell.bash hook)"
+conda deactivate
+---
+
+$ conda create --name newenv
+$ conda activte newenv
+$ conda install -c conda-forge tensorflow
+$ conda install -c conda-forge gensim
+($ conda install pandas)
+
+
+
+---2.2 PIP---
+chakin(?)
+
+	
+---3. IDE--- 
+i use pycharm-community to code an execute
+
+---
+find the python executable your environment uses and link it to your IDE
+$ conda activate newenv
+$ which python
