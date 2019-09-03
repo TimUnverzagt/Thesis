@@ -43,7 +43,9 @@ $ conda create --name newenv
 $ conda activte newenv
 $ conda install -c conda-forge tensorflow
 $ conda install -c conda-forge gensim
-($ conda install pandas)
+$ conda install -c conda-forge nltk
+
+#$ conda install pandas (not used atm)
 
 
 
