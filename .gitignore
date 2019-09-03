@@ -2,15 +2,9 @@
 #------personal .gitignore-settings--------
 #------------------------------------------
 
-# Compressed files (here mostly embeddings)
-*.7z
-*.dmg
+# Embedding files
 *.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
+*.bin
 
 #------------------------------------------
 #----pre-organized .gitignore-packages-----
