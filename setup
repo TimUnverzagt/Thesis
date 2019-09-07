@@ -41,16 +41,14 @@ conda deactivate
 
 $ conda create --name newenv
 $ conda activte newenv
-$ conda install -c conda-forge tensorflow
+conda install -c conda-forge nltk
 $ conda install -c conda-forge gensim
-$ conda install -c conda-forge nltk
-
-#$ conda install pandas (not used atm)
+($ conda install pandas)
 
 
 
 ---2.2 PIP---
-chakin(?)
+$ pip install tensorflow==2.0.0-rc0
 
 	
 ---3. IDE--- 
