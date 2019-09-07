@@ -1,5 +1,5 @@
+import numpy as np
 from gensim.models import KeyedVectors
-from nltk.tokenize import word_tokenize
 from nltk.corpus import reuters
 from nltk.probability import FreqDist
 
@@ -7,6 +7,23 @@ from nltk.probability import FreqDist
 def load_embedding():
     # Load embedding vectors directly from the file
     return KeyedVectors.load_word2vec_format('WordEmbeddings/GoogleNews-vectors-negative300.bin', binary=True)
+
+
+def embed_word(model, word):
+    if word in model:
+        return model[word]
+    else:
+        print("Word is not contained in the Language Model and will be randomly initialized.")
+        new_representation = np.random.rand(300)
+        model.add(word, new_representation)
+        return new_representation
+
+
+def embed_doc(model, doc):
+    embedded_words = []
+    for word in doc[0]:
+        embedded_words.append(embed_word(model, word))
+    return np.array(embedded_words)
 
 
 def corpus_stats(docs):
@@ -33,6 +50,8 @@ def corpus_stats(docs):
     print("Minimal number of sentences in a text: ", min(sents_in_doc))
     print("Average number of sentences in a text: ", sum(sents_in_doc) / len(docs))
     print("Maximal number of sentences in a text: ", max(sents_in_doc))
+    print("")
+    print("Total number of words in the corpus: ", sum(words_in_doc))
     print('-' * 50)
     print('-' * 50)
     print("")
@@ -86,7 +105,7 @@ def load_corpus():
         if 'test' in fileid:
             test_docs.append((reuters.words(fileid), reuters.sents(fileid)))
         elif 'training' in fileid:
-            train_docs.append((reuters.words(fileid), reuters.sents(fileid)))
+            train_docs.append((reuters.words(fileid), reuters.words(fileid)))
         else:
             print("Document not recognized as part of training-set or test-set")
 
@@ -94,13 +113,15 @@ def load_corpus():
 
 
 def main():
+    # docs are tupels (word_tokenizing, sentence_tokenizing)
     [train_docs, test_docs] = load_corpus()
 
-    # model = load_embedding()
-    # embedding_stats(model, train_docs)
+    model = load_embedding()
+    # embedding_stats(model, train_doc_words)
+    print(np.shape(embed_doc(model, train_docs[0])))
 
-    corpus_stats(train_docs)
-    corpus_stats(test_docs)
+    # corpus_stats(train_docs)
+    # corpus_stats(test_docs)
 
 
 main()
