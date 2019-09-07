@@ -13,9 +13,9 @@ def embed_word(model, word):
     if word in model:
         return model[word]
     else:
-        print("Word is not contained in the Language Model and will be randomly initialized.")
+        # print("Word is not contained in the Language Model and will be randomly initialized.")
         new_representation = np.random.rand(300)
-        model.add(word, new_representation)
+        # model.add(word, new_representation)
         return new_representation
 
 
