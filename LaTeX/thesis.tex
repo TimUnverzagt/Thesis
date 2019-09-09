@@ -52,6 +52,7 @@
 %======================================================
 % Package loading for example contents (content.tex)
 %======================================================
+\usepackage{verbatim}
 \usepackage{tabularx} % better tables
 \setlength{\extrarowheight}{3pt} % increase table row height
 \usepackage{booktabs}
@@ -75,23 +76,23 @@
 %======================================================
 
 % Title of the thesis in DE or EN, depending on thesis language
-\newcommand{\komTitle}{Title of the Thesis\xspace} 
+\newcommand{\komTitle}{Application of the Lottery Ticket Hypothesis in NLP and Early Pruning (Proposal)\xspace} 
 % Translation of the title in either DE or EN, depending on thesis language
-\newcommand{\komTitleTranslation}{Titel der Arbeit (Übersetzung)\xspace}
+\newcommand{\komTitleTranslation}{Anwendung der "Lottery Ticket"-Hypothese in NLP und frühem Pruning (Proposal)\xspace}
 
 % Typ der Arbeit: Diplomarbeit Studienarbeit Master-Arbeit Bachelor-Arbeit
-\newcommand{\komThesisType}{Master-Arbeit\xspace} 
+\newcommand{\komThesisType}{Bachelor-Arbeit\xspace} 
 
 % Studiengang: Elektrotechnik und Informationstechnik, Informationssystemtechnik, Informatik, ...
-\newcommand{\komCourseOfStudy}{Elektrotechnik und Informationstechnik\xspace}
+\newcommand{\komCourseOfStudy}{Computational Engineering\xspace}
 
-\newcommand{\komName}{John Doe\xspace}
+\newcommand{\komName}{Tim Unverzagt\xspace}
 \newcommand{\komSubmissionDate}{dd. month yyyy\xspace}% use only this date format
 
-\newcommand{\komGutachter}{Gutachter: Prof. Dr.-Ing. Ralf Steinmetz\xspace}
-\newcommand{\komBetreuer}{Betreuer: \xspace}
+\newcommand{\komGutachter}{Gutachter: ???\xspace}
+\newcommand{\komBetreuer}{Betreuerin: Anna Filighera\xspace}
 \newcommand{\komExternerBetreuer}{}
-\newcommand{\komID}{KOM-type-number\xspace}
+\newcommand{\komID}{KOM-type-number ???\xspace}
 
 
 
@@ -123,21 +124,20 @@
 \subtitle{\komTitleTranslation \\ \komThesisType}
 \subsubtitle{\komName \\ \komID}
 %\setinstitutionlogo[height]{kom_info}
-\institution{\raggedleft Fachbereich Elektrotechnik \\und Informationstechnik\\%
-	Fachbereich Informatik (Zweitmitglied)\\[\baselineskip]%
-	Fachgebiet Multimedia Kommunikation \\%(KOM)
-	Prof. Dr.-Ing. Ralf Steinmetz}
-
+\institution{\raggedleft Fachbereich Informatik\\%
+	Fachbereich ??? (Zweitmitglied)\\[\baselineskip]%
+	Fachgebiet Natural Language Processing \\%(KOM)
+	|Gutachter|}
 
 %============================================
 % Setup of the title backside (do not change)
 %============================================
 \lowertitleback{%
 	Technische Universität Darmstadt \\%
-	Fachbereich Elektrotechnik und Informationstechnik\\%
-	Fachbereich Informatik (Zweitmitglied)\\[\baselineskip]%
-	Fachgebiet Multimedia Kommunikation (KOM)\\%
-	Prof. Dr.-Ing. Ralf Steinmetz%
+	Fachbereich Informatik\\%
+	Fachbereich ??? (Zweitmitglied)\\[\baselineskip]%
+	Fachgebiet Natural Language Processing (KOM)\\%
+	|Gutachter|%
 	%Department of Electrical Engineering and Information Technology \\%
 	%Department of Computer Science (Adjunct Professor) \\[\baselineskip]%
 	%Multimedia Communications Lab (KOM) \\%
@@ -175,9 +175,8 @@
 	
 	% identbar color for the rest of the thesis - DO NOT MODIFY THIS
 	\colorlet{tudidentbar}{tud0b} 
-    
+
     \begin{otherlanguage}{ngerman}
-    
     \chapter*{Erklärung zur Abschlussarbeit gemäß § 23 Abs.\ 7 APB der TU Darmstadt}
     Hiermit versichere ich, \komName, die vorliegende \komThesisType ohne Hilfe Dritter und nur mit den angegebenen Quellen und Hilfsmitteln angefertigt zu haben. 
     Alle Stellen, die Quellen entnommen wurden, sind als solche kenntlich gemacht worden. 
@@ -199,6 +198,7 @@
     \noindent\komName
     
     \end{otherlanguage}
+    
 
     % Old Version (do not use if submitting via the TUBaMa-Portal!)
     %\chapter*{Ehrenw\"ortliche Erkl\"arung}
