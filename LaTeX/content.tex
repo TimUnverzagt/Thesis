@@ -63,6 +63,7 @@ One such neuron and its stimulus measure are depicted in Figure \ref{fig:neuron1
 In addition to variable weights of inputs and an activation function, the abstract neuron
 seen in Figure \ref{fig:neuron2} also allows for a variable base stimulus generally called "bias". It thus completes a canonical neuron which forms the basis unit for neural networks.\\
 
+
 \begin{figure}
 	\centering
 	\begin{minipage}{0.45\textwidth}
@@ -80,7 +81,7 @@ seen in Figure \ref{fig:neuron2} also allows for a variable base stimulus genera
 \end{figure}
 
 As the individual neurons is too simple to model any complex relation between inputs
-and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNetwork} displays a few neurons coming together to form a simple fully-connected network.
+and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNetwork} displays a few neurons coming together to form a simple fully-connected feed-forward network.
 \footnote[2]{
 	Inputs of neural networks are often called "features" and fully-connected networks are frequently referred to as "dense"	}
 \begin{figure}
@@ -90,17 +91,38 @@ and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNe
 		\label{fig:FFNetwork}
 \end{figure}
 
-
-
-
-	
-	
+\begin{itemize}
+	\item \textcolor{red}{TODO:}
+	\item Issue of computational expense
+	\item CNNs (and other forms of NN?)
+\end{itemize}
 	
 \section{The Lottery Ticket Hypothesis}
+\begin{itemize}
+	\item \textcolor{red}{TODO:}
+	\item Clarifying the task (image classification)
+	\item Issue of overloading on parameters
+	\item Idea of trainable subnets
+	\item Emergence of safe "return points" after a few training epochs
+	\item (?) Ablation study
+\end{itemize}
 
 \section{Basics of Natural Language Processing}
+\begin{itemize}
+	\item \textcolor{red}{TODO:}
+	\item (?) Corpora
+	\item Tokenizing
+	\item Language Models
+\end{itemize}
 
-\section{Language Models \& Convolutional Neural Networks}
+\section{Combining LMs \& CNNs}
+\begin{itemize}
+	\item \textcolor{red}{TODO:}
+	\item Interpreting the tensor representation of a sentence/document as an image to be classified
+	\item (?) Validation through results
+	\item (?) Handeling different sizes of inputs
+	\item (?) Handeling missing words in the Language model
+\end{itemize}
 
 
 %*****************************************
@@ -109,9 +131,9 @@ and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNe
 %*****************************************
 \hint{This chapter should give a comprehensive overview on the related work done by other authors followed by an analysis why the existing related work is not capable of solving the problem described in the introduction.
 The chapter should have a length of about three to five pages!}
-\section{Related Work Area 1}
+\section{Related Work Dynamic Pruning}
 
-\section{Related Work Area 2}
+\section{Related Work Network Architecture Search}
 
 \section{Analysis of Related Work}
 
