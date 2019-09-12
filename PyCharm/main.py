@@ -54,15 +54,13 @@ def main():
     # tokenized_docs are tupels (word_tokenizing, sentence_tokenizing)
     [tokenized_train_docs, tokenized_test_docs] = load_corpus()
 
-    embedding_dict = pre.prepare_embedding(tokenized_train_docs + tokenized_test_docs)
-    pre.embedding_stats(embedding_dict, tokenized_train_docs)
-    pre.embedding_stats(embedding_dict, tokenized_test_docs)
+    ## Use this code to setup your embedding for the first time
+    # embedding_dict = pre.prepare_embedding(tokenized_train_docs + tokenized_test_docs)
+    # pre.save_embedding(embedding_dict)
 
-    # embedding_stats(model, train_doc_words)
-    # print(np.shape(embed_doc(model, tokenized_train_docs[0])))
-
-    # corpus_stats(tokenized_train_docs)
-    # corpus_stats(tokenized_test_docs)
+    ## If you already have an embedding load it with this function
+    # embedding_dict = pre.load_embedding()
+    return
 
 
 main()

@@ -1,8 +1,21 @@
 import numpy as np
+import pickle
 from gensim.models import KeyedVectors
 from nltk.probability import FreqDist
 
-# TODO: Write I/O-methods (cPickle) for the padded embedding to avoid the workload every execution
+
+def save_embedding(embedding_dict):
+    outfile = open('dictionary.p', 'wb')
+    pickle.dump(embedding_dict, outfile)
+    outfile.close()
+    return
+
+
+def load_embedding():
+    infile = open('dictionary.p', 'rb')
+    embedding_dict = pickle.load(infile)
+    infile.close()
+    return embedding_dict
 
 
 def load_base_embedding():
@@ -21,7 +34,6 @@ def prepare_embedding(tokenized_docs):
             if word not in padded_dict:
                 # Randomly initiate key if the word is unknown
                 # TODO: New keys might be initialized slightly less naive even without training
-                print(word)
                 padded_dict[word] = np.random.rand(300)
 
     return padded_dict
