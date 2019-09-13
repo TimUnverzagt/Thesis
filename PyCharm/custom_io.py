@@ -3,6 +3,9 @@ import pickle
 from gensim.models import KeyedVectors
 from nltk.corpus import reuters
 
+# Personal modules
+import custom_docs as docs
+
 
 def save_embedding(embedding_dict):
     outfile = open('dictionary.p', 'wb')
@@ -29,9 +32,11 @@ def load_corpus():
 
     for fileid in reuters.fileids():
         if 'test' in fileid:
-            test_docs.append((reuters.words(fileid), reuters.sents(fileid)))
+            # test_docs.append((reuters.words(fileid), reuters.sents(fileid)))
+            test_docs.append(docs.TokenizedDoc(reuters.words(fileid), reuters.sents(fileid)))
         elif 'training' in fileid:
-            train_docs.append((reuters.words(fileid), reuters.words(fileid)))
+            # train_docs.append((reuters.words(fileid), reuters.words(fileid)))
+            train_docs.append(docs.TokenizedDoc(reuters.words(fileid), reuters.sents(fileid)))
         else:
             print("Document not recognized as part of training-set or test-set")
 

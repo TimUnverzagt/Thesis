@@ -4,6 +4,7 @@ from nltk.probability import FreqDist
 
 # Personal modules
 import custom_io as io
+import custom_docs as docs
 
 
 def prepare_embedding(tokenized_docs):
@@ -34,7 +35,25 @@ def embed_doc(embedding_dict, tokenized_doc):
     embedded_words = []
     for word in tokenized_doc[0]:
         embedded_words.append(embed_word(embedding_dict, word))
-    return np.array(embedded_words)
+    word_embedding = np.array(embedded_words)
+
+    embedded_sents = []
+    for sent in tokenized_doc[1]:
+        embedded_words_in_sent = []
+        for word in sent:
+            embedded_words_in_sent.append(embed_word(embedding_dict, word))
+        sentence_embedding = np.array(embedded_words_in_sent)
+        embedded_sents.append(sentence_embedding)
+
+    return docs.EmbeddedDoc(word_embedding, embedded_sents)
+
+
+def embed_docs(embedding_dict, tokenized_docs):
+    embedded_docs = []
+    for tokenized_doc in tokenized_docs:
+        embedded_docs.append(embed_doc(embedding_dict, tokenized_doc))
+
+    return embedded_docs
 
 
 def embedding_stats(embedding_dict, tokenized_docs):
@@ -54,7 +73,7 @@ def embedding_stats(embedding_dict, tokenized_docs):
     unique_in = len(set(words_in_model))
     unique_out = len(set(words_out_of_model))
 
-    fdist_out = FreqDist(word.lower() for word in words_out_of_model)
+    freq_dist_out = FreqDist(word.lower() for word in words_out_of_model)
 
     print("")
     print('-'*50)
@@ -69,18 +88,18 @@ def embedding_stats(embedding_dict, tokenized_docs):
     print("Percentage of unique words outside the model: ", round(100 * unique_out / len(set(words)), 1))
     print("")
     print("Most common words outside the model:")
-    print(fdist_out.most_common(10))
+    print(freq_dist_out.most_common(10))
     print('-'*50)
     print('-'*50)
     print("")
     return
 
 
-def corpus_stats(docs):
+def corpus_stats(tokenized_docs):
     sents_in_doc = []
     words_in_doc = []
     words_in_sent = []
-    for doc in docs:
+    for doc in tokenized_docs:
         words_in_doc.append(len(doc[0]))
         sents_in_doc.append(len(doc[1]))
         for sent in doc[1]:
@@ -90,7 +109,7 @@ def corpus_stats(docs):
     print('-' * 50)
     print('-' * 50)
     print("Minimal number of 'words' in a text: ", min(words_in_doc))
-    print("Average number of 'words' in a text: ", sum(words_in_doc) / len(docs))
+    print("Average number of 'words' in a text: ", sum(words_in_doc) / len(tokenized_docs))
     print("Maximal number of 'words' in a text: ", max(words_in_doc))
     print("")
     print("Minimal number of 'words' in a sentence: ", min(words_in_sent))
@@ -98,7 +117,7 @@ def corpus_stats(docs):
     print("Maximal number of 'words' in a sentence: ", max(words_in_sent))
     print("")
     print("Minimal number of sentences in a text: ", min(sents_in_doc))
-    print("Average number of sentences in a text: ", sum(sents_in_doc) / len(docs))
+    print("Average number of sentences in a text: ", sum(sents_in_doc) / len(tokenized_docs))
     print("Maximal number of sentences in a text: ", max(sents_in_doc))
     print("")
     print("Total number of words in the corpus: ", sum(words_in_doc))

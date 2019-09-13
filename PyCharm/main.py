@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 # Personal modules
-import preprocessing as pre
+import preprocessing as prep
 import custom_io as io
 
 
@@ -18,7 +18,20 @@ def main():
     # io.save_embedding(embedding_dict)
 
     ## If you already have an embedding load it with this function
-    # embedding_dict = io.load_embedding()
+    embedding_dict = io.load_embedding()
+
+    # Embed the docs before you you feed them to the network
+    embedded_docs = prep.embed_docs(embedding_dict, tokenized_train_docs)
+    # print(type(embedded_docs[0]))
+    # print(type(embedded_docs[0][0]))
+    # print(type(embedded_docs[0][0][0]))
+    # print(type(embedded_docs[0][1]))
+    # print(type(embedded_docs[0][1][0]))
+    # print(type(embedded_docs[0][1][0][0]))
+    #
+    # print(np.shape(embedded_docs[0][0]))
+    # print(np.shape(embedded_docs[0][1][0]))
+
     return
 
 
