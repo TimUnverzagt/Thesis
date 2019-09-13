@@ -1,6 +1,13 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+# General modules
 import numpy as np
+import tensorflow as tf
+
+# Personal modules
 import preprocessing as pre
 import custom_io as io
+
 
 def main():
     # tokenized_docs are tupels (word_tokenizing, sentence_tokenizing)

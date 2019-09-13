@@ -1,6 +1,9 @@
+# General modules
 import numpy as np
-import custom_io as io
 from nltk.probability import FreqDist
+
+# Personal modules
+import custom_io as io
 
 
 def prepare_embedding(tokenized_docs):
@@ -69,6 +72,38 @@ def embedding_stats(embedding_dict, tokenized_docs):
     print(fdist_out.most_common(10))
     print('-'*50)
     print('-'*50)
+    print("")
+    return
+
+
+def corpus_stats(docs):
+    sents_in_doc = []
+    words_in_doc = []
+    words_in_sent = []
+    for doc in docs:
+        words_in_doc.append(len(doc[0]))
+        sents_in_doc.append(len(doc[1]))
+        for sent in doc[1]:
+            words_in_sent.append(len(sent))
+
+    print("")
+    print('-' * 50)
+    print('-' * 50)
+    print("Minimal number of 'words' in a text: ", min(words_in_doc))
+    print("Average number of 'words' in a text: ", sum(words_in_doc) / len(docs))
+    print("Maximal number of 'words' in a text: ", max(words_in_doc))
+    print("")
+    print("Minimal number of 'words' in a sentence: ", min(words_in_sent))
+    print("Average number of 'words' in a sentence: ", sum(words_in_sent) / len(words_in_sent))
+    print("Maximal number of 'words' in a sentence: ", max(words_in_sent))
+    print("")
+    print("Minimal number of sentences in a text: ", min(sents_in_doc))
+    print("Average number of sentences in a text: ", sum(sents_in_doc) / len(docs))
+    print("Maximal number of sentences in a text: ", max(sents_in_doc))
+    print("")
+    print("Total number of words in the corpus: ", sum(words_in_doc))
+    print('-' * 50)
+    print('-' * 50)
     print("")
     return
 
