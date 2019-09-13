@@ -1,31 +1,11 @@
 import numpy as np
-import pickle
-from gensim.models import KeyedVectors
+import custom_io as io
 from nltk.probability import FreqDist
-
-
-def save_embedding(embedding_dict):
-    outfile = open('dictionary.p', 'wb')
-    pickle.dump(embedding_dict, outfile)
-    outfile.close()
-    return
-
-
-def load_embedding():
-    infile = open('dictionary.p', 'rb')
-    embedding_dict = pickle.load(infile)
-    infile.close()
-    return embedding_dict
-
-
-def load_base_embedding():
-    # Load embedding vectors directly from the file
-    return KeyedVectors.load_word2vec_format('WordEmbeddings/GoogleNews-vectors-negative300.bin', binary=True)
 
 
 def prepare_embedding(tokenized_docs):
     # TODO: I could try out casting every word in the docs to .lower() before lookup in BKV
-    base_keyed_vectors = load_base_embedding()
+    base_keyed_vectors = io.load_base_embedding()
     padded_dict = {}
     for word in base_keyed_vectors.vocab:
         padded_dict[word] = base_keyed_vectors[word]
