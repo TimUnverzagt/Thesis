@@ -26,19 +26,27 @@ def load_base_embedding():
     return KeyedVectors.load_word2vec_format('WordEmbeddings/GoogleNews-vectors-negative300.bin', binary=True)
 
 
-def load_corpus():
+def load_corpus_docs():
     test_docs = []
     train_docs = []
 
     for fileid in reuters.fileids():
         if 'test' in fileid:
             # test_docs.append((reuters.words(fileid), reuters.sents(fileid)))
-            test_docs.append(docs.TokenizedDoc(reuters.words(fileid), reuters.sents(fileid)))
+            test_docs.append(docs.TokenizedDoc(reuters.words(fileid),
+                                               reuters.sents(fileid),
+                                               reuters.categories(fileid)))
         elif 'training' in fileid:
             # train_docs.append((reuters.words(fileid), reuters.words(fileid)))
-            train_docs.append(docs.TokenizedDoc(reuters.words(fileid), reuters.sents(fileid)))
+            train_docs.append(docs.TokenizedDoc(reuters.words(fileid),
+                                                reuters.sents(fileid),
+                                                reuters.categories(fileid)))
         else:
-            print("Document not recognized as part of training-set or test-set")
+            print("Document not recognized as part of training-set or test-set while extracting the Reuters Corpus")
 
     return train_docs, test_docs
+
+
+def load_corpus_categories():
+    return reuters.categories()
 

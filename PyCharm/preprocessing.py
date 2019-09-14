@@ -31,21 +31,32 @@ def embed_word(embedding_dict, word):
         print("Check if the embedding was correctly prepared/loaded!")
 
 
+def embed_categories(doc_categories):
+    possible_categories = io.load_corpus_categories()
+    embedded_categories = np.zeros(len(possible_categories))
+    for index, category in enumerate(possible_categories):
+        if category in doc_categories:
+            embedded_categories[index] = 1
+    return embedded_categories
+
+
 def embed_doc(embedding_dict, tokenized_doc):
     embedded_words = []
     for word in tokenized_doc[0]:
         embedded_words.append(embed_word(embedding_dict, word))
     word_embedding = np.array(embedded_words)
 
-    embedded_sents = []
+    sent_embeddings = []
     for sent in tokenized_doc[1]:
         embedded_words_in_sent = []
         for word in sent:
             embedded_words_in_sent.append(embed_word(embedding_dict, word))
         sentence_embedding = np.array(embedded_words_in_sent)
-        embedded_sents.append(sentence_embedding)
+        sent_embeddings.append(sentence_embedding)
 
-    return docs.EmbeddedDoc(word_embedding, embedded_sents)
+    categories_embedding = embed_categories(tokenized_doc[2])
+
+    return docs.EmbeddedDoc(word_embedding, sent_embeddings, categories_embedding)
 
 
 def embed_docs(embedding_dict, tokenized_docs):

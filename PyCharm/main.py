@@ -11,7 +11,8 @@ import custom_io as io
 
 def main():
     # tokenized_docs are tupels (word_tokenizing, sentence_tokenizing)
-    [tokenized_train_docs, tokenized_test_docs] = io.load_corpus()
+    [tokenized_train_docs, tokenized_test_docs] = io.load_corpus_docs()
+    # print(io.load_corpus_categories())
 
     ## Use this code to setup your embedding for the first time
     # embedding_dict = pre.prepare_embedding(tokenized_train_docs + tokenized_test_docs)
@@ -22,15 +23,6 @@ def main():
 
     # Embed the docs before you you feed them to the network
     embedded_docs = prep.embed_docs(embedding_dict, tokenized_train_docs)
-    # print(type(embedded_docs[0]))
-    # print(type(embedded_docs[0][0]))
-    # print(type(embedded_docs[0][0][0]))
-    # print(type(embedded_docs[0][1]))
-    # print(type(embedded_docs[0][1][0]))
-    # print(type(embedded_docs[0][1][0][0]))
-    #
-    # print(np.shape(embedded_docs[0][0]))
-    # print(np.shape(embedded_docs[0][1][0]))
 
     return
 
