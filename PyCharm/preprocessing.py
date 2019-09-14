@@ -7,13 +7,13 @@ import custom_io as io
 import custom_docs as docs
 
 
-def prepare_embedding(tokenized_docs):
+def prepare_embedding(tok_docs):
     # TODO: I could try out casting every word in the docs to .lower() before lookup in BKV
     base_keyed_vectors = io.load_base_embedding()
     padded_dict = {}
     for word in base_keyed_vectors.vocab:
         padded_dict[word] = base_keyed_vectors[word]
-    for doc in tokenized_docs:
+    for doc in tok_docs:
         for word in doc[0]:
             if word not in padded_dict:
                 # Randomly initiate key if the word is unknown
@@ -23,58 +23,58 @@ def prepare_embedding(tokenized_docs):
     return padded_dict
 
 
-def embed_word(embedding_dict, word):
+def embed_word(emb_dict, word):
     try:
-        return embedding_dict[word]
+        return emb_dict[word]
     except KeyError:
         print("The word you are trying is not in the embedding dictionary!")
         print("Check if the embedding was correctly prepared/loaded!")
 
 
-def embed_categories(doc_categories):
-    possible_categories = io.load_corpus_categories()
-    embedded_categories = np.zeros(len(possible_categories))
-    for index, category in enumerate(possible_categories):
-        if category in doc_categories:
-            embedded_categories[index] = 1
-    return embedded_categories
+def embed_categories(doc_cats):
+    possible_cats = io.load_corpus_categories()
+    emb_cats = np.zeros(len(possible_cats))
+    for index, cat in enumerate(possible_cats):
+        if cat in doc_cats:
+            emb_cats[index] = 1
+    return emb_cats
 
 
-def embed_doc(embedding_dict, tokenized_doc):
-    embedded_words = []
-    for word in tokenized_doc[0]:
-        embedded_words.append(embed_word(embedding_dict, word))
-    word_embedding = np.array(embedded_words)
+def embed_doc(emb_dict, tok_doc):
+    emb_words = []
+    for word in tok_doc[0]:
+        emb_words.append(embed_word(emb_dict, word))
+    word_embedding = np.array(emb_words)
 
     sent_embeddings = []
-    for sent in tokenized_doc[1]:
-        embedded_words_in_sent = []
+    for sent in tok_doc[1]:
+        emb_words_in_sent = []
         for word in sent:
-            embedded_words_in_sent.append(embed_word(embedding_dict, word))
-        sentence_embedding = np.array(embedded_words_in_sent)
+            emb_words_in_sent.append(embed_word(emb_dict, word))
+        sentence_embedding = np.array(emb_words_in_sent)
         sent_embeddings.append(sentence_embedding)
 
-    categories_embedding = embed_categories(tokenized_doc[2])
+    cats_embedding = embed_categories(tok_doc[2])
 
-    return docs.EmbeddedDoc(word_embedding, sent_embeddings, categories_embedding)
-
-
-def embed_docs(embedding_dict, tokenized_docs):
-    embedded_docs = []
-    for tokenized_doc in tokenized_docs:
-        embedded_docs.append(embed_doc(embedding_dict, tokenized_doc))
-
-    return embedded_docs
+    return docs.EmbeddedDoc(word_embedding, sent_embeddings, cats_embedding)
 
 
-def embedding_stats(embedding_dict, tokenized_docs):
+def embed_docs(emb_dict, tok_docs):
+    emb_docs = []
+    for tok_doc in tok_docs:
+        emb_docs.append(embed_doc(emb_dict, tok_doc))
+
+    return emb_docs
+
+
+def embedding_stats(emb_dict, tok_docs):
     words = []
     words_in_model = []
     words_out_of_model = []
-    for doc in tokenized_docs:
+    for doc in tok_docs:
         for word in doc[0]:
             words.append(word)
-            if word in embedding_dict:
+            if word in emb_dict:
                 words_in_model.append(word)
             else:
                 words_out_of_model.append(word)
@@ -106,11 +106,11 @@ def embedding_stats(embedding_dict, tokenized_docs):
     return
 
 
-def corpus_stats(tokenized_docs):
+def corpus_stats(tok_docs):
     sents_in_doc = []
     words_in_doc = []
     words_in_sent = []
-    for doc in tokenized_docs:
+    for doc in tok_docs:
         words_in_doc.append(len(doc[0]))
         sents_in_doc.append(len(doc[1]))
         for sent in doc[1]:
@@ -120,7 +120,7 @@ def corpus_stats(tokenized_docs):
     print('-' * 50)
     print('-' * 50)
     print("Minimal number of 'words' in a text: ", min(words_in_doc))
-    print("Average number of 'words' in a text: ", sum(words_in_doc) / len(tokenized_docs))
+    print("Average number of 'words' in a text: ", sum(words_in_doc) / len(tok_docs))
     print("Maximal number of 'words' in a text: ", max(words_in_doc))
     print("")
     print("Minimal number of 'words' in a sentence: ", min(words_in_sent))
@@ -128,7 +128,7 @@ def corpus_stats(tokenized_docs):
     print("Maximal number of 'words' in a sentence: ", max(words_in_sent))
     print("")
     print("Minimal number of sentences in a text: ", min(sents_in_doc))
-    print("Average number of sentences in a text: ", sum(sents_in_doc) / len(tokenized_docs))
+    print("Average number of sentences in a text: ", sum(sents_in_doc) / len(tok_docs))
     print("Maximal number of sentences in a text: ", max(sents_in_doc))
     print("")
     print("Total number of words in the corpus: ", sum(words_in_doc))

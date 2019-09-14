@@ -7,18 +7,18 @@ from nltk.corpus import reuters
 import custom_docs as docs
 
 
-def save_embedding(embedding_dict):
+def save_embedding(emb_dict):
     outfile = open('dictionary.p', 'wb')
-    pickle.dump(embedding_dict, outfile)
+    pickle.dump(emb_dict, outfile)
     outfile.close()
     return
 
 
 def load_embedding():
     infile = open('dictionary.p', 'rb')
-    embedding_dict = pickle.load(infile)
+    emb_dict = pickle.load(infile)
     infile.close()
-    return embedding_dict
+    return emb_dict
 
 
 def load_base_embedding():
