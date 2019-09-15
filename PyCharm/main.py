@@ -23,9 +23,10 @@ def main():
 
     # Embed the docs before you you feed them to the network
     emb_docs = prep.embed_docs(emb_dict, tok_train_docs)
-    print(np.shape(emb_docs[0][0]))
+    (batched_words, batched_cats) = batch_docs(emb_docs)
 
     model = tfk.Sequential([
+        tfk.layers.Input(shape=(30, 300)),
         tfk.layers.Flatten(input_shape=(30, 300)),
         tfk.layers.Dense(9000, activation=tf.nn.relu),
         tfk.layers.Dense(900, activation=tf.nn.relu),
@@ -33,19 +34,42 @@ def main():
     ])
 
     model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
+                  loss='MSE',
                   metrics=['accuracy'])
+
+    print(np.shape(batched_words))
+    print(np.shape(batched_cats))
+
+    model.fit(batched_words,
+              batched_cats,
+              batch_size=32,
+              epochs=10)
 
     return
 
 
 def batch_docs(emb_docs):
     # TODO: Implement
-    batched_emb_shape = (30, 300)
-    for doc in emb_docs:
-        print()
+    no_of_docs = len(emb_docs)
+    no_of_cats = len(io.load_corpus_categories())
+    bat_words = np.zeros(shape=(no_of_docs, 30, 300))
+    bat_cats = np.zeros(shape=(no_of_docs, no_of_cats))
+    i = 0
+    for index, doc in enumerate(emb_docs):
+        no_words_in_doc = np.shape(doc[0])[0]
 
-    return
+        # Gather embedding of words
+        if no_words_in_doc >= 30:
+            bat_words[index] = doc[0][0:30]
+        else:
+            i += 1
+            # Pad documents that are too short (atm implicit zero-padding)
+            bat_words[index][0:no_words_in_doc] = doc[0][:]
+
+        # Gather embedding of categories
+        bat_cats[index] = doc[2]
+
+    return bat_words, bat_cats
 
 
 main()
