@@ -30,15 +30,12 @@ def main():
         tfk.layers.Flatten(input_shape=(30, 300)),
         tfk.layers.Dense(9000, activation=tf.nn.relu),
         tfk.layers.Dense(900, activation=tf.nn.relu),
-        tfk.layers.Dense(90, activation=tf.nn.softmax)
+        tfk.layers.Dense(90, activation=tf.nn.sigmoid)
     ])
 
     model.compile(optimizer='adam',
-                  loss='MSE',
+                  loss='binary_crossentropy',
                   metrics=['accuracy'])
-
-    print(np.shape(batched_words))
-    print(np.shape(batched_cats))
 
     model.fit(batched_words,
               batched_cats,

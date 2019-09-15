@@ -30,7 +30,9 @@ def load_corpus_docs():
     test_docs = []
     train_docs = []
 
+    i = 0
     for fileid in reuters.fileids():
+        i += 1
         if 'test' in fileid:
             # test_docs.append((reuters.words(fileid), reuters.sents(fileid)))
             test_docs.append(docs.TokenizedDoc(reuters.words(fileid),
@@ -44,6 +46,7 @@ def load_corpus_docs():
         else:
             print("Document not recognized as part of training-set or test-set while extracting the Reuters Corpus")
 
+    # print("Number of documents in this version of the Reuters-Corpus: ", i)
     return train_docs, test_docs
 
 
