@@ -67,6 +67,30 @@ def embed_docs(emb_dict, tok_docs):
     return emb_docs
 
 
+def batch_docs(emb_docs, target_doc_len):
+    # TODO: Implement
+    no_of_docs = len(emb_docs)
+    no_of_cats = len(io.load_corpus_categories())
+    bat_words = np.zeros(shape=(no_of_docs, target_doc_len, 300))
+    bat_cats = np.zeros(shape=(no_of_docs, no_of_cats))
+    i = 0
+    for index, doc in enumerate(emb_docs):
+        no_words_in_doc = np.shape(doc[0])[0]
+
+        # Gather embedding of words
+        if no_words_in_doc >= target_doc_len:
+            bat_words[index] = doc[0][0:target_doc_len]
+        else:
+            i += 1
+            # Pad documents that are too short (atm implicit zero-padding)
+            bat_words[index][0:no_words_in_doc] = doc[0][:]
+
+        # Gather embedding of categories
+        bat_cats[index] = doc[2]
+
+    return bat_words, bat_cats
+
+
 def embedding_stats(emb_dict, tok_docs):
     words = []
     words_in_model = []
