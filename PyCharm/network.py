@@ -26,8 +26,9 @@ class CustomNetworkHandler:
                            metrics=['accuracy'])
 
     def train(self, input_array, annotation_array):
+        # print("GPU Available: ", tf.test.is_gpu_available())
         self.model.fit(input_array,
                        annotation_array,
                        batch_size=32,
-                       epochs=10)
+                       epochs=3)
         return
