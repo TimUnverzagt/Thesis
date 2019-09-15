@@ -6,6 +6,8 @@ from nltk.corpus import reuters
 # Personal modules
 import custom_docs as docs
 
+# TODO: The custom embedding should be saved together in the same folder as the pre-trained embeddings
+
 
 def save_embedding(emb_dict):
     outfile = open('dictionary.p', 'wb')
