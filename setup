@@ -46,10 +46,20 @@ $ conda install -c conda-forge gensim
 
 
 ---2.2 PIP---
-$ pip install tensorflow==2.0.0-rc1
+$ pip install tensorflow-gpu==2.0.0-rc1
+
+
+---3. Load content---
+# Google News Language Model
+https://github.com/mmihaltz/word2vec-GoogleNews-vectors
+
+# Nltk
+nltk.download('reuters')
+nltk.download('punkt')
+
 
 	
----3. IDE--- 
+---4. IDE--- 
 i use pycharm-community to code an execute
 
 ---
