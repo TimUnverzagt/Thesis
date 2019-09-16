@@ -39,13 +39,13 @@ def main():
     model.train(input_array=batched_train_words,
                 label_array=batched_train_cats)
 
-    test_loss, test_acc = model.model.evaluate(batched_test_words, batched_test_cats)
+    test_loss, test_recall, test_accuracy = model.model.evaluate(batched_test_words, batched_test_cats)
 
     print("Loss: ", test_loss)
-    print("Accuracy: ", test_acc)
+    print("Recall: ", test_recall)
+    print("Accuracy: ", test_accuracy)
 
     return
 
 
 main()
-

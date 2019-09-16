@@ -23,7 +23,7 @@ class CustomNetworkHandler:
 
         self.model.compile(optimizer='adam',
                            loss='binary_crossentropy',
-                           metrics=['accuracy'])
+                           metrics=[tfk.metrics.Recall(), 'accuracy'])
 
     def train(self, input_array, label_array):
         self.model.fit(input_array,
