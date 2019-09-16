@@ -39,7 +39,7 @@ eval "$(conda shell.bash hook)"
 conda deactivate
 ---
 
-$ conda create --name newenv
+$ conda create --name newenv python=3.6 cudnn cupti cudatoolkit=10.0
 $ conda activte newenv
 $ conda install -c conda-forge nltk
 $ conda install -c conda-forge gensim
