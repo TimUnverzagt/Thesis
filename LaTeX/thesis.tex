@@ -42,6 +42,7 @@
 %======================================================
 \usepackage{float}
 \usepackage{wrapfig}
+\usepackage[toc, page]{appendix}
 
 %======================================================
 % KOM-modifications of the TUD-layout
@@ -238,6 +239,12 @@
 	\addcontentsline{toc}{chapter}{\bibname}
 	\bibliographystyle{alpha} % <--- layout of the bib
 	\bibliography{bibliography} % file name of your bib
+	
+	
+	%======================================================
+	% Appendix (not present in the template)
+	%======================================================
+	\input{appendix.tex}
 
 \end{document}
 %======================================================
