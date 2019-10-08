@@ -52,3 +52,12 @@ class CustomNetworkHandler:
                        batch_size=32,
                        epochs=20)
         return
+
+    def save_model_as_file(self, filename):
+        tfk.models.save_model(
+            self.model,
+            'SavedModels/' + filename)
+
+        return
+
+

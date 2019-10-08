@@ -33,11 +33,14 @@ def main():
     (batched_test_words, batched_test_cats) = prep.batch_docs(emb_test_docs, target_doc_len=100)
 
     print("Developing network...")
-    model = Network(target_doc_len=100, model_name='CNN')
+    model = Network(target_doc_len=30, model_name='sandbox')
     # Add a channel dimension for CNNs
-    batched_train_words = np.reshape(batched_train_words, np.shape(batched_train_words) + (1,))
-    batched_test_words = np.reshape(batched_test_words, np.shape(batched_test_words) + (1,))
-    
+    # batched_train_words = np.reshape(batched_train_words, np.shape(batched_train_words) + (1,))
+    # batched_test_words = np.reshape(batched_test_words, np.shape(batched_test_words) + (1,))
+
+    model.save_model_as_file('test')
+
+    '''
     print("Training network...")
     model.train(input_array=batched_train_words,
                 label_array=batched_train_cats)
@@ -52,6 +55,7 @@ def main():
         f1_measure = 0
 
     print("F1: ", f1_measure)
+    '''
 
     return
 
