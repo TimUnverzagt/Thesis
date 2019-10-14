@@ -12,6 +12,7 @@
 # Pycharm-stuff
 # The pre-written .gitignore doesn't catch .ideas in a lower dir
 /*/*.idea
+/PyCharm/SavedModels/*
 
 #------------------------------------------
 #------------------------------------------
