@@ -6,7 +6,7 @@ import tensorflow as tf
 import tensorflow.keras as tfk
 
 
-def mask_network():
+def create_mask():
     init_model = tfk.models.load_model('SavedModels/test-init')
     init_model.summary()
     percentile = 0
@@ -18,9 +18,23 @@ def mask_network():
                 flattened_weights = tf.reshape(layer.weights[0], [-1])
             else:
                 flattened_weights = tf.concat(flattened_weights, tf.reshape(layer.weights[0], [-1]))
-    percentile = np.percentile(flattened_weights.numpy(), 90)
-    print(percentile)
 
-    trained_model = tfk.models.load_model('SavedModels/test-trained')
-    trained_model.summary()
-    return
+    # List of tuples containing the idx and mask for each layer with trainable weights
+    masks = []
+    for idx, layer in enumerate(init_model.layers):
+        if layer.weights:
+            # Only mask the weight-kernel (weights[0]) not the biases (weights[1])
+            mask = step_at_threshold(layer.weights[0], percentile)
+            masks.append((idx, mask))
+
+    percentile = np.percentile(np.abs(flattened_weights.numpy()), 50)
+    print(percentile)
+    print(len(masks))
+
+    # trained_model = tfk.models.load_model('SavedModels/test-trained')
+    # trained_model.summary()
+    return masks
+
+
+def step_at_threshold(values, threshold):
+    return tf.map_fn(lambda x: x >= threshold, values, bool)

@@ -15,7 +15,7 @@ from network import CustomNetworkHandler as Network
 
 def main():
     # train_a_network()
-    masking.mask_network()
+    masks = masking.create_mask()
     return
 
 
