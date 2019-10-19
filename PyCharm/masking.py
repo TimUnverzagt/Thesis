@@ -19,22 +19,21 @@ def create_mask():
             else:
                 flattened_weights = tf.concat(flattened_weights, tf.reshape(layer.weights[0], [-1]))
 
+    percentile = np.percentile(np.abs(flattened_weights.numpy()), 50)
+    print(percentile)
+
     # List of tuples containing the idx and mask for each layer with trainable weights
     masks = []
     for idx, layer in enumerate(init_model.layers):
         if layer.weights:
             # Only mask the weight-kernel (weights[0]) not the biases (weights[1])
-            mask = step_at_threshold(layer.weights[0], percentile)
+            mask = threshold_mask(layer.weights[0], percentile)
             masks.append((idx, mask))
-
-    percentile = np.percentile(np.abs(flattened_weights.numpy()), 50)
-    print(percentile)
-    print(len(masks))
 
     # trained_model = tfk.models.load_model('SavedModels/test-trained')
     # trained_model.summary()
     return masks
 
 
-def step_at_threshold(values, threshold):
+def threshold_mask(values, threshold):
     return tf.map_fn(lambda x: x >= threshold, values, bool)
