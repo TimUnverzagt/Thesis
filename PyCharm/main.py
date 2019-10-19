@@ -21,7 +21,7 @@ def main():
     init_model = tfk.models.load_model('SavedModels/test-init')
     trained_model = tfk.models.load_model('SavedModels/test-trained')
     masks = masking.create_masks(trained_model)
-    model_config = init_model.getconfig()
+    model_config = init_model.get_config()
     masked_model = tfk.Sequential()
     for layer in trained_model.layers:
         print(layer.get_config()['name'])
