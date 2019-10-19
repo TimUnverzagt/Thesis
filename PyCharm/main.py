@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # General modules
 import numpy as np
+from tensorflow import keras as tfk
+from tensorflow.python.keras.saving.saved_model import load as tfk_load
 from pathlib import Path
 
 # Personal modules
@@ -9,13 +11,20 @@ import preprocessing as prep
 import custom_io as io
 import masking
 from network import CustomNetworkHandler as Network
-
+from custom_layers import MaskedDense
 # tf.debugging.set_log_device_placement(True)
 
 
 def main():
     # train_a_network()
-    masks = masking.create_mask()
+
+    init_model = tfk.models.load_model('SavedModels/test-init')
+    trained_model = tfk.models.load_model('SavedModels/test-trained')
+    masks = masking.create_masks(trained_model)
+    model_config = init_model.getconfig()
+    masked_model = tfk.Sequential()
+    for layer in trained_model.layers:
+        print(layer.get_config()['name'])
     return
 
 
