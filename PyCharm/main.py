@@ -18,13 +18,14 @@ from custom_layers import MaskedDense
 def main():
     # train_a_network()
 
-    init_model = tfk.models.load_model('SavedModels/test-init')
     trained_model = tfk.models.load_model('SavedModels/test-trained')
     masks = masking.create_masks(trained_model)
+
+    init_model = tfk.models.load_model('SavedModels/test-init')
     model_config = init_model.get_config()
     masked_model = tfk.Sequential()
-    for layer in trained_model.layers:
-        print(layer.get_config()['name'])
+    for idx, layer in enumerate(init_model.layers):
+        print(model_config['layers'][idx]['class_name'])
     return
 
 
