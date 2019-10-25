@@ -30,7 +30,7 @@ The chapter should have a length of about five pages!}
 
 
 \section{Basics of Neural Networks\ \ \  \(WIP\)}
-Neural networks are a part of most major AI-breakthrough in the last decade enabling computers to compete in fields formerly championed by humans.\footnote[1]{
+Neural networks are a part of most major AI-breakthrough in the last decade enabling computers to compete in fields formerly championed by humans.\footnote{
 	\begin{itemize}
 		\item 
 			2011: "Watson" of IBM defeats two former grand champions in "Jeopardy!" \cite{lally2011natural}
@@ -47,21 +47,40 @@ Neural networks are a part of most major AI-breakthrough in the last decade enab
 }
 They implement a statistical understanding of AI, which is to say that they try to find a specific model optimizing the likelihood of reproducing input-output pairs similar to some training data. The competing philosophy directly divines behaviour rules, frequently from expert knowledge, and as such is far less dependant from data.  
 \textcolor{red}{[citation needed]}\\
-For the former concept its model classes are the essential point of design. A multitude of properties are sought after in a model class of which a few are:
+For the former concept its model classes are the essential point of design. A multitude of properties maybe sought after in a model class of which a few important ones are:
 \begin{itemize}
-	\item Richness: The diversity of single models in the class and thus the ability to fit a wide field of different input-output landscapes
-	\item Stability of models: Tendency of any model in the class to not produce sudden unmotivated change in behaviour between and beyond given data points
-	\item Interpretability of models: Ease of formulating knowledge out of any given model in the class.
-	\item ...
-	\item \textcolor{red}{[citation needed]}
+	\item \textbf{Richness:}\\
+	The diversity of single models in the class and thus the ability to fit a wide field of different input-output landscapes.\footnote{
+		More formally the richness of a model class can be described as the amount of different functions from the input-space to the output-space which can be expressed through a model of said class.}\\
+	If a model class is inherently restricted the underlying relation between inputs and outputs might simply be beyond the expressive capabilities of all its models.\\
+	In other words: If a model class is not rich enough all of its models will underfit the given training data.
+	\item \textbf{Stability:}\\ 
+	Tendency of similar models in the class to handle inputs in a similar way.\\
+	If your model class shows unstable behavior defining a sensible way to search it for good models becomes difficult.
+	\item \textbf{Interpretability of Models:}\\
+	 Ease of formulating knowledge out of any given model in the class.\\
+	 As fields exist in which statistical AI outperform experts the extraction of knowledge understandable and applicable by humans naturally is of interest.
+	\item \textcolor{red}
+	{[citation needed]}
 \end{itemize}
-If one knows an agent that already performs well on a given task it is sensible to design ones model class to reproduce its decision process. As Humans embody such an agent for many tasks of interest to AI research naturally their processing system e.g. their central nervous system is the direct inspiration for neural networks approaches.\\
-The human central nervous system is, in all simplicity, a network of neurons which can receive multiple stimuli and are able to produce an output if stimulated to a certain degree. The stimuli received by neurons are either from an external source or another neuron's output.
-\textcolor{red}{[citation needed]}
-One such neuron and its stimulus measure are depicted in Figure \ref{fig:neuron1}. Another detail of design observed in nature is the ability of a neuron to vary the strength of connection to any source of stimulus. 
+If one knows an entity that already performs well on a given task it is a sensible approach to design ones model class to reproduce its decision process. Humans usually are such entities for many tasks of interest to AI research so they are a natural source of inspiration. Neural networks essentially are simplified models of a human central nervous system. \\
+The most basic building block of the human central nervous system is a neuron which can receive multiple stimuli and is able to produce an output if the combined stimulation exceeds a threshold.\textcolor{red}{[citation needed]} One such neuron and its stimulus measure are depicted in Figure [\ref{fig:neuron1}]. Another functionality observed in nature is the ability of a neuron to strengthen the connection to any source of stimulus thus giving said source more influence on whether the neuron produces an output. 
 \textcolor{red}{[citation needed]}\\
-In addition to variable weights of inputs and an activation function, the abstract neuron
-seen in Figure \ref{fig:neuron2} also allows for a variable base stimulus generally called "bias". It thus completes a canonical neuron which forms the basis unit for neural networks.\\
+\\
+The canonical mathematical model a neuron is defined as:
+\begin{itemize}
+	\item \textbf{Inputs} $x_i$ \textbf{:}\\
+	All stimuli of a neuron are simply referred to as its inputs
+	\item \textbf{Weights} $w_i$ \textbf{:}\\
+	The ability to assign importances is modelled as weights which are coupled to specific stimuli
+	\item \textbf{Combined Weighted Inputs} $\sum_{i=1}^{n}w_i x_i$ \textbf{:}\\
+	After the inputs are scaled by their according weight they superpose to form the total excitation of the neuron
+	\item \textbf{Activation Function} $\Phi(\sum_{i=1}^{n}w_i x_i)$ \textbf{:}\\
+	
+	\item \textbf{Bias} $b$ \textbf{:}\\  
+	As the threshold is implicitly modelled in the activation function...
+\end{itemize}
+seen in Figure \ref{fig:neuron2} \\
 
 
 \begin{figure}
@@ -82,7 +101,7 @@ seen in Figure \ref{fig:neuron2} also allows for a variable base stimulus genera
 
 As the individual neurons is too simple to model any complex relation between inputs
 and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNetwork} displays a few neurons coming together to form a simple fully-connected feed-forward network.
-\footnote[2]{
+\footnote{
 	Inputs of neural networks are often called "features" and fully-connected networks are frequently referred to as "dense"	}
 \begin{figure}
 	\centering
@@ -100,11 +119,9 @@ and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNe
 \section{The Lottery Ticket Hypothesis}
 \begin{itemize}
 	\item \textcolor{red}{TODO:}
-	\item Clarifying the task (image classification)
 	\item Issue of overloading on parameters
+	\item Clarifying the task (image classification)
 	\item Idea of trainable subnets
-	\item Emergence of safe "return points" after a few training epochs
-	\item (?) Ablation study
 \end{itemize}
 
 \section{Basics of Natural Language Processing}
@@ -131,6 +148,13 @@ and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNe
 %*****************************************
 \hint{This chapter should give a comprehensive overview on the related work done by other authors followed by an analysis why the existing related work is not capable of solving the problem described in the introduction.
 The chapter should have a length of about three to five pages!}
+\section{Lottery-Ticket-Hypothesis}
+\begin{itemize}
+	\item \textcolor{red}{TODO:}
+	\item Emergence of safe "return points" after a few training epochs
+	\item Ablation study
+\end{itemize}
+
 \section{Related Work Dynamic Pruning}
 
 \section{Related Work Network Architecture Search}
