@@ -59,15 +59,15 @@ For the former concept its model classes are the essential point of design. A mu
 	If your model class shows unstable behavior defining a sensible way to search it for good models becomes difficult.
 	\item \textbf{Interpretability of Models:}\\
 	 Ease of formulating knowledge out of any given model in the class.\\
-	 As fields exist in which statistical AI outperform experts the extraction of knowledge understandable and applicable by humans naturally is of interest.
+	 As fields exist in which statistical AI outperform experts the extraction of knowledge understandable and applicable by humans is of special interest.
 	\item \textcolor{red}
 	{[citation needed]}
 \end{itemize}
 If one knows an entity that already performs well on a given task it is a sensible approach to design ones model class to reproduce its decision process. Humans usually are such entities for many tasks of interest to AI research so they are a natural source of inspiration. Neural networks essentially are simplified models of a human central nervous system. \\
-The most basic building block of the human central nervous system is a neuron which can receive multiple stimuli and is able to produce an output if the combined stimulation exceeds a threshold.\textcolor{red}{[citation needed]} One such neuron and its stimulus measure are depicted in Figure [\ref{fig:neuron1}]. Another functionality observed in nature is the ability of a neuron to strengthen the connection to any source of stimulus thus giving said source more influence on whether the neuron produces an output. 
+The most basic building block of the human central nervous system is a neuron which can receive multiple stimuli and is able to produce an output if the combined stimulation exceeds a threshold.\textcolor{red}{[citation needed]} One such neuron and its stimulus measure are depicted in \ref{fig:neuron1}. Another functionality observed in nature is the ability of a neuron to strengthen the connection to any source of stimulus thus giving said source more influence on whether the neuron produces an output. 
 \textcolor{red}{[citation needed]}\\
 \\
-The canonical mathematical model a neuron is defined as:
+The canonical mathematical model of a neuron, as seen in \ref{fig:neuron2}, is defined as:
 \begin{itemize}
 	\item \textbf{Inputs} $x_i$ \textbf{:}\\
 	All stimuli of a neuron are simply referred to as its inputs
@@ -76,11 +76,10 @@ The canonical mathematical model a neuron is defined as:
 	\item \textbf{Combined Weighted Inputs} $\sum_{i=1}^{n}w_i x_i$ \textbf{:}\\
 	After the inputs are scaled by their according weight they superpose to form the total excitation of the neuron
 	\item \textbf{Activation Function} $\Phi(\sum_{i=1}^{n}w_i x_i)$ \textbf{:}\\
-	
+	...
 	\item \textbf{Bias} $b$ \textbf{:}\\  
-	As the threshold is implicitly modelled in the activation function...
+	...
 \end{itemize}
-seen in Figure \ref{fig:neuron2} \\
 
 
 \begin{figure}
@@ -99,7 +98,7 @@ seen in Figure \ref{fig:neuron2} \\
 	\end{minipage}
 \end{figure}
 
-As the individual neurons is too simple to model any complex relation between inputs
+As an individual neurons is too simple to model any complex relations between inputs
 and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNetwork} displays a few neurons coming together to form a simple fully-connected feed-forward network.
 \footnote{
 	Inputs of neural networks are often called "features" and fully-connected networks are frequently referred to as "dense"	}
@@ -130,6 +129,7 @@ and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNe
 	\item (?) Corpora
 	\item Tokenizing
 	\item Language Models
+	\item (?) Handeling missing words in the Language model
 \end{itemize}
 
 \section{Combining LMs \& CNNs}
@@ -138,7 +138,6 @@ and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNe
 	\item Interpreting the tensor representation of a sentence/document as an image to be classified
 	\item (?) Validation through results
 	\item (?) Handeling different sizes of inputs
-	\item (?) Handeling missing words in the Language model
 \end{itemize}
 
 
