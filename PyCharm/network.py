@@ -50,7 +50,7 @@ class CustomNetworkHandler:
         self.model.fit(input_array,
                        label_array,
                        batch_size=32,
-                       epochs=20)
+                       epochs=3)
         return
 
     def save_model_as_file(self, filename):

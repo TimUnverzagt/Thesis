@@ -7,7 +7,6 @@ import tensorflow.keras as tfk
 
 
 def create_masks(trained_model):
-    trained_model.summary()
     percentile = 0
     flattened_weights = None
     weights_are_initialized = False

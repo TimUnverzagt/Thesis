@@ -17,12 +17,18 @@ from custom_layers import MaskedDense
 
 
 def main():
-    # train_a_network()
+    reuters_model = construct_model_for_reuters()
+    # reuters_model.save_model_as_file('test-trained')
 
-    trained_model = tfk.models.load_model('SavedModels/test-trained')
+    # lottery_ticket = construct_lottery_ticket(trained_model=tfk.models.load_model('SavedModels/test-trained'),
+    # init_model=tfk.models.load_model('SavedModels/test-init'))
+
+    return
+
+
+def construct_lottery_ticket(trained_model, init_model):
     masks = masking.create_masks(trained_model)
 
-    init_model = tfk.models.load_model('SavedModels/test-init')
     init_model.summary()
     model_config = init_model.get_config()
 
@@ -36,7 +42,7 @@ def main():
             else:
                 # TODO: Throw real exception
                 print('The activation of the given model is not recognized.')
-                print('No activation was chosen. This will likely result in a fatal error!')
+                print('No activation was chosen. This will likely result in a critical error!')
             masked_model.add(MaskedDense(units=layer.output_shape[1],
                                          input_shape=layer.input_shape,
                                          activation=old_activation,
@@ -48,11 +54,10 @@ def main():
 
     masked_model.build()
     masked_model.summary()
+    return masked_model
 
-    return
 
-
-def train_a_network():
+def construct_features_for_reuters(target_no_of_features):
     # tokenized_docs are tupels (word_tokenizing, sentence_tokenizing)
     [tok_train_docs, tok_test_docs] = io.load_corpus_docs()
 
@@ -69,8 +74,15 @@ def train_a_network():
     print("Embedding documents...")
     emb_train_docs = prep.embed_docs(emb_dict, tok_train_docs)
     emb_test_docs = prep.embed_docs(emb_dict, tok_test_docs)
-    (batched_train_words, batched_train_cats) = prep.batch_docs(emb_train_docs, target_doc_len=30)
-    (batched_test_words, batched_test_cats) = prep.batch_docs(emb_test_docs, target_doc_len=30)
+    (batched_train_words, batched_train_cats) = prep.batch_docs(emb_train_docs, target_doc_len=target_no_of_features)
+    (batched_test_words, batched_test_cats) = prep.batch_docs(emb_test_docs, target_doc_len=target_no_of_features)
+    return ((batched_train_words, batched_train_cats),
+            (batched_test_words, batched_test_cats))
+
+
+def construct_model_for_reuters():
+    ((batched_train_words, batched_train_cats),
+     (batched_test_words, batched_test_cats))=construct_features_for_reuters(target_no_of_features=30)
 
     print("Developing network...")
     model = Network(target_doc_len=30, model_name='sandbox')
@@ -95,8 +107,7 @@ def train_a_network():
 
     print("F1: ", f1_measure)
 
-    model.save_model_as_file('test-trained')
-    return
+    return model
 
 
 main()
