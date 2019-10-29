@@ -17,7 +17,7 @@ from custom_layers import MaskedDense
 
 
 def main():
-    reuters_model = construct_model_for_reuters()
+    reuters_model = construct_model_handler_for_reuters()
     # reuters_model.save_model_as_file('test-trained')
 
     # lottery_ticket = construct_lottery_ticket(trained_model=tfk.models.load_model('SavedModels/test-trained'),
@@ -80,22 +80,27 @@ def construct_features_for_reuters(target_no_of_features):
             (batched_test_words, batched_test_cats))
 
 
-def construct_model_for_reuters():
+def construct_model_handler_for_reuters():
     ((batched_train_words, batched_train_cats),
-     (batched_test_words, batched_test_cats))=construct_features_for_reuters(target_no_of_features=30)
+     (batched_test_words, batched_test_cats)) = construct_features_for_reuters(target_no_of_features=30)
 
     print("Developing network...")
-    model = Network(target_doc_len=30, model_name='sandbox')
+    model_handler = Network(no_of_features=30, model_name='FeedForward')
     # Add a channel dimension for CNNs
     # batched_train_words = np.reshape(batched_train_words, np.shape(batched_train_words) + (1,))
     # batched_test_words = np.reshape(batched_test_words, np.shape(batched_test_words) + (1,))
 
-    model.save_model_as_file('test-init')
+    model_handler.save_model_as_file('test-init')
 
     print("Training network...")
-    model.train(input_array=batched_train_words,
-                label_array=batched_train_cats)
-    test_loss, test_recall, test_precision = model.model.evaluate(batched_test_words, batched_test_cats)
+    model_handler.train(datapoints=batched_train_words,
+                        categorizations=batched_train_cats)
+
+    return model_handler
+
+
+def evaluate_model(model, datapoints, categorizations):
+    test_loss, test_recall, test_precision = model.evaluate(datapoints, categorizations)
 
     print("Loss: ", test_loss)
     print("Recall: ", test_recall)
@@ -106,8 +111,7 @@ def construct_model_for_reuters():
         f1_measure = 0
 
     print("F1: ", f1_measure)
-
-    return model
+    return
 
 
 main()
