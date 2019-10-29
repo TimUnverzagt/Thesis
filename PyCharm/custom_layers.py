@@ -34,7 +34,7 @@ class MaskedDense(layers.Layer):
                 print("No mask has been supplied for the custom MaskedDense-layer!")
                 print("While the layer is still functional it's reduced to a poor version of tf.keras.layers.Dense")
         if mask is not None:
-            self.masked_kernel = tf.multiply(kernel, mask)
+            self.masked_kernel = tf.multiply(kernel, tf.dtypes.cast(mask, dtype=tf.float32))
         else:
             self.masked_kernel = kernel
         self.use_bias = use_bias

@@ -22,12 +22,12 @@ def create_masks(trained_model):
     print(percentile)
 
     # List of tuples containing the idx and mask for each layer with trainable weights
-    masks = []
+    masks = {}
     for idx, layer in enumerate(trained_model.layers):
         if layer.weights:
             # Only mask the weight-kernel (weights[0]) not the biases (weights[1])
             mask = threshold_mask(layer.weights[0], percentile)
-            masks.append((idx, mask))
+            masks[idx] = mask
     return masks
 
 

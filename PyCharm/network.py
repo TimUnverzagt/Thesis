@@ -40,7 +40,7 @@ class CustomNetworkHandler:
             print("CustomNetworkHandler does not handle a model type called: ", model_name)
             print("Please one of the following names: 'sandbox, 'CNN'")
 
-        self.model.summary()
+        # self.model.summary()
 
         self.model.compile(optimizer='adam',
                            loss='binary_crossentropy',

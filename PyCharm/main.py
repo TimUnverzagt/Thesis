@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # General modules
 import numpy as np
+import tensorflow as tf
 from tensorflow import keras as tfk
 from tensorflow.python.keras.saving.saved_model import load as tfk_load
 from pathlib import Path
@@ -22,10 +23,32 @@ def main():
     masks = masking.create_masks(trained_model)
 
     init_model = tfk.models.load_model('SavedModels/test-init')
+    init_model.summary()
     model_config = init_model.get_config()
+
     masked_model = tfk.Sequential()
     for idx, layer in enumerate(init_model.layers):
         print(model_config['layers'][idx]['class_name'])
+        if model_config['layers'][idx]['class_name'] == 'Dense':
+            print("Replacing Dense-layer of the model with a custom MaskedDense-layer")
+            if model_config['layers'][1]['config']['activation'] == 'relu':
+                old_activation = tf.nn.relu
+            else:
+                # TODO: Throw real exception
+                print('The activation of the given model is not recognized.')
+                print('No activation was chosen. This will likely result in a fatal error!')
+            masked_model.add(MaskedDense(units=layer.output_shape[1],
+                                         input_shape=layer.input_shape,
+                                         activation=old_activation,
+                                         kernel=layer.kernel,
+                                         mask=masks[idx],
+                                         bias=layer.bias))
+        else:
+            masked_model.add(layer)
+
+    masked_model.build()
+    masked_model.summary()
+
     return
 
 
