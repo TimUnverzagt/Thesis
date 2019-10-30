@@ -6,18 +6,18 @@ import tensorflow as tf
 import tensorflow.keras as tfk
 
 
-class CustomNetworkHandler:
+class CustomNetworkWrapper:
 
-    def __init__(self, no_of_features, no_of_classes=90, model_name='FeedForward', given_model=None):
+    def __init__(self, no_of_features, no_of_classes=90, model_identifier='FeedForward', given_model=None):
 
-        if model_name == 'GivenModel':
+        if model_identifier == 'GivenModel':
             if given_model is None:
                 # TODO: Throw real exception
                 print("The CustomNetworkHandler was instructed to initialize with a given model but none was provided.")
                 print("A critical error is imminent!")
             else:
                 self.model = given_model
-        elif model_name == 'FeedForward':
+        elif model_identifier == 'FeedForward':
             middle_size = np.round(np.sqrt(no_of_features * 300 * no_of_classes))
             self.model = tfk.Sequential([
                 tfk.layers.Input(shape=(no_of_features, 300)),
@@ -29,7 +29,7 @@ class CustomNetworkHandler:
                 # no_of_classes = number of categories
                 tfk.layers.Dense(no_of_classes, activation=tf.nn.sigmoid)
             ])
-        elif model_name == 'CNN':
+        elif model_identifier == 'CNN':
             kernel_width = 3
             no_of_filters = no_of_features - kernel_width
             self.model = tfk.Sequential([
@@ -39,7 +39,7 @@ class CustomNetworkHandler:
                 tfk.layers.Dense(units=no_of_classes, input_shape=(no_of_filters,), activation=tf.nn.sigmoid)
             ])
         else:
-            print("CustomNetworkHandler does not handle a model type called: ", model_name)
+            print("CustomNetworkHandler does not handle a model type called: ", model_identifier)
             print("Please use one of the following names: 'FeedForward', 'CNN', 'GivenModel'")
 
         self.model.compile(optimizer='adam',
@@ -53,7 +53,7 @@ class CustomNetworkHandler:
                        epochs=3)
         return
 
-    def save_model_as_file(self, filename):
+    def save_model_as_folder(self, filename):
         tfk.models.save_model(
             self.model,
             'SavedModels/' + filename)

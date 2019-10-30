@@ -25,10 +25,10 @@ def create_masks(trained_model):
     for idx, layer in enumerate(trained_model.layers):
         if layer.weights:
             # Only mask the weight-kernel (weights[0]) not the biases (weights[1])
-            mask = threshold_mask(layer.weights[0], percentile)
+            mask = _threshold_mask(layer.weights[0], percentile)
             masks[idx] = mask
     return masks
 
 
-def threshold_mask(values, threshold):
+def _threshold_mask(values, threshold):
     return tf.cast(tf.map_fn(lambda x: x >= threshold, values, bool), tf.int32)

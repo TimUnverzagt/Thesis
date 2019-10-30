@@ -5,43 +5,45 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras as tfk
 from tensorflow.python.keras.saving.saved_model import load as tfk_load
-from pathlib import Path
 
 # Personal modules
-import preprocessing as prep
-import custom_io as io
 import masking
-from network import CustomNetworkHandler as Network
+from network import CustomNetworkWrapper as NetworkWrapper
 from custom_layers import MaskedDense
+from datasets import reuters
 # tf.debugging.set_log_device_placement(True)
 
 
 def main():
     # For debugging
-    tf.config.experimental_run_functions_eagerly(True)
+    # tf.config.experimental_run_functions_eagerly(True)
 
     # Hack to prevent a specific error with cudNN
     # https://github.com/tensorflow/tensorflow/issues/24828
     for gpu in tf.config.experimental.list_physical_devices('GPU'):
         tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
 
-    reuters_model_handler = Network(no_of_features=0,
-                                    model_name='GivenModel',
-                                    given_model=tfk.models.load_model('SavedModels/test-trained'))
+    reuters_model_wrapper = NetworkWrapper(no_of_features=0,
+                                           model_identifier='GivenModel',
+                                           given_model=tfk.models.load_model('SavedModels/test-trained'))
 
     # reuters_model.save_model_as_file('test-trained')
 
-    (train_datapoints, test_datapoints) = construct_features_for_reuters(target_no_of_features=30)
+    data_splits = reuters.quantify_datapoints(target_no_of_features=30)
+    train_datapoints = data_splits['train']
+    test_datapoints = data_splits['test']
 
-    lottery_ticket = construct_lottery_ticket(trained_model=reuters_model_handler.model,
+    lottery_ticket = construct_lottery_ticket(trained_model=reuters_model_wrapper.model,
                                               init_model=tfk.models.load_model('SavedModels/test-init'))
-    lottery_ticket_handler = Network(no_of_features=0,
-                                     model_name='GivenModel',
-                                     given_model=lottery_ticket)
-    lottery_ticket_handler.train(train_datapoints)
 
-    evaluate_model(reuters_model_handler.model, test_datapoints)
-    evaluate_model(lottery_ticket_handler.model, test_datapoints)
+    lottery_ticket_wrapper = NetworkWrapper(no_of_features=0,
+                                            model_identifier='GivenModel',
+                                            given_model=lottery_ticket)
+
+    lottery_ticket_wrapper.train(train_datapoints)
+
+    evaluate_model(reuters_model_wrapper.model, test_datapoints)
+    evaluate_model(lottery_ticket_wrapper.model, test_datapoints)
 
     return
 
@@ -83,36 +85,13 @@ def construct_lottery_ticket(trained_model, init_model):
     return masked_model
 
 
-def construct_features_for_reuters(target_no_of_features):
-    # tokenized_docs are tupels (word_tokenizing, sentence_tokenizing)
-    [tok_train_docs, tok_test_docs] = io.load_corpus_docs()
-
-    if Path("dictionary.p").exists():
-        print("Loading previous language model...")
-        emb_dict = io.load_embedding()
-    else:
-        print("No previous model found!")
-        print("Beginning to construct new model with GoogleNews-Vectors as base...")
-        emb_dict = prep.prepare_embedding(tok_train_docs + tok_test_docs)
-        io.save_embedding(emb_dict)
-
-    # Embed the docs before you you feed them to the network
-    print("Embedding documents...")
-    emb_train_docs = prep.embed_docs(emb_dict, tok_train_docs)
-    emb_test_docs = prep.embed_docs(emb_dict, tok_test_docs)
-    (batched_train_words, batched_train_cats) = prep.batch_docs(emb_train_docs, target_doc_len=target_no_of_features)
-    (batched_test_words, batched_test_cats) = prep.batch_docs(emb_test_docs, target_doc_len=target_no_of_features)
-    return ((batched_train_words, batched_train_cats),
-            (batched_test_words, batched_test_cats))
-
-
 def construct_model_handler_for_reuters():
     ((batched_train_words, batched_train_cats),
-     (batched_test_words, batched_test_cats)) = construct_features_for_reuters(target_no_of_features=30)
+     (batched_test_words, batched_test_cats)) = reuters.quantify_datapoints(target_no_of_features=30)
 
     print("Developing network...")
-    model_handler = Network(no_of_features=30,
-                            model_name='FeedForward')
+    model_handler = NetworkWrapper(no_of_features=30,
+                                   model_identifier='FeedForward')
     # Add a channel dimension for CNNs
     # batched_train_words = np.reshape(batched_train_words, np.shape(batched_train_words) + (1,))
     # batched_test_words = np.reshape(batched_test_words, np.shape(batched_test_words) + (1,))
