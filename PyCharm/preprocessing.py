@@ -68,7 +68,6 @@ def embed_docs(emb_dict, tok_docs):
 
 
 def batch_docs(emb_docs, target_doc_len):
-    # TODO: Implement
     no_of_docs = len(emb_docs)
     no_of_cats = len(io.load_corpus_categories())
     bat_words = np.zeros(shape=(no_of_docs, target_doc_len, 300))

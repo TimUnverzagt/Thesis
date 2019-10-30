@@ -8,14 +8,16 @@ import tensorflow.keras as tfk
 
 class CustomNetworkHandler:
 
-    def __init__(self, no_of_features, no_of_classes=90, model_name='FeedForward'):
+    def __init__(self, no_of_features, no_of_classes=90, model_name='FeedForward', given_model=None):
 
-        # Hack to prevent a specific error with cudNN
-        # https://github.com/tensorflow/tensorflow/issues/24828
-        for gpu in tf.config.experimental.list_physical_devices('GPU'):
-            tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
-
-        if model_name == 'FeedForward':
+        if model_name == 'GivenModel':
+            if given_model is None:
+                # TODO: Throw real exception
+                print("The CustomNetworkHandler was instructed to initialize with a given model but none was provided.")
+                print("A critical error is imminent!")
+            else:
+                self.model = given_model
+        elif model_name == 'FeedForward':
             middle_size = np.round(np.sqrt(no_of_features * 300 * no_of_classes))
             self.model = tfk.Sequential([
                 tfk.layers.Input(shape=(no_of_features, 300)),
@@ -38,17 +40,15 @@ class CustomNetworkHandler:
             ])
         else:
             print("CustomNetworkHandler does not handle a model type called: ", model_name)
-            print("Please one of the following names: 'FeedForward', 'CNN'")
-
-        # self.model.summary()
+            print("Please use one of the following names: 'FeedForward', 'CNN', 'GivenModel'")
 
         self.model.compile(optimizer='adam',
                            loss='binary_crossentropy',
                            metrics=[tfk.metrics.Recall(), tfk.metrics.Precision()])
 
-    def train(self, datapoints, categorizations):
-        self.model.fit(datapoints,
-                       categorizations,
+    def train(self, datapoints):
+        self.model.fit(datapoints[0],
+                       datapoints[1],
                        batch_size=32,
                        epochs=3)
         return
