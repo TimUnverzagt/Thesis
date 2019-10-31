@@ -14,19 +14,18 @@ def mask_initial_model(trained_model, initial_model, pruning_percentage=50):
 
     masked_model = tfk.Sequential()
     for idx, layer in enumerate(initial_model.layers):
-        print(model_config['layers'][idx]['class_name'])
         if model_config['layers'][idx]['class_name'] == 'Dense':
             print("Replacing Dense-layer of the model with a custom MaskedDense-layer")
             if model_config['layers'][idx]['config']['activation'] == 'relu':
-                print("Recognized an relu-activation.")
+                # print("Recognized an relu-activation.")
                 old_activation = tf.nn.relu
             elif model_config['layers'][idx]['config']['activation'] == 'sigmoid':
-                print("Recognized an sigmoid-activation.")
+                # print("Recognized an sigmoid-activation.")
                 old_activation = tf.nn.sigmoid
             else:
                 # TODO: Throw real exception
-                print('The activation of the given model is not recognized.')
-                print('No activation was chosen. This will likely result in a critical error!')
+                print("The activation of the given model is not recognized.")
+                print("No activation was chosen. This will likely result in a critical error!")
 
             replacement_layer = MaskedDense(units=layer.output_shape[1],
                                             activation=old_activation,
@@ -53,15 +52,15 @@ def _create_masks(trained_model, pruning_percentage):
             else:
                 flattened_weights = tf.concat(flattened_weights, tf.reshape(layer.weights[0], [-1]))
 
-    percentile = np.percentile(np.abs(flattened_weights.numpy()), pruning_percentage)
-    print(percentile)
+    quantile = np.percentile(np.abs(flattened_weights.numpy()), pruning_percentage)
+    print("Weight of the threshold for masking: ", np.round(quantile, 4))
 
     # List of tuples containing the idx and mask for each layer with trainable weights
     masks = {}
     for idx, layer in enumerate(trained_model.layers):
         if layer.weights:
             # Only mask the weight-kernel (weights[0]) not the biases (weights[1])
-            mask = _magnitude_threshold_mask(layer.weights[0], percentile)
+            mask = _magnitude_threshold_mask(layer.weights[0], quantile)
             masks[idx] = mask
     return masks
 
