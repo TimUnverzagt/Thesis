@@ -7,10 +7,9 @@ import tensorflow.keras as tfk
 from custom_layers import MaskedDense
 
 
-def mask_initial_model_ticket(trained_model, initial_model, pruning_percentage=50):
+def mask_initial_model(trained_model, initial_model, pruning_percentage=50):
     masks = _create_masks(trained_model, pruning_percentage)
-
-    initial_model.summary()
+    # initial_model.summary()
     model_config = initial_model.get_config()
 
     masked_model = tfk.Sequential()
@@ -40,7 +39,7 @@ def mask_initial_model_ticket(trained_model, initial_model, pruning_percentage=5
             masked_model.add(layer)
 
     masked_model.build()
-    masked_model.summary()
+    # masked_model.summary()
     return masked_model
 
 

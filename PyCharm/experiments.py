@@ -9,47 +9,40 @@ from network import CustomNetworkWrapper as NetworkWrapper
 from datasets import reuters
 
 
-def test_creation_of_masked_network():
+def test_creation_of_masked_network(epochs):
+    """
     reuters_model_wrapper = NetworkWrapper(no_of_features=0,
                                            model_identifier='GivenModel',
                                            given_model=tfk.models.load_model('SavedModels/test-trained'))
+    """
+    print("Developing feedforward network on reuters...")
+    reuters_model_wrapper = NetworkWrapper(no_of_features=30,
+                                           model_identifier='FeedForward')
+    initial_model = reuters_model_wrapper.model
 
-    # reuters_model.save_model_as_file('test-trained')
-
+    print("Quantifying reuters datapoints...")
     data_splits = reuters.quantify_datapoints(target_no_of_features=30)
     train_datapoints = data_splits['train']
     test_datapoints = data_splits['test']
 
-    lottery_ticket = masking.mask_initial_model_ticket(trained_model=reuters_model_wrapper.model,
-                                                       initial_model=tfk.models.load_model('SavedModels/test-init'))
+    print("Training full network...")
+    full_history = reuters_model_wrapper.train_model(datapoints=train_datapoints,
+                                                     epochs=epochs)
 
+    print("Developing a masked network with the initial weights...")
+    masked_model = masking.mask_initial_model(trained_model=reuters_model_wrapper.model,
+                                              initial_model=initial_model)
     lottery_ticket_wrapper = NetworkWrapper(no_of_features=0,
                                             model_identifier='GivenModel',
-                                            given_model=lottery_ticket)
+                                            given_model=masked_model)
 
-    lottery_ticket_wrapper.train_model(datapoints=train_datapoints,
-                                       epochs=3)
+    print("Training masked network...")
+    masked_history = lottery_ticket_wrapper.train_model(datapoints=train_datapoints,
+                                                        epochs=epochs)
 
+    print("Quickly evaluating both networks...")
     reuters_model_wrapper.evaluate_model(test_datapoints)
     lottery_ticket_wrapper.evaluate_model(test_datapoints)
 
-
-def construct_model_handler_for_reuters():
-    ((batched_train_words, batched_train_cats),
-     (batched_test_words, batched_test_cats)) = reuters.quantify_datapoints(target_no_of_features=30)
-
-    print("Developing network...")
-    model_handler = NetworkWrapper(no_of_features=30,
-                                   model_identifier='FeedForward')
-    # Add a channel dimension for CNNs
-    # batched_train_words = np.reshape(batched_train_words, np.shape(batched_train_words) + (1,))
-    # batched_test_words = np.reshape(batched_test_words, np.shape(batched_test_words) + (1,))
-
-    # model_handler.save_model_as_file('test-init')
-
-    print("Training network...")
-    model_handler.train_model(datapoints=(batched_train_words, batched_train_cats),
-                              epochs=3)
-
-    return model_handler
+    return full_history, masked_history
 

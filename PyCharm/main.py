@@ -23,6 +23,7 @@ def main():
     for gpu in tf.config.experimental.list_physical_devices('GPU'):
         tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
 
+    (full_network_history, masked_network_history) = experiments.test_creation_of_masked_network(20)
     return
 
 
