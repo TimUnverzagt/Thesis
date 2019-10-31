@@ -53,10 +53,10 @@ class CustomNetworkWrapper:
                                  epochs=epochs)
         return history
 
-    def save_model_as_folder(self, filename):
+    def save_model_as_folder(self, foldername):
         tfk.models.save_model(
             self.model,
-            'SavedModels/' + filename)
+            'SavedModels/' + foldername)
 
         return
 
