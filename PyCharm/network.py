@@ -46,12 +46,12 @@ class CustomNetworkWrapper:
                            loss='binary_crossentropy',
                            metrics=[tfk.metrics.Recall(), tfk.metrics.Precision()])
 
-    def train(self, datapoints):
-        self.model.fit(datapoints[0],
-                       datapoints[1],
-                       batch_size=32,
-                       epochs=3)
-        return
+    def train_model(self, datapoints, epochs):
+        history = self.model.fit(datapoints[0],
+                                 datapoints[1],
+                                 batch_size=32,
+                                 epochs=epochs)
+        return history
 
     def save_model_as_folder(self, filename):
         tfk.models.save_model(
@@ -60,4 +60,17 @@ class CustomNetworkWrapper:
 
         return
 
+    def evaluate_model(self, datapoints):
+        test_loss, test_recall, test_precision = self.model.evaluate(datapoints[0], datapoints[1])
+
+        print("Loss: ", test_loss)
+        print("Recall: ", test_recall)
+        print("Precision: ", test_precision)
+        if not (test_precision + test_recall) == 0:
+            f1_measure = 2 * (test_precision * test_recall) / (test_precision + test_recall)
+        else:
+            f1_measure = 0
+
+        print("F1: ", f1_measure)
+        return
 

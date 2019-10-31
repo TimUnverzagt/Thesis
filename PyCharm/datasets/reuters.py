@@ -204,6 +204,7 @@ def quantify_datapoints(target_no_of_features):
     print("Embedding documents...")
     emb_train_docs = _embed_docs(emb_dictionary, tok_train_docs)
     emb_test_docs = _embed_docs(emb_dictionary, tok_test_docs)
+    print("Batching embedded words and quantified categories...")
     (batched_train_words, batched_train_cats) = _batch_docs(emb_train_docs, target_doc_len=target_no_of_features)
     (batched_test_words, batched_test_cats) = _batch_docs(emb_test_docs, target_doc_len=target_no_of_features)
     datapoints = {'train': (batched_train_words, batched_train_cats),

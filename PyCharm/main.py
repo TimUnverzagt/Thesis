@@ -40,10 +40,11 @@ def main():
                                             model_identifier='GivenModel',
                                             given_model=lottery_ticket)
 
-    lottery_ticket_wrapper.train(train_datapoints)
+    lottery_ticket_wrapper.train_model(datapoints=train_datapoints,
+                                       epochs=3)
 
-    evaluate_model(reuters_model_wrapper.model, test_datapoints)
-    evaluate_model(lottery_ticket_wrapper.model, test_datapoints)
+    reuters_model_wrapper.evaluate_model(test_datapoints)
+    lottery_ticket_wrapper.evaluate_model(test_datapoints)
 
     return
 
@@ -99,24 +100,10 @@ def construct_model_handler_for_reuters():
     # model_handler.save_model_as_file('test-init')
 
     print("Training network...")
-    model_handler.train(datapoints=(batched_train_words, batched_train_cats))
+    model_handler.train_model(datapoints=(batched_train_words, batched_train_cats),
+                              epochs=3)
 
     return model_handler
-
-
-def evaluate_model(model, datapoints):
-    test_loss, test_recall, test_precision = model.evaluate(datapoints[0], datapoints[1])
-
-    print("Loss: ", test_loss)
-    print("Recall: ", test_recall)
-    print("Precision: ", test_precision)
-    if not (test_precision + test_recall) == 0:
-        f1_measure = 2 * (test_precision*test_recall) / (test_precision + test_recall)
-    else:
-        f1_measure = 0
-
-    print("F1: ", f1_measure)
-    return
 
 
 main()
