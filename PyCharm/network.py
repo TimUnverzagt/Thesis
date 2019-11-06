@@ -17,7 +17,7 @@ class CustomNetworkWrapper:
                 print("A critical error is imminent!")
             else:
                 self.model = given_model
-        elif model_identifier == 'FeedForward':
+        elif model_identifier == 'Reuters-FeedForward':
             middle_size = np.round(np.sqrt(no_of_features * 300 * no_of_classes))
             self.model = tfk.Sequential([
                 tfk.layers.Input(shape=(no_of_features, 300)),
@@ -29,7 +29,7 @@ class CustomNetworkWrapper:
                 # no_of_classes = number of categories
                 tfk.layers.Dense(no_of_classes, activation=tf.nn.sigmoid)
             ])
-        elif model_identifier == 'CNN':
+        elif model_identifier == 'Reuters-CNN':
             kernel_width = 3
             no_of_filters = no_of_features - kernel_width
             self.model = tfk.Sequential([
@@ -40,7 +40,9 @@ class CustomNetworkWrapper:
             ])
         else:
             print("CustomNetworkHandler does not handle a model type called: ", model_identifier)
-            print("Please use one of the following names: 'FeedForward', 'CNN', 'GivenModel'")
+            print("Please use one of the following names:")
+            print("'Given-Model'")
+            print("'Reuters-FeedForward', 'Reuters-CNN'")
 
         self.model.compile(optimizer='adam',
                            loss='binary_crossentropy',
