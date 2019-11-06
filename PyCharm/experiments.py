@@ -17,7 +17,7 @@ def test_creation_of_masked_network(epochs):
     """
     print("Developing feedforward network on reuters...")
     reuters_model_wrapper = NetworkWrapper(no_of_features=30,
-                                           model_identifier='FeedForward')
+                                           model_identifier='Reuters-FeedForward')
     initial_model = reuters_model_wrapper.model
 
     print("Quantifying reuters datapoints...")

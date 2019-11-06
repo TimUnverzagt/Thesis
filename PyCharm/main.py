@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 
 # Personal modules
 import experiments
+import datasets.mnist as mnist
+import datasets.reuters as reuters
+
 # tf.debugging.set_log_device_placement(True)
 
 
@@ -18,6 +21,7 @@ def main():
     for gpu in tf.config.experimental.list_physical_devices('GPU'):
         tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
 
+    """
     (full_network_history, masked_network_history) = experiments.test_creation_of_masked_network(20)
     full_network_recall = full_network_history.history['recall']
     masked_network_recall = masked_network_history.history['recall_1']
@@ -29,6 +33,9 @@ def main():
     plt.xlabel('Epoch')
     plt.ylabel('Recall')
     plt.show()
+    """
+    docs = reuters.quantify_datapoints(30)
+    images = mnist.quantify_datapoints()
     return
 
 
