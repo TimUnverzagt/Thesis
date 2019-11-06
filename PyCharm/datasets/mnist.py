@@ -24,5 +24,5 @@ def quantify_datapoints():
     test_datapoints = (test_datapoints[0], quantified_categories)
 
     datapoints = {'train': training_datapoints, 'test': test_datapoints}
-    return
+    return datapoints
 

@@ -22,6 +22,9 @@ def mask_initial_model(trained_model, initial_model, pruning_percentage=50):
             elif model_config['layers'][idx]['config']['activation'] == 'sigmoid':
                 # print("Recognized an sigmoid-activation.")
                 old_activation = tf.nn.sigmoid
+            elif model_config['layers'][idx]['config']['activation'] == 'linear':
+                # print("Recognized an sigmoid-activation.")
+                old_activation = None
             else:
                 # TODO: Throw real exception
                 print("The activation of the given model is not recognized.")

@@ -7,6 +7,41 @@ from tensorflow import keras as tfk
 import masking
 from network import CustomNetworkWrapper as NetworkWrapper
 from datasets import reuters
+from datasets import mnist
+
+
+def test_basic_network_of_the_paper(epochs):
+    print("Developing feedforward network on MNIST...")
+    dense_model_wrapper = NetworkWrapper(model_identifier='MNIST-Lenet-FC')
+    initial_model = dense_model_wrapper.model
+
+    print("Quantifying MNIST datapoints...")
+    data_splits = mnist.quantify_datapoints()
+    train_datapoints = data_splits['train']
+    test_datapoints = data_splits['test']
+
+    print("Training full network...")
+    full_history = dense_model_wrapper.train_model(datapoints=train_datapoints,
+                                                   epochs=epochs,
+                                                   batch_size=60)
+
+    print("Developing a masked network with the initial weights...")
+    masked_model = masking.mask_initial_model(trained_model=dense_model_wrapper.model,
+                                              initial_model=initial_model,
+                                              pruning_percentage=20)
+    lottery_ticket_wrapper = NetworkWrapper(model_identifier='GivenModel',
+                                            given_model=masked_model)
+
+    print("Training masked network...")
+    masked_history = lottery_ticket_wrapper.train_model(datapoints=train_datapoints,
+                                                        epochs=epochs,
+                                                        batch_size=60)
+
+    print("Quickly evaluating both networks...")
+    dense_model_wrapper.evaluate_model(test_datapoints)
+    lottery_ticket_wrapper.evaluate_model(test_datapoints)
+
+    return full_history, masked_history
 
 
 def test_creation_of_masked_network(epochs):

@@ -26,16 +26,23 @@ def main():
     full_network_recall = full_network_history.history['recall']
     masked_network_recall = masked_network_history.history['recall_1']
     epoch_count = range(1, len(full_network_recall) + 1)
+    """
 
+    (full_network_history, masked_network_history) = experiments.test_basic_network_of_the_paper(epochs=10)
+
+    """
     plt.plot(epoch_count, full_network_recall, 'r--')
-    plt.plot(epoch_count, masked_network_recall, 'b-')
+    plt.plot(epoch_count, masked_network_acc, 'b-')
     plt.legend(['Original Recall', 'Recall after Masking'])
     plt.xlabel('Epoch')
-    plt.ylabel('Recall')
+    plt.ylabel('Accuracy')
     plt.show()
+    """
+
     """
     docs = reuters.quantify_datapoints(30)
     images = mnist.quantify_datapoints()
+    """
     return
 
 
