@@ -84,6 +84,8 @@ class CustomNetworkWrapper:
         self.model.compile(optimizer=optimizer,
                            loss=loss,
                            metrics=metrics)
+        self.model.summary()
+        print(self.model.get_config())
 
     def train_model(self, datapoints, epochs, batch_size=32):
         history = self.model.fit(datapoints[0],

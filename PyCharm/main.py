@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 
 # Personal modules
 import experiments
-import datasets.mnist as mnist
-import datasets.reuters as reuters
+import visualization
 
 # tf.debugging.set_log_device_placement(True)
 
@@ -29,7 +28,12 @@ def main():
     """
 
     # (full_network_history, masked_network_history) = experiments.test_basic_network_of_the_paper(epochs=20)
-    (full_network_history, masked_network_history) = experiments.test_creation_of_masked_network(epochs=20)
+    (full_network_history, masked_network_history) = experiments.test_creation_of_masked_network(epochs=3)
+
+    visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
+                                                         masked_network_history, 'Masked Network',
+                                                         'loss')
+
 
 
     """
