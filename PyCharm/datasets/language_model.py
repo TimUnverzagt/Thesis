@@ -8,18 +8,18 @@ import numpy as np
 
 # TODO: The custom embedding should be saved together in the same folder as the pre-trained embeddings
 
-def save_dictionary(emb_dict, filename='default'):
+def save_dictionary(emb_dict, name='default'):
     # TODO: Check for collision by name
-    if filename == 'default':
+    if name == 'default':
         print('Saving a word embedding without a chosen name causes a fallback to the default name.')
-    outfile = open(filename + '_dictionary.p', 'wb')
+    outfile = open('PersonalEmbeddings/' + name + '_dictionary.p', 'wb')
     pickle.dump(emb_dict, outfile)
     outfile.close()
     return
 
 
-def load_dictionary():
-    infile = open('dictionary.p', 'rb')
+def load_dictionary(name):
+    infile = open('PersonalEmbeddings/' + name + '_dictionary.p', 'rb')
     emb_dict = pickle.load(infile)
     infile.close()
     return emb_dict

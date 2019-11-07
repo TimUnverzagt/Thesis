@@ -190,15 +190,15 @@ def _batch_docs(emb_docs, target_doc_len):
 def quantify_datapoints(target_no_of_features):
     [tok_train_docs, tok_test_docs] = _load_reuters_docs()
 
-    if Path("dictionary.p").exists():
+    if Path("PersonalEmbeddings/reuters_dictionary.p").exists():
         print("Loading previous language model...")
-        emb_dictionary = lm.load_dictionary()
+        emb_dictionary = lm.load_dictionary('reuters')
     else:
         print("No previous model found!")
         print("Beginning to construct new model with GoogleNews-Vectors as base...")
         emb_dictionary = lm.extend_dictionary(tok_train_docs + tok_test_docs,
                                               lm.load_google_dictionary())
-        lm.save_dictionary(emb_dictionary)
+        lm.save_dictionary(emb_dictionary, 'reuters')
 
     # Embed the docs before you you feed them to the network
     print("Embedding documents...")

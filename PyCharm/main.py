@@ -28,7 +28,9 @@ def main():
     epoch_count = range(1, len(full_network_recall) + 1)
     """
 
-    (full_network_history, masked_network_history) = experiments.test_basic_network_of_the_paper(epochs=10)
+    # (full_network_history, masked_network_history) = experiments.test_basic_network_of_the_paper(epochs=20)
+    (full_network_history, masked_network_history) = experiments.test_creation_of_masked_network(epochs=20)
+
 
     """
     plt.plot(epoch_count, full_network_recall, 'r--')
