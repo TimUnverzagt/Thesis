@@ -13,7 +13,8 @@ class CustomNetworkWrapper:
         # Base initialization
         optimizer = 'adam'
         loss = 'binary_crossentropy',
-        metrics = [tfk.metrics.Recall(), tfk.metrics.Precision()]
+        # TODO: This breaks the self.model.evaluate function atm. Fix it!
+        metrics = [tfk.metrics.Accuracy(), tfk.metrics.Recall(), tfk.metrics.Precision()]
 
         if model_identifier == 'GivenModel':
             if given_model is None:
@@ -65,15 +66,17 @@ class CustomNetworkWrapper:
                 tfk.layers.Flatten(input_shape=(28, 28)),
                 # Implicit Activation is linear
                 # TODO: Find out whether the lottery ticket paper uses a more sophisticated activation or not
-                tfk.layers.Dense(units=300),
-                tfk.layers.Dense(units=100),
+                tfk.layers.Dense(units=300,
+                                 activation='relu'),
+                tfk.layers.Dense(units=100,
+                                 activation='relu'),
                 tfk.layers.Dense(units=10,
                                  activation=tf.nn.sigmoid)
             ])
             optimizer = tfk.optimizers.Adam(learning_rate=1.2*1e-03)
-            loss = tfk.losses.mean_squared_error
+            # loss = tfk.losses.mean_squared_error
             # Not supported by self.evaluate_model()  yet
-            # metrics = [tfk.metrics.Accuracy(), tfk.metrics.Recall(), tfk.metrics.Precision()]
+            metrics = [tfk.metrics.Accuracy(), tfk.metrics.Recall(), tfk.metrics.Precision()]
 
         else:
             print("CustomNetworkHandler does not handle a model type called: ", model_identifier)

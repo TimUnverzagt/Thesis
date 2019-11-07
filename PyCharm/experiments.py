@@ -36,11 +36,6 @@ def test_basic_network_of_the_paper(epochs):
     masked_history = lottery_ticket_wrapper.train_model(datapoints=train_datapoints,
                                                         epochs=epochs,
                                                         batch_size=60)
-
-    print("Quickly evaluating both networks...")
-    dense_model_wrapper.evaluate_model(test_datapoints)
-    lottery_ticket_wrapper.evaluate_model(test_datapoints)
-
     return full_history, masked_history
 
 
