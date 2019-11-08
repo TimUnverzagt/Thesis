@@ -90,11 +90,12 @@ class CustomNetworkWrapper:
         self.model.summary()
         print(self.model.get_config())
 
-    def train_model(self, datapoints, epochs, batch_size=32):
+    def train_model(self, datapoints, epochs, batch_size=32, verbosity=1):
         history = self.model.fit(datapoints[0],
                                  datapoints[1],
                                  batch_size=batch_size,
-                                 epochs=epochs)
+                                 epochs=epochs,
+                                 verbose=verbosity)
         return history
 
     def save_model_as_folder(self, foldername):
@@ -105,6 +106,7 @@ class CustomNetworkWrapper:
         return
 
     def evaluate_model(self, datapoints):
+        # TODO: extend
         test_loss, test_recall, test_precision = self.model.evaluate(datapoints[0], datapoints[1])
 
         print("Loss: ", test_loss)

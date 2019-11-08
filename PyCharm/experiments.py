@@ -28,14 +28,16 @@ def test_basic_network_of_the_paper(epochs):
     print("Developing a masked network with the initial weights...")
     masked_model = masking.mask_initial_model(trained_model=dense_model_wrapper.model,
                                               initial_model=initial_model,
-                                              pruning_percentage=20)
+                                              pruning_percentage=20,
+                                              verbosity=2)
     lottery_ticket_wrapper = NetworkWrapper(model_identifier='GivenModel',
                                             given_model=masked_model)
 
     print("Training masked network...")
     masked_history = lottery_ticket_wrapper.train_model(datapoints=train_datapoints,
                                                         epochs=epochs,
-                                                        batch_size=60)
+                                                        batch_size=60,
+                                                        verbosity=2)
     return full_history, masked_history
 
 
