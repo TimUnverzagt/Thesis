@@ -1,78 +1,36 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 # General modules
-import numpy as np
-from tensorflow import keras as tfk
-from tensorflow.python.keras.saving.saved_model import load as tfk_load
-from pathlib import Path
+import tensorflow as tf
+import matplotlib.pyplot as plt
 
 # Personal modules
-import preprocessing as prep
-import custom_io as io
-import masking
-from network import CustomNetworkHandler as Network
-from custom_layers import MaskedDense
+import storage
+import experiments
+import visualization
+
 # tf.debugging.set_log_device_placement(True)
 
 
 def main():
-    # train_a_network()
+    # For debugging
+    # tf.config.experimental_run_functions_eagerly(True)
 
-    trained_model = tfk.models.load_model('SavedModels/test-trained')
-    masks = masking.create_masks(trained_model)
+    # Hack to prevent a specific error with cudNN
+    # https://github.com/tensorflow/tensorflow/issues/24828
+    for gpu in tf.config.experimental.list_physical_devices('GPU'):
+        tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
 
-    init_model = tfk.models.load_model('SavedModels/test-init')
-    model_config = init_model.get_config()
-    masked_model = tfk.Sequential()
-    for idx, layer in enumerate(init_model.layers):
-        print(model_config['layers'][idx]['class_name'])
-    return
+    (full_network_history, masked_network_history) = experiments.test_basic_network_of_the_paper(epochs=50000)
+    # (full_network_history, masked_network_history) = experiments.test_creation_of_masked_network(epochs=3)
 
+    storage.save_experimental_history(full_network_history.history, name='full_network_training_test')
+    storage.save_experimental_history(masked_network_history.history, name='masked_network_training_test')
 
-def train_a_network():
-    # tokenized_docs are tupels (word_tokenizing, sentence_tokenizing)
-    [tok_train_docs, tok_test_docs] = io.load_corpus_docs()
+    visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
+                                                         masked_network_history, 'Masked Network',
+                                                         'loss')
 
-    if Path("dictionary.p").exists():
-        print("Loading previous language model...")
-        emb_dict = io.load_embedding()
-    else:
-        print("No previous model found!")
-        print("Beginning to construct new model with GoogleNews-Vectors as base...")
-        emb_dict = prep.prepare_embedding(tok_train_docs + tok_test_docs)
-        io.save_embedding(emb_dict)
-
-    # Embed the docs before you you feed them to the network
-    print("Embedding documents...")
-    emb_train_docs = prep.embed_docs(emb_dict, tok_train_docs)
-    emb_test_docs = prep.embed_docs(emb_dict, tok_test_docs)
-    (batched_train_words, batched_train_cats) = prep.batch_docs(emb_train_docs, target_doc_len=30)
-    (batched_test_words, batched_test_cats) = prep.batch_docs(emb_test_docs, target_doc_len=30)
-
-    print("Developing network...")
-    model = Network(target_doc_len=30, model_name='sandbox')
-    # Add a channel dimension for CNNs
-    # batched_train_words = np.reshape(batched_train_words, np.shape(batched_train_words) + (1,))
-    # batched_test_words = np.reshape(batched_test_words, np.shape(batched_test_words) + (1,))
-
-    model.save_model_as_file('test-init')
-
-    print("Training network...")
-    model.train(input_array=batched_train_words,
-                label_array=batched_train_cats)
-    test_loss, test_recall, test_precision = model.model.evaluate(batched_test_words, batched_test_cats)
-
-    print("Loss: ", test_loss)
-    print("Recall: ", test_recall)
-    print("Precision: ", test_precision)
-    if not (test_precision + test_recall) == 0:
-        f1_measure = 2 * (test_precision*test_recall) / (test_precision + test_recall)
-    else:
-        f1_measure = 0
-
-    print("F1: ", f1_measure)
-
-    model.save_model_as_file('test-trained')
     return
 
 

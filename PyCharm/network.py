@@ -6,58 +6,117 @@ import tensorflow as tf
 import tensorflow.keras as tfk
 
 
-class CustomNetworkHandler:
+class CustomNetworkWrapper:
 
-    def __init__(self, target_doc_len, no_of_classes=90, model_name='sandbox'):
+    def __init__(self, no_of_features=0, no_of_classes=90, model_identifier='FeedForward', given_model=None):
 
-        # Hack to prevent a specific error with cudNN
-        # https://github.com/tensorflow/tensorflow/issues/24828
-        for gpu in tf.config.experimental.list_physical_devices('GPU'):
-            tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
+        # Base initialization
+        optimizer = 'adam'
+        loss = 'binary_crossentropy',
+        # TODO: This breaks the self.model.evaluate function atm. Fix it!
+        metrics = [tfk.metrics.Accuracy(), tfk.metrics.Recall(), tfk.metrics.Precision()]
 
-        if model_name == 'sandbox':
-            middle_size = np.round(np.sqrt(target_doc_len * 300 * no_of_classes))
+        if model_identifier == 'GivenModel':
+            if given_model is None:
+                # TODO: Throw real exception
+                print("The CustomNetworkWrapper was instructed to initialize with a given model but none was provided.")
+                print("A critical error is imminent!")
+            else:
+                self.model = given_model
+
+        elif model_identifier == 'Reuters-FeedForward':
+            if no_of_features <= 0:
+                print("The CustomNetworkWrapper expects a positive number of features for the reuters dataset.")
+                print("A critical error is imminent!")
+            middle_size = np.round(np.sqrt(no_of_features * 300 * no_of_classes))
             self.model = tfk.Sequential([
-                tfk.layers.Input(shape=(target_doc_len, 300)),
-                tfk.layers.Flatten(input_shape=(target_doc_len, 300)),
+                tfk.layers.Input(shape=(no_of_features, 300)),
+                tfk.layers.Flatten(input_shape=(no_of_features, 300)),
                 # 300 = dimensionality of embedding
-                tfk.layers.Dense(300 * target_doc_len, activation=tf.nn.relu),
+                tfk.layers.Dense(300 * no_of_features,
+                                 activation=tf.nn.relu),
                 # middle layer is chosen so the downscaling factor is constant
-                tfk.layers.Dense(middle_size, activation=tf.nn.relu),
+                tfk.layers.Dense(middle_size,
+                                 activation=tf.nn.relu),
                 # no_of_classes = number of categories
-                tfk.layers.Dense(no_of_classes, activation=tf.nn.sigmoid)
+                tfk.layers.Dense(no_of_classes,
+                                 activation=tf.nn.sigmoid)
             ])
-        elif model_name == 'CNN':
+
+        elif model_identifier == 'Reuters-CNN':
+            if no_of_features <= 0:
+                print("The CustomNetworkWrapper expects a positive number of features for the reuters dataset.")
+                print("A critical error is imminent!")
             kernel_width = 3
-            no_of_filters = target_doc_len - kernel_width
+            no_of_filters = no_of_features - kernel_width
             self.model = tfk.Sequential([
-                tfk.layers.Conv2D(filters=1, kernel_size=(kernel_width, 300),
-                                  activation='relu', input_shape=(target_doc_len, 300, 1)),
+                tfk.layers.Conv2D(filters=1,
+                                  kernel_size=(kernel_width, 300),
+                                  activation='relu',
+                                  input_shape=(no_of_features, 300, 1)),
                 tfk.layers.Flatten(input_shape=(no_of_filters, 1, 1)),
-                tfk.layers.Dense(units=no_of_classes, input_shape=(no_of_filters,), activation=tf.nn.sigmoid)
+                tfk.layers.Dense(units=no_of_classes,
+                                 input_shape=(no_of_filters,),
+                                 activation=tf.nn.sigmoid)
             ])
+
+        elif model_identifier == 'MNIST-Lenet-FC':
+            self.model = tfk.Sequential([
+                tfk.layers.Input(shape=(28, 28)),
+                tfk.layers.Flatten(input_shape=(28, 28)),
+                # Implicit Activation is linear
+                # TODO: Find out whether the lottery ticket paper uses a more sophisticated activation or not
+                tfk.layers.Dense(units=300,
+                                 activation='relu'),
+                tfk.layers.Dense(units=100,
+                                 activation='relu'),
+                tfk.layers.Dense(units=10,
+                                 activation=tf.nn.sigmoid)
+            ])
+            optimizer = tfk.optimizers.Adam(learning_rate=1.2*1e-03)
+            # loss = tfk.losses.mean_squared_error
+            # Not supported by self.evaluate_model()  yet
+            metrics = [tfk.metrics.Accuracy(), tfk.metrics.Recall(), tfk.metrics.Precision()]
+
         else:
-            print("CustomNetworkHandler does not handle a model type called: ", model_name)
-            print("Please one of the following names: 'sandbox, 'CNN'")
+            print("CustomNetworkHandler does not handle a model type called: ", model_identifier)
+            print("Please use one of the following names:")
+            print("'Given-Model'")
+            print("'Reuters-FeedForward', 'Reuters-CNN'")
 
+        self.model.compile(optimizer=optimizer,
+                           loss=loss,
+                           metrics=metrics)
         self.model.summary()
+        print(self.model.get_config())
 
-        self.model.compile(optimizer='adam',
-                           loss='binary_crossentropy',
-                           metrics=[tfk.metrics.Recall(), tfk.metrics.Precision()])
+    def train_model(self, datapoints, epochs, batch_size=32, verbosity=1):
+        history = self.model.fit(datapoints[0],
+                                 datapoints[1],
+                                 batch_size=batch_size,
+                                 epochs=epochs,
+                                 verbose=verbosity)
+        return history
 
-    def train(self, input_array, label_array):
-        self.model.fit(input_array,
-                       label_array,
-                       batch_size=32,
-                       epochs=20)
-        return
-
-    def save_model_as_file(self, filename):
+    def save_model_as_folder(self, foldername):
         tfk.models.save_model(
             self.model,
-            'SavedModels/' + filename)
+            'SavedModels/' + foldername)
 
         return
 
+    def evaluate_model(self, datapoints):
+        # TODO: extend
+        test_loss, test_recall, test_precision = self.model.evaluate(datapoints[0], datapoints[1])
+
+        print("Loss: ", test_loss)
+        print("Recall: ", test_recall)
+        print("Precision: ", test_precision)
+        if not (test_precision + test_recall) == 0:
+            f1_measure = 2 * (test_precision * test_recall) / (test_precision + test_recall)
+        else:
+            f1_measure = 0
+
+        print("F1: ", f1_measure)
+        return
 
