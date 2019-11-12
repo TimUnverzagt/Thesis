@@ -24,8 +24,8 @@ def main():
     (full_network_history, masked_network_history) = experiments.test_basic_network_of_the_paper(epochs=50000)
     # (full_network_history, masked_network_history) = experiments.test_creation_of_masked_network(epochs=3)
 
-    storage.save_experimental_history(full_network_history.history, name='full_network_training_test')
-    storage.save_experimental_history(masked_network_history.history, name='masked_network_training_test')
+    storage.save_experimental_history(full_network_history.history, name='full_network_training_MSE')
+    storage.save_experimental_history(masked_network_history.history, name='masked_network_training_MSE')
 
     visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
                                                          masked_network_history, 'Masked Network',
