@@ -21,10 +21,11 @@ def test_basic_network_of_the_paper(epochs):
     test_datapoints = data_splits['test']
 
     print("Training full network...")
-    full_history = dense_model_wrapper.train_model(datapoints=train_datapoints,
-                                                   epochs=epochs,
-                                                   batch_size=60,
-                                                   verbosity=2)
+    full_history = dense_model_wrapper.train_model_with_validation(datapoints=train_datapoints,
+                                                                   validation_datapoints=test_datapoints,
+                                                                   epochs=epochs,
+                                                                   batch_size=60,
+                                                                   verbosity=2)
 
     print("Developing a masked network with the initial weights...")
     masked_model = masking.mask_initial_model(trained_model=dense_model_wrapper.model,
@@ -34,10 +35,11 @@ def test_basic_network_of_the_paper(epochs):
                                             given_model=masked_model)
 
     print("Training masked network...")
-    masked_history = lottery_ticket_wrapper.train_model(datapoints=train_datapoints,
-                                                        epochs=epochs,
-                                                        batch_size=60,
-                                                        verbosity=2)
+    masked_history = lottery_ticket_wrapper.train_model_with_validation(datapoints=train_datapoints,
+                                                                        validation_datapoints=test_datapoints,
+                                                                        epochs=epochs,
+                                                                        batch_size=60,
+                                                                        verbosity=2)
     return full_history, masked_history
 
 

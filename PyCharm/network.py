@@ -98,6 +98,16 @@ class CustomNetworkWrapper:
                                  verbose=verbosity)
         return history
 
+    def train_model_with_validation(self, datapoints, validation_datapoints,
+                                    epochs, batch_size=32, verbosity=1):
+        history = self.model.fit(datapoints[0],
+                                 datapoints[1],
+                                 batch_size=batch_size,
+                                 epochs=epochs,
+                                 verbose=verbosity,
+                                 validation_data=validation_datapoints)
+        return history
+
     def save_model_as_folder(self, foldername):
         tfk.models.save_model(
             self.model,
