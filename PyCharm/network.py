@@ -74,7 +74,7 @@ class CustomNetworkWrapper:
                                  activation=tf.nn.sigmoid)
             ])
             optimizer = tfk.optimizers.Adam(learning_rate=1.2*1e-03)
-            loss = tfk.losses.mean_squared_error
+            # loss = tfk.losses.mean_squared_error
             # Not supported by self.evaluate_model()  yet
             metrics = [tfk.metrics.Accuracy(), tfk.metrics.Recall(), tfk.metrics.Precision()]
 
