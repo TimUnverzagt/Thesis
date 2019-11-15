@@ -13,9 +13,12 @@ def save_experimental_history(history, name='experiment'):
     return
 
 
-def load_experimental_history(name):
+def load_experimental_history(name, folder=None):
     # TODO: Check whether the file could be confused due to an earlier name collision
-    infile = open('Histories' + name + '_history.p', 'rb')
+    if folder is None:
+        infile = open('Histories/' + name + '_history.p', 'rb')
+    else:
+        infile = open('Histories/' + folder + '/' + name + '_history.p', 'rb')
     emb_dict = pickle.load(infile)
     infile.close()
     return emb_dict
