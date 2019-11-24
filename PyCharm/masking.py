@@ -7,38 +7,45 @@ import tensorflow.keras as tfk
 from custom_layers import MaskedDense
 
 
-def mask_initial_model(trained_model, initial_model, pruning_percentage=50):
+def mask_initial_model(trained_model, initial_weights, initial_biases, model_config, pruning_percentage):
     masks = _create_masks(trained_model, pruning_percentage)
-    # initial_model.summary()
-    model_config = initial_model.get_config()
 
     masked_model = tfk.Sequential()
-    for idx, layer in enumerate(initial_model.layers):
-        if model_config['layers'][idx]['class_name'] == 'Dense':
+    weight_idx = 0
+    for layer in iter(model_config['layers']):
+        if layer['class_name'] == 'Flatten':
+            replacement_layer = tfk.layers.Flatten(batch_input_shape=layer['config']['batch_input_shape'])
+            masked_model.add(replacement_layer)
+
+        elif layer['class_name'] == 'Dense':
             print("Replacing Dense-layer of the model with a custom MaskedDense-layer")
-            if model_config['layers'][idx]['config']['activation'] == 'relu':
+            if layer['config']['activation'] == 'relu':
                 # print("Recognized an relu-activation.")
                 old_activation = tf.nn.relu
-            elif model_config['layers'][idx]['config']['activation'] == 'sigmoid':
+            elif layer['config']['activation'] == 'sigmoid':
                 # print("Recognized an sigmoid-activation.")
                 old_activation = tf.nn.sigmoid
-            elif model_config['layers'][idx]['config']['activation'] == 'linear':
-                # print("Recognized an sigmoid-activation.")
+            elif layer['config']['activation'] == 'softmax':
+                # print("Recognized an softmax-activation.")
+                old_activation = tf.nn.softmax
+            elif layer['config']['activation'] == 'linear':
+                # print("Recognized an linear activation.")
                 old_activation = None
             else:
                 # TODO: Throw real exception
                 print("The activation of the given model is not recognized.")
                 print("No activation was chosen. This will likely result in a critical error!")
 
-            replacement_layer = MaskedDense(units=layer.output_shape[1],
+            replacement_layer = MaskedDense(units=layer['config']['units'],
                                             activation=old_activation,
-                                            kernel=layer.kernel,
-                                            mask=masks[idx],
-                                            bias=layer.bias
+                                            initialization_weights=initial_weights[weight_idx],
+                                            mask=masks[weight_idx],
+                                            initialization_bias=initial_biases[weight_idx]
                                             )
             masked_model.add(replacement_layer)
+            weight_idx += 1
         else:
-            masked_model.add(layer)
+            print("Layer not recognized. Fatal Error imminent!")
 
     masked_model.build()
     # masked_model.summary()
@@ -55,18 +62,22 @@ def _create_masks(trained_model, pruning_percentage):
             else:
                 flattened_weights = tf.concat(flattened_weights, tf.reshape(layer.weights[0], [-1]))
 
-    quantile = np.percentile(np.abs(flattened_weights.numpy()), pruning_percentage)
+    if pruning_percentage == 0:
+        quantile = 0
+    else:
+        quantile = np.percentile(np.abs(flattened_weights.numpy()), pruning_percentage)
     print("Weight of the threshold for masking: ", np.round(quantile, 4))
 
     # List of tuples containing the idx and mask for each layer with trainable weights
-    masks = {}
-    for idx, layer in enumerate(trained_model.layers):
+    masks = []
+    for layer in iter(trained_model.layers):
         if layer.weights:
             # Only mask the weight-kernel (weights[0]) not the biases (weights[1])
             mask = _magnitude_threshold_mask(layer.weights[0], quantile)
-            masks[idx] = mask
+            masks.append(mask)
     return masks
 
 
 def _magnitude_threshold_mask(values, threshold):
-    return tf.cast(tf.map_fn(lambda x: x >= threshold, values, bool), tf.int32)
+    # Does this work as intended with numeric errors?
+    return tf.cast(tf.map_fn(lambda x: abs(x) >= threshold, values, bool), tf.int32)

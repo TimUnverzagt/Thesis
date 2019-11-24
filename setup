@@ -39,8 +39,8 @@ eval "$(conda shell.bash hook)"
 conda deactivate
 ---
 
-$ conda create --name newenv python=3.6 cudnn cupti cudatoolkit=10.0
-$ conda activte newenv
+$ conda create --name thesis python=3.6 cudnn cupti cudatoolkit=10.0
+$ conda activate thesis
 $ conda install -c conda-forge nltk
 $ conda install -c conda-forge gensim
 $ conda install -c conda-forge matplotlib
@@ -61,7 +61,7 @@ nltk.download('punkt')
 
 	
 ---4. IDE--- 
-i use pycharm-community to code an execute
+I use pycharm-community to code an execute
 
 ---
 find the python executable your environment uses and link it to your IDE

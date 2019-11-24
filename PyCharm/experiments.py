@@ -1,4 +1,5 @@
 # General modules
+import copy
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras as tfk
@@ -13,7 +14,18 @@ from datasets import mnist
 def test_basic_network_of_the_paper(epochs):
     print("Developing feedforward network on MNIST...")
     dense_model_wrapper = NetworkWrapper(model_identifier='MNIST-Lenet-FC')
-    initial_model = dense_model_wrapper.model
+    # Read out the config for creation of the masked model
+    model_config = dense_model_wrapper.model.get_config()
+    # Copy original weights by value
+    initial_weights = []
+    initial_biases = []
+    for i in range(len(dense_model_wrapper.model.weights)):
+        if (i % 2) == 0:
+            initial_weights.append(tf.identity(dense_model_wrapper.model.weights[i]))
+        elif (i % 2) == 1:
+            initial_biases.append(tf.identity(dense_model_wrapper.model.weights[i]))
+        else:
+            print("Separation weights and biases failed!")
 
     print("Quantifying MNIST datapoints...")
     data_splits = mnist.quantify_datapoints()
@@ -29,7 +41,9 @@ def test_basic_network_of_the_paper(epochs):
 
     print("Developing a masked network with the initial weights...")
     masked_model = masking.mask_initial_model(trained_model=dense_model_wrapper.model,
-                                              initial_model=initial_model,
+                                              initial_weights=initial_weights,
+                                              initial_biases=initial_biases,
+                                              model_config=model_config,
                                               pruning_percentage=20)
     lottery_ticket_wrapper = NetworkWrapper(model_identifier='GivenModel',
                                             given_model=masked_model)

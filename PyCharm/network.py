@@ -12,7 +12,7 @@ class CustomNetworkWrapper:
 
         # Base initialization
         optimizer = 'adam'
-        loss = 'binary_crossentropy',
+        loss = 'categorical_crossentropy',
         # TODO: This breaks the self.model.evaluate function atm. Fix it!
         metrics = [tfk.metrics.Accuracy(), tfk.metrics.Recall(), tfk.metrics.Precision()]
 
@@ -71,7 +71,7 @@ class CustomNetworkWrapper:
                 tfk.layers.Dense(units=100,
                                  activation='relu'),
                 tfk.layers.Dense(units=10,
-                                 activation=tf.nn.sigmoid)
+                                 activation=tf.nn.softmax)
             ])
             optimizer = tfk.optimizers.Adam(learning_rate=1.2*1e-03)
             # loss = tfk.losses.mean_squared_error
