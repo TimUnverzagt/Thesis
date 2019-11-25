@@ -18,7 +18,6 @@ class CustomNetworkWrapper:
 
         if model_identifier == 'GivenModel':
             if given_model is None:
-                # TODO: Throw real exception
                 print("The CustomNetworkWrapper was instructed to initialize with a given model but none was provided.")
                 print("A critical error is imminent!")
             else:
@@ -40,7 +39,7 @@ class CustomNetworkWrapper:
                                  activation=tf.nn.relu),
                 # no_of_classes = number of categories
                 tfk.layers.Dense(no_of_classes,
-                                 activation=tf.nn.sigmoid)
+                                 activation=tf.nn.softmax)
             ])
 
         elif model_identifier == 'Reuters-CNN':
@@ -57,7 +56,7 @@ class CustomNetworkWrapper:
                 tfk.layers.Flatten(input_shape=(no_of_filters, 1, 1)),
                 tfk.layers.Dense(units=no_of_classes,
                                  input_shape=(no_of_filters,),
-                                 activation=tf.nn.sigmoid)
+                                 activation=tf.nn.softmax)
             ])
 
         elif model_identifier == 'MNIST-Lenet-FC':
