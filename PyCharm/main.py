@@ -21,17 +21,17 @@ def main():
     for gpu in tf.config.experimental.list_physical_devices('GPU'):
         tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
 
-    (full_network_history_wrapper, masked_network_history_wrapper) = experiments.test_basic_network_of_the_paper(epochs=5000)
+    (full_network_history, masked_network_history) = experiments.test_basic_network_of_the_paper(epochs=5)
 
-    storage.save_experimental_history(full_network_history_wrapper.history, name='full_training_with_validation_20')
-    storage.save_experimental_history(masked_network_history_wrapper.history, name='masked_training_with_validation_20')
+    storage.save_experimental_history(full_network_history, name='full_training_with_validation_20')
+    storage.save_experimental_history(masked_network_history, name='masked_training_with_validation_20')
 
     # folderpath = 'Lenet-FCN-CCE/test'
-    # full_network_history_wrapper = storage.load_experimental_history('full_training_with_validation_20', folder=folderpath)
-    # masked_network_history_wrapper = storage.load_experimental_history('masked_training_with_validation_20', folder=folderpath)
+    # full_network_history = storage.load_experimental_history('full_training_with_validation_20', folder=folderpath)
+    # masked_network_history = storage.load_experimental_history('masked_training_with_validation_20', folder=folderpath)
 
-    visualization.plot_measure_comparision_over_training(full_network_history_wrapper.history, 'Full Network',
-                                                         masked_network_history_wrapper.history, 'Masked Network',
+    visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
+                                                         masked_network_history, 'Masked Network',
                                                          'accuracy', 'accuracy')
 
     return

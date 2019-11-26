@@ -44,6 +44,7 @@ $ conda activate thesis
 $ conda install -c conda-forge nltk
 $ conda install -c conda-forge gensim
 $ conda install -c conda-forge matplotlib
+$ conda install -c anaconda scikit-learn 
 
 
 ---2.2 PIP---

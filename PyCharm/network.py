@@ -87,7 +87,7 @@ class CustomNetworkWrapper:
                            loss=loss,
                            metrics=metrics)
         self.model.summary()
-        print(self.model.get_config())
+        # print(self.model.get_config())
 
     def train_model(self, datapoints, epochs, batch_size=32, verbosity=1):
         history = self.model.fit(datapoints[0],
@@ -95,7 +95,7 @@ class CustomNetworkWrapper:
                                  batch_size=batch_size,
                                  epochs=epochs,
                                  verbose=verbosity)
-        return history
+        return history.history
 
     def train_model_with_validation(self, datapoints, validation_datapoints,
                                     epochs, batch_size=32, verbosity=1):
@@ -105,7 +105,21 @@ class CustomNetworkWrapper:
                                  epochs=epochs,
                                  verbose=verbosity,
                                  validation_data=validation_datapoints)
-        return history
+        return history.history
+
+    def train_model_with_validation_and_prediction_history(self, datapoints, validation_datapoints,
+                                            epochs, batch_size=32, verbosity=2):
+        predictions_over_epochs = []
+        for i in range(epochs):
+            self.model.fit(datapoints[0],
+                           datapoints[1],
+                           batch_size=batch_size,
+                           epochs=1,
+                           verbose=verbosity)
+            epoch_predictions = self.model.predict(validation_datapoints)
+            predictions_over_epochs
+
+        return
 
     def save_model_as_folder(self, foldername):
         tfk.models.save_model(
