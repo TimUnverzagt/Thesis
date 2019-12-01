@@ -1,0 +1,121 @@
+%*****************************************
+\chapter{Background}
+\label{ch:background}
+%*****************************************
+\hint{This chapter should give a comprehensive overview on the background necessary to understand the thesis.
+The chapter should have a length of about five pages!}
+
+
+\section{Basics of Neural Networks\ \ \  \(WIP\)}
+Neural networks are a part of most major AI-breakthrough in the last decade enabling computers to compete in fields formerly championed by humans.\footnote{
+	\begin{itemize}
+		\item 
+			2011: "Watson" of IBM defeats two former grand champions in "Jeopardy!" \cite{lally2011natural}
+		\item 
+			2011: "Siri" enables users to use natural language to interact with their phones 
+			\cite{ARON201124}
+		\item 
+			2015: A convolutional neural network classifies images from the ImageNet dataset more accurately than human experts 
+			\cite{Russakovsky2015} \cite{He_2015_ICCV}
+		\item 
+			2016: "AlphaGo" beats Lee Sedol, one of the world's strongest Go players
+			\cite{gibney2016google} \cite{silver2017mastering}
+	\end{itemize}
+}
+They implement a statistical understanding of AI, which is to say that they try to find a specific model optimizing the likelihood of reproducing input-output pairs similar to some training data. The competing philosophy directly divines behaviour rules, frequently from expert knowledge, and as such is far less dependant from data.  
+\textcolor{red}{[citation needed]}\\
+For the former concept its model classes are the essential point of design. A multitude of properties maybe sought after in a model class of which a few important ones are:
+\begin{itemize}
+	\item \textbf{Richness:}\\
+	The diversity of single models in the class and thus the ability to fit a wide field of different input-output landscapes.\footnote{
+		More formally the richness of a model class can be described as the amount of different functions from the input-space to the output-space which can be expressed through a model of said class.}\\
+	If a model class is inherently restricted the underlying relation between inputs and outputs might simply be beyond the expressive capabilities of all its models.\\
+	In other words: If a model class is not rich enough all of its models will underfit the given training data.
+	\item \textbf{Stability:}\\ 
+	Tendency of similar models in the class to handle inputs in a similar way.\\
+	If your model class shows unstable behavior defining a sensible way to search it for good models becomes difficult.
+	\item \textbf{Interpretability of Models:}\\
+	 Ease of formulating knowledge out of any given model in the class.\\
+	 As fields exist in which statistical AI outperform experts the extraction of knowledge understandable and applicable by humans is of special interest.
+	\item \textcolor{red}
+	{[citation needed]}
+\end{itemize}
+If one knows an entity that already performs well on a given task it is a sensible approach to design ones model class to reproduce its decision process. Humans usually are such entities for many tasks of interest to AI research so they are a natural source of inspiration. Neural networks essentially are simplified models of a human central nervous system. \\
+The most basic building block of the human central nervous system is a neuron which can receive multiple stimuli and is able to produce an output if the combined stimulation exceeds a threshold.\textcolor{red}{[citation needed]} One such neuron and its stimulus measure are depicted in \ref{fig:neuron1}. Another functionality observed in nature is the ability of a neuron to strengthen the connection to any source of stimulus thus giving said source more influence on whether the neuron produces an output. 
+\textcolor{red}{[citation needed]}\\
+\\
+The canonical mathematical model of a neuron, as seen in \ref{fig:neuron2}, is defined as:
+\begin{itemize}
+	\item \textbf{Inputs} $x_i$ \textbf{:}\\
+	All stimuli of a neuron are simply referred to as its inputs
+	\item \textbf{Weights} $w_i$ \textbf{:}\\
+	The ability to assign importances is modelled as weights which are coupled to specific stimuli
+	\item \textbf{Combined Weighted Inputs} $\sum_{i=1}^{n}w_i x_i$ \textbf{:}\\
+	After the inputs are scaled by their according weight they superpose to form the total excitation of the neuron
+	\item \textbf{Activation Function} $\Phi(\sum_{i=1}^{n}w_i x_i)$ \textbf{:}\\
+	...
+	\item \textbf{Bias} $b$ \textbf{:}\\  
+	...
+\end{itemize}
+
+
+\begin{figure}
+	\centering
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[height=150px]{gfx/Biological_Neuron_edited.jpg}
+		\caption{Representation of a biological Neuron\\
+			\cite{biology} edited}
+		\label{fig:neuron1}
+	\end{minipage}\hfill
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[height=150px]{gfx/Abstract_Neuron.png}
+		\caption{Abstraction of a Neuron\\
+			\cite{abstract_neuron}}
+		\label{fig:neuron2}
+	\end{minipage}
+\end{figure}
+
+As an individual neurons is too simple to model any complex relations between inputs
+and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNetwork} displays a few neurons coming together to form a simple fully-connected feed-forward network.
+\footnote{
+	Inputs of neural networks are often called "features" and fully-connected networks are frequently referred to as "dense"	}
+\begin{figure}
+	\centering
+		\includegraphics[height=150px]{gfx/Dense_FFNetwork.jpg}
+		\caption{A small fully-connected network\\
+			\cite{dense_network}}
+		\label{fig:FFNetwork}
+\end{figure}
+
+\begin{itemize}
+	\item \textcolor{red}{TODO:}
+	\item Issue of computational expense
+	\item CNNs (and other forms of NN?)
+\end{itemize}
+	
+\section{The Lottery Ticket Hypothesis}
+\begin{itemize}
+	\item \textcolor{red}{TODO:}
+	\item Issue of overloading on parameters
+	\item Clarifying the task (image classification)
+	\item Idea of trainable subnets
+\end{itemize}
+
+\section{Basics of Natural Language Processing}
+\begin{itemize}
+	\item \textcolor{red}{TODO:}
+	\item (?) Corpora
+	\item Tokenizing
+	\item Language Models
+	\item (?) Handeling missing words in the Language model
+\end{itemize}
+
+\section{Combining LMs \& CNNs}
+\begin{itemize}
+	\item \textcolor{red}{TODO:}
+	\item Interpreting the tensor representation of a sentence/document as an image to be classified
+	\item (?) Validation through results
+	\item (?) Handeling different sizes of inputs
+\end{itemize}

@@ -1,0 +1,55 @@
+%*****************************************
+\chapter{Related Work}
+\label{ch:relatedwork}
+%*****************************************
+To quantify the goals previously defined the context of current research is needed. The importance of any work assuming an underlying architecture can not be correctly evaluated without knowledge about the quality of said architecture. As such this section shortly presents state-of-the-art approaches to the tasks relevant to this thesis. Additionally an overview over previous compression methods and their achievements is given. Furthermore the difference between image classification on the MNIST-dataset and topic classification on the Reuters-21578-dataset, as staple tasks of their respective fields, is specified. At the end of this section reasons are given why the collected related work does not yet satisfy the discussed goals.
+
+
+\section{Image Classification: MNIST}
+The MNIST-dataset contains 70.000 datapoints encoding 28x28-gray-scale-images of which 60.000 are designated for training and 10.000 for validation. The task is classification of a datapoint into one of ten digit-classes \cite{MNIST}.\\
+Currently the best performing system combines fully connected, convolutional  and long-short-term-memory networks achieving a 0.18\% error-rate \cite{RMDL}. Multiple approaches share second place with an error-rate of 0.20\% correctly classifying 2 fewer examples \cite{Multi-Column} \cite{APAC} \cite{Batch-Normalized} \cite{ReNet} \cite{Keep-It-Simple}. Restricted to simple models the lowest error-rate is achieved by a pruned fully-connected architecture with 2 hidden layers (300-100-Lenet) at 1.26\% \cite{Sparse-From-Sratch}.
+\footnote
+	{State-of-the-Art architectures are presented as described on \href{https://paperswithcode.com/sota}{https://paperswithcode.com/sota}}\\
+While J. Frankle \& M. Carbin do not provide exact values their figures indicate that the fully-connected Lenet-Architecture they study achieves roughly 98\% accuracy on the test-data which translates to an error-rate of 2\% and about 200 wrongly classified datapoints out of 10000 \cite{Frankle2018}. This result is reproducible with the source code provided alongside this thesis.
+
+\section{Pruning}
+Beginning around 1990 with M.C. Mozer \& P. Smolensky \cite{Skeletonization} as well as LeCun et al. \cite{Optimal-Brain-Damage} weights were being removed from neural networks after training them for a task. Shortly thereafter the idea of further training a pruned network was proposed \cite{Optimal-Brain-Surgeon} which became common practice over the next decade. While LeCun et al. describe a network compression factor of $\times4$, more recent works achieve a factor of $\times9$ to $\times16.6$ while loosing no or close to no accuracy \cite{Learning_Weights_And_Connections} \cite{ThiNet}.\\
+In their paper on the Lottery-Ticket-Hypothesis (now LTH) J. Frankle \& M. Carbin report pruning over 98,5\% of weights in one of their networks while maintaining network capabilities which amounts to a compression rate of over $\times50$
+
+
+\section{Topic Classification: Reuters-21578}
+The Reuters-21578-dataset contains 21578 articles published by the Reuters News Agency in 1987 \cite{Reuters-21578}. Reuters-21578 differs from MNIST in the sense that it lacks a few fundamental properties. In particular Reuters-21578 is not only multi-class but rather multi-label meaning that any one data point can satisfy multiple categories. Additionally there are categories in Reuters-21578 that have no associated positive example and even for all remaining ones the amount of samples is heavily skewed. In order to restore parts of the missing properties with minimal change to the dataset different subsets of Reuters-21578 have been chosen by different researchers.\\
+F. Debole \& F. Sebastiani \cite{Reuters-Subsets} describe those subsets, starting out with the fact that close to half of the data points are unusable leaving 12,902 documents. 9,603 are marked for training and 3,299 for validation.\footnote{While different training-splits were proposed for Reuters-21578 "ModApt\'e" has become the canonical choice} They also point out the different groups of categories used for classification:
+\begin{itemize}
+	\item \textbf{R$\left(115\right)$}\\
+	The group with the 115 categories with at least one positive training example.\\ 
+	\item \textbf{R$\left(90\right)$}\\
+	The group with the 90 categories with at least one positive training and test example.\\ 
+	\item \textbf{R$\left(10\right)$}\\
+	The group with the 10 categories with the most examples. \\
+\end{itemize} 
+State of the art approaches to Reuters-21578 topic classification consist of Long-Short-Term-Memory \cite{Rethinking-LSTM} or mixed architectures \cite{RMDL} achieving an F1-score of 0.87 and 90.69\% accuracy respectively.
+
+\section{Topic Classification: Convolutional Neural Networks For NLP}
+While the LTH is not yet extended to Long-Short-Term-Memory architectures there are approaches to NLP-tasks  which are more closely aligned with computer vision. In a paper from 2014 \cite{CNN-For-NLP} Y. Kim describes how a simple convolutional neural network architecture, utilizing word embedding through language model, demonstrates capabilities similar to state-of-the-art approaches for various NLP-tasks.
+
+\section{Early Pruning}
+In a recent paper \cite{Rethinking-Network-Pruning} Z.Liu et al. observe that if pruned networks are trained with randomly reinitialized weights instead of fine-tuning their previous ones they retain from the original network, the pruned networks keep their capabilities. They conclude that said weights can not be essential to a pruned networks quality, contrary to prior common belief. Thus Z.Liu et al. claim that the architecture of pruned networks is responsible for its capabilities and furthermore that pruning can be interpreted as a kind of network architecture search .\\
+After the effectiveness of pruning is established and its interpretation as network architecture search becomes available there is a legitimate question whether all the weights in a network are really necessary for all of the training. In a paper of Y. Li \& W. Zhao \& L. Schang from early 2019 \cite{Pruning-With-Little-Training} they describe a method named IPLT to prune common convolutional network architectures at the filter level and especially before convergence. Thus they do not only compress the networks by a factor of $\times10$ but also speed up training by a similar magnitude. 
+
+\section{Additions to the Lottery Ticket Hypothesis}
+Even though the Lottery-Ticket-Hypothesis was only proposed earlier this year additional papers on the topic exist.
+In a paper from June 2019 J. Frankle \& M. Carbin et al. \cite{LTH-At-Scale} expand their method to find winning tickets on deep convolutional network architectures that proved difficult before. They attribute this achievement to the decision of not returning to the very first state of the network but to one a few iterations into training.\\
+Additionally H. Zhou et al. \cite{Deconstructing_LTH} document an ablation study on the phenomenon of lottery tickets. They reaffirm the initially naive magnitude-based pruning and describe "supermasks" that improve accuracy when applied to the initial network even without additional training. Finally they find that a replacement of all weights in the pruned network by a constant with same sign as said weights does not significantly influence the networks capabilities. As such H. Zhou et al. conclude that the sign of weights are the essential property for such neural networks. 
+
+
+\section{Task in context of Related Work}
+To conclude this chapter the given information about related work is interpreted in regards to the three defined subtasks: 
+\begin{itemize}
+	\item \textbf{1. Reproduction}\\
+	Reproduction of the LTH is highly independent of the related work mentioned so far.\footnote{Side note: While tensorflow 1.x source code exists at \href{https://paperswithcode.com}{https://paperswithcode.com}, for the first LTH-paper, tensorflow 2.0 is much easier to operate and code for so rebuilding the framework is still valuable.}\\ 
+	\item \textbf{2. Extending to NLP}\\
+	Even though the LTH has not yet been applied to Long-Short-Term-Memory architectures and doing so is beyond the scope of this thesis the question whether it can hold for a more disorderly dataset at all is still open and of interest. The approach described in 3.4 is generally applicable to the Reuters-21578 dataset as well as already performing well on other NLP-tasks while also being compatible with the current Application of the LTH.\\ 
+	\item \textbf{3. Early pruning}\\
+	While IPLT \cite{Pruning-With-Little-Training} already provides an early pruning approach the LTH has shown capabilities of much stronger compression. While this compression does not yield any speed-up yet because unstructured sparse layers need a special infrastructure to accelerate, verification of so significant compressions rates found by the LTH early in training might motivate such infrastructures.\\
+\end{itemize} 
