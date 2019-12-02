@@ -2,3 +2,34 @@
 \chapter{Data Sets}
 \label{ch:data_sets}
 %*****************************************
+\begin{figure}
+	\begin{tabular}{c|c|c|c|c}
+		& MNIST & CIFAR-10 & 20-Newsgroup & Reuters-21578\\
+		\hline
+		N. labels & 10 & 10 & 20 & 10 to 115\\
+		N. datapoints & 70.000 & 60.000 & 18846  & 12.902\\
+		fixed split & x & x & "bydate" & "ModApt\'e"\\
+		shortened &  &  & x & x\\
+		class imbalance &  &  &  & x\\
+		multi-label &  &  &  & x\\
+	\end{tabular}
+\end{figure}
+
+\section{MNIST}
+The MNIST-dataset contains 25x25 gray-scale images of handwritten digits padded to 28x28 \cite{MNIST}. 
+
+\section{CIFAR-10}
+
+\section{20-Newsgroup}
+
+\section{Reuters-21578}
+The Reuters-21578-dataset contains 21578 articles published by the Reuters News Agency in 1987 \cite{Reuters-21578}. Reuters-21578 differs from the previous data sets in the sense that it lacks a few fundamental properties. In particular Reuters-21578 is not only multi-class but rather multi-label meaning that any one data point can satisfy multiple categories. Additionally there are categories in Reuters-21578 that have no associated positive example and even for all remaining ones the amount of samples is heavily skewed. In order to restore parts of the missing properties with minimal change to the dataset different subsets of Reuters-21578 have been chosen by different researchers.\\
+F. Debole \& F. Sebastiani \cite{Reuters-Subsets} describe those subsets, starting out stating that close to half of the data points are unusable which leaves 12,902 documents. 9,603 are marked for training and 3,299 for validation.\footnote{While different training-splits were used for Reuters-21578 "ModApt\'e" has become the canonical choice} They also point out the different groups of categories used for classification:
+\begin{itemize}
+	\item \textbf{R$\left(115\right)$}\\
+	The group with the 115 categories containing at least one positive training example.\\ 
+	\item \textbf{R$\left(90\right)$}\\
+	The group with the 90 categories containing at least one positive training and test example.\\ 
+	\item \textbf{R$\left(10\right)$}\\
+	The group with the 10 categories containing the most examples. \\
+\end{itemize} 

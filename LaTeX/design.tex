@@ -5,11 +5,63 @@
 \hint{This chapter should describe the design of the own approach on a conceptional level without mentioning the implementation details. The section should have a length of about five pages.}
 
 \section{Requirements and Assumptions}
+???
 
-\section{System Overview}
+\section{Early Masking}
 
-\subsection{Component 1}
+\subsection{Lenet-300-100}
+\begin{itemize}
+	\item FC: 300, 100, 10
+	\item Prune 20\%
+	\item Optimizer: Adam $3\cdot10^{-4}$
+\end{itemize} 
 
-\subsection{Component 2}
+\subsection{Conv-6}
+\begin{itemize}
+	\item Con: 64, 64, pool
+	\item Con: 128, 128, pool
+	\item Con: 256, 256, pool
+	\item FC:  256, 256, 10
+	\item Prune 20\% FC
+	\item Prune 15\% Con
+	\item Optimizer: Adam $3\cdot10^{-4}$
+\end{itemize} 
+
+\subsection{FGG-19}
+All convolutions are 3x3 with 1 padding to preserve image-size. Pooling is 2x2-subsampling with stride 2. With each pooling the channel-depth is doubled 
+\begin{itemize}
+	\item Con: 64, 64, pool
+	\item Con: 128, 128, pool
+	\item Con: 256, 256, 256, 256, pool
+	\item Con: 512, 512, 512, 512, pool
+	\item Con: 512, 512, 512, 512, avg-pool
+	\item FC:  10
+	\item Prune 20\% Con
+	\item Optimizer: Momentum $0.9$
+\end{itemize} 
+
+\subsection{Early Stopping}
+A-posteriori vs. A-priori
+
+\section{Transfer to NLP}
+
+\subsection{Based Module}
+\begin{itemize}
+	\item wordEmbed: at different scales (?) 300 dims
+	\item Con: (?) 3 filter maps (width: 1:3:22)
+	\item TempPool: 2 | 7
+	\item Dropout
+	\item GlobalAvePool
+\end{itemize} 
+
+\subsection{Ensemble}
+\begin{itemize}
+	\item Module: 16x
+	\item Concat:
+	\item Dropout
+	\item Output
+	\item Loss: binary cross-entropy
+\end{itemize} 
+
 
 \section{Summary}

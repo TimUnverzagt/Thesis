@@ -2,13 +2,12 @@
 \chapter{Background}
 \label{ch:background}
 %*****************************************
-\hint{This chapter should give a comprehensive overview on the background necessary to understand the thesis.
-The chapter should have a length of about five pages!}
+%\hint{This chapter should give a comprehensive overview on the background necessary to understand the thesis.
+%The chapter should have a length of about five pages!}
 
 
-\section{Basics of Neural Networks\ \ \  \(WIP\)}
-Neural networks are a part of most major AI-breakthrough in the last decade enabling computers to compete in fields formerly championed by humans.\footnote{
-	\begin{itemize}
+\section{Basics of Neural Networks}
+Neural networks are a part of most major AI-breakthrough in the last decade enabling computers to compete in fields formerly championed by humans.\footnote{\begin{itemize}
 		\item 
 			2011: "Watson" of IBM defeats two former grand champions in "Jeopardy!" \cite{lally2011natural}
 		\item 
@@ -90,32 +89,21 @@ and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNe
 \end{figure}
 
 \begin{itemize}
-	\item \textcolor{red}{TODO:}
+	\item FNN as universal approximator (but overfitting)
 	\item Issue of computational expense
-	\item CNNs (and other forms of NN?)
+	\item CNNs 
 \end{itemize}
-	
-\section{The Lottery Ticket Hypothesis}
+
+\section{Pruning}
 \begin{itemize}
-	\item \textcolor{red}{TODO:}
-	\item Issue of overloading on parameters
-	\item Clarifying the task (image classification)
-	\item Idea of trainable subnets
+	\item Generalization (Anti-Overfitting)
+	\item weight magnitude based pruning
+	\item Levels of pruning
 \end{itemize}
 
 \section{Basics of Natural Language Processing}
 \begin{itemize}
-	\item \textcolor{red}{TODO:}
-	\item (?) Corpora
-	\item Tokenizing
-	\item Language Models
-	\item (?) Handeling missing words in the Language model
-\end{itemize}
-
-\section{Combining LMs \& CNNs}
-\begin{itemize}
-	\item \textcolor{red}{TODO:}
-	\item Interpreting the tensor representation of a sentence/document as an image to be classified
-	\item (?) Validation through results
-	\item (?) Handeling different sizes of inputs
+	\item Preprocessing (Padding)
+	\item Quantifying text (Features, ngrams, BoW)
+	\item Language models
 \end{itemize}
