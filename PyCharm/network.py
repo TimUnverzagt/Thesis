@@ -100,46 +100,6 @@ class CustomNetworkWrapper:
                                  verbose=verbosity)
         return history.history
 
-    def train_model_with_validation(self, datapoints, validation_datapoints,
-                                    epochs, batch_size=32, verbosity=1):
-        history = self.model.fit(datapoints[0],
-                                 datapoints[1],
-                                 batch_size=batch_size,
-                                 epochs=epochs,
-                                 verbose=verbosity,
-                                 validation_data=validation_datapoints)
-        return history.history
-
-    def train_model_with_sklearn_metrics(self, datapoints, validation_datapoints,
-                                         epochs, batch_size=32, verbosity=2, average='micro'):
-        accuracy_over_epochs = []
-        precision_over_epochs = []
-        recall_over_epochs = []
-        confusion_matrices = []
-        sparse_true_labels = self.sparsify_predictions(validation_datapoints[1])
-        for i in range(epochs):
-            print(12*"-" + "Epoch " + str(i) + 12*"-")
-            self.model.fit(datapoints[0],
-                           datapoints[1],
-                           batch_size=batch_size,
-                           epochs=1,
-                           verbose=verbosity)
-
-            sparse_predictions = self.sparsify_predictions(self.model.predict(validation_datapoints))
-            accuracy_over_epochs.append(sklearn.metrics.accuracy_score(sparse_true_labels, sparse_predictions))
-            precision_over_epochs.append(sklearn.metrics.precision_score(sparse_true_labels, sparse_predictions,
-                                                                         average=average))
-            recall_over_epochs.append(sklearn.metrics.recall_score(sparse_true_labels, sparse_predictions,
-                                                                   average=average))
-            confusion_matrices.append(sklearn.metrics.confusion_matrix(sparse_true_labels, sparse_predictions))
-
-        print(31 * "-")
-
-        return {'accuracy': accuracy_over_epochs,
-                'precision': precision_over_epochs,
-                'recall': recall_over_epochs,
-                'confusion_matrices': confusion_matrices}
-
     def save_model_as_folder(self, foldername):
         tfk.models.save_model(
             self.model,
@@ -162,6 +122,4 @@ class CustomNetworkWrapper:
         print("F1: ", f1_measure)
         return
 
-    def sparsify_predictions(self, one_hot_predictions):
-        return np.argmax(one_hot_predictions, axis=1)
 

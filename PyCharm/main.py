@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
+import shutil
 import datetime
 
 # Personal modules
@@ -26,32 +27,40 @@ def main():
     histories_path = '../PyCharm/Histories'
     task_description = 'Reproduction'
     architecture_description = 'MNIST-Lenet-FCN'
-    pruning_percentage = 20
+    pruning_percentage = 0
     execution_date = str(datetime.date.today())
-    experiment_path = histories_path + '/' + task_description + '/' + architecture_description + '-Iter' + '/' + execution_date
+    experiment_path = histories_path + '/' + task_description + '/' + architecture_description + '-Test' + '/' + execution_date
 
-    os.mkdir(experiment_path)
-    for i in range(0, 10):
-        folder_path = experiment_path + '/' + str(i)
-        os.mkdir(folder_path)
+    train = False
+    visualize = not train
+    if train:
+        if os.path.exists(experiment_path):
+            shutil.rmtree(experiment_path)
+        os.mkdir(experiment_path)
+        for i in range(0, 1):
+            folder_path = experiment_path + '/' + str(i)
+            os.mkdir(folder_path)
 
-        (full_network_history, masked_network_histories) = \
-            experiments.search_for_lottery_tickets(epochs=5,
-                                                   model_identifier=architecture_description,
-                                                   pruning_percentage=pruning_percentage,
-                                                   pruning_iterations=3)
+            (full_network_history, masked_network_histories) = \
+                experiments.search_for_lottery_tickets(epochs=20,
+                                                       model_identifier=architecture_description,
+                                                       pruning_percentage=pruning_percentage,
+                                                       pruning_iterations=4)
 
-        storage.save_experimental_history(full_network_history, path=folder_path, name='full')
-        for idx, masked_network_history in enumerate(masked_network_histories):
-            model_name = 'full_' + str(pruning_percentage) + 'iter_' + str(idx)
-            storage.save_experimental_history(masked_network_history, path=folder_path, name=model_name)
+            storage.save_experimental_history(full_network_history, path=folder_path, name='full')
+            for idx, masked_network_history in enumerate(masked_network_histories):
+                model_name = 'masked_' + str(pruning_percentage) + '_times_' + str(idx+1)
+                storage.save_experimental_history(masked_network_history, path=folder_path, name=model_name)
 
-    # full_network_history = storage.load_experimental_history(path=folder_path, name='full_training_20')
-    # masked_network_history = storage.load_experimental_history(path=folder_path, name='full_training_20')
+    if visualize:
+        folder_path = experiment_path + '/' + str(0)
+        full_network_history = storage.load_experimental_history(path=folder_path, name='full')
+        masked_network_history = storage.load_experimental_history(path=folder_path,
+                                                                   name='masked_' + str(pruning_percentage) + '_times_3')
 
-    # visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
-    #                                                      masked_network_history, 'Masked Network',
-    #                                                      'accuracy', 'accuracy')
+        visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
+                                                             masked_network_history, 'Masked Network',
+                                                             'accuracy', 'accuracy')
 
     return
 
