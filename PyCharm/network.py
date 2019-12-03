@@ -61,7 +61,7 @@ class CustomNetworkWrapper:
                                  activation=tf.nn.softmax)
             ])
 
-        elif model_identifier == 'MNIST-Lenet-FC':
+        elif model_identifier == 'MNIST-Lenet-FCN':
             self.model = tfk.Sequential([
                 tfk.layers.Input(shape=(28, 28)),
                 tfk.layers.Flatten(input_shape=(28, 28)),
@@ -84,6 +84,7 @@ class CustomNetworkWrapper:
             print("Please use one of the following names:")
             print("'Given-Model'")
             print("'Reuters-FeedForward', 'Reuters-CNN'")
+            print("'MNIST-Lenet-FCN'")
 
         self.model.compile(optimizer=optimizer,
                            loss=loss,

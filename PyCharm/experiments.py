@@ -13,53 +13,62 @@ from datasets import reuters
 from datasets import mnist
 
 
-def test_basic_network_of_the_paper(epochs):
-    print("Developing feedforward network on MNIST...")
-    dense_model_wrapper = NetworkWrapper(model_identifier='MNIST-Lenet-FC')
-    # Read out the config for creation of the masked model
-    model_config = dense_model_wrapper.model.get_config()
-    # Copy original weights by value
-    initial_weights = []
-    initial_biases = []
-    for i in range(len(dense_model_wrapper.model.weights)):
-        if (i % 2) == 0:
-            initial_weights.append(tf.identity(dense_model_wrapper.model.weights[i]))
-        elif (i % 2) == 1:
-            initial_biases.append(tf.identity(dense_model_wrapper.model.weights[i]))
-        else:
-            print("Separation weights and biases failed!")
+def search_for_lottery_tickets(epochs, model_identifier, pruning_percentage=20, pruning_iterations=1):
+    print("Developing full " + model_identifier + "...")
+    base_model_wrapper = NetworkWrapper(model_identifier=model_identifier)
 
-    print("Quantifying MNIST datapoints...")
+    print("Quantifying datapoints...")
     data_splits = mnist.quantify_datapoints()
     train_datapoints = data_splits['train']
     test_datapoints = data_splits['test']
 
     print("Training full network...")
     full_prediction_history =\
-        dense_model_wrapper.train_model_with_sklearn_metrics(datapoints=train_datapoints,
-                                                             validation_datapoints=test_datapoints,
-                                                             epochs=epochs,
-                                                             batch_size=60,
-                                                             verbosity=2)
+        base_model_wrapper.train_model_with_sklearn_metrics(datapoints=train_datapoints,
+                                                            validation_datapoints=test_datapoints,
+                                                            epochs=epochs,
+                                                            batch_size=60,
+                                                            verbosity=2)
 
-    print("Developing a masked network with the initial weights...")
-    masked_model = masking.mask_initial_model(trained_model=dense_model_wrapper.model,
-                                              initial_weights=initial_weights,
-                                              initial_biases=initial_biases,
-                                              model_config=model_config,
-                                              pruning_percentage=20)
-    lottery_ticket_wrapper = NetworkWrapper(model_identifier='GivenModel',
-                                            given_model=masked_model)
+    masked_prediction_histories = []
+    for i in range(0, pruning_iterations):
+        print("-"*15 + " Pruning Iteration " + str(i) + " " + "-"*15)
+        # Read out the config for creation of the masked model
+        base_model_config = base_model_wrapper.model.get_config()
+        # Copy original weights by value
+        base_weights = []
+        base_biases = []
+        for i in range(len(base_model_wrapper.model.weights)):
+            if (i % 2) == 0:
+                base_weights.append(tf.identity(base_model_wrapper.model.weights[i]))
+            elif (i % 2) == 1:
+                base_biases.append(tf.identity(base_model_wrapper.model.weights[i]))
+            else:
+                print("Separation weights and biases failed!")
 
-    print("Training masked network...")
-    masked_prediction_history =\
-        lottery_ticket_wrapper.train_model_with_sklearn_metrics(datapoints=train_datapoints,
-                                                                validation_datapoints=test_datapoints,
-                                                                epochs=epochs,
-                                                                batch_size=60,
-                                                                verbosity=2)
+        print("Developing the masked network...")
+        masked_model = masking.mask_initial_model(trained_model=base_model_wrapper.model,
+                                                  initial_weights=base_weights,
+                                                  initial_biases=base_biases,
+                                                  model_config=base_model_config,
+                                                  pruning_percentage=20)
 
-    return full_prediction_history, masked_prediction_history
+        lottery_ticket_wrapper = NetworkWrapper(model_identifier='GivenModel',
+                                                given_model=masked_model)
+
+        print("Training masked network...")
+        masked_prediction_history =\
+            lottery_ticket_wrapper.train_model_with_sklearn_metrics(datapoints=train_datapoints,
+                                                                    validation_datapoints=test_datapoints,
+                                                                    epochs=epochs,
+                                                                    batch_size=60,
+                                                                    verbosity=2)
+        masked_prediction_histories.append(masked_prediction_history)
+
+        # Set this masked network as base for the next iteration
+        base_model_wrapper = lottery_ticket_wrapper
+
+    return full_prediction_history, masked_prediction_histories
 
 
 def test_creation_of_masked_network(epochs):

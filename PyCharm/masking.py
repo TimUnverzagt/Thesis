@@ -17,7 +17,7 @@ def mask_initial_model(trained_model, initial_weights, initial_biases, model_con
             replacement_layer = tfk.layers.Flatten(batch_input_shape=layer['config']['batch_input_shape'])
             masked_model.add(replacement_layer)
 
-        elif layer['class_name'] == 'Dense':
+        elif (layer['class_name'] == 'Dense') | (layer['class_name'] == 'MaskedDense'):
             print("Replacing Dense-layer of the model with a custom MaskedDense-layer")
             if layer['config']['activation'] == 'relu':
                 # print("Recognized an relu-activation.")
