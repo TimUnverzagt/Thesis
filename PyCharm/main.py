@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # General modules
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import os
+import datetime
 
 # Personal modules
 import storage
@@ -21,18 +23,25 @@ def main():
     for gpu in tf.config.experimental.list_physical_devices('GPU'):
         tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
 
-    (full_network_history, masked_network_history) = experiments.test_basic_network_of_the_paper(epochs=50)
+    histories_path = '../PyCharm/Histories'
+    task_description = 'Reproduction'
+    architecture_description = 'Lenet-FCN'
+    execution_date = str(datetime.date.today())
+    experiment_path = histories_path + '/' + task_description + '/' + architecture_description + '/' + execution_date
+    os.mkdir(experiment_path)
+    for i in range(0, 10):
+        folder_path = experiment_path + '/' + str(i)
+        os.mkdir(folder_path)
+        (full_network_history, masked_network_history) = experiments.test_basic_network_of_the_paper(epochs=50)
+        storage.save_experimental_history(full_network_history, path=folder_path, name='full_training_20')
+        storage.save_experimental_history(masked_network_history, path=folder_path, name='masked_training_20')
 
-    # storage.save_experimental_history(full_network_history, name='full_training_with_validation_20')
-    # storage.save_experimental_history(masked_network_history, name='masked_training_with_validation_20')
-
-    # folderpath = 'Lenet-FCN-CCE/test'
     # full_network_history = storage.load_experimental_history('full_training_with_validation_20', folder=folderpath)
     # masked_network_history = storage.load_experimental_history('masked_training_with_validation_20', folder=folderpath)
 
-    visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
-                                                         masked_network_history, 'Masked Network',
-                                                         'accuracy', 'accuracy')
+    # visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
+    #                                                      masked_network_history, 'Masked Network',
+    #                                                      'accuracy', 'accuracy')
 
     return
 
