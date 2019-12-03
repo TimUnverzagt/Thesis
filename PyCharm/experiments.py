@@ -14,27 +14,17 @@ from datasets import mnist
 
 
 def search_for_lottery_tickets(epochs, model_identifier, pruning_percentage=20, pruning_iterations=1):
-    print("Developing full " + model_identifier + "...")
-    base_model_wrapper = NetworkWrapper(model_identifier=model_identifier)
-
-    # Read out the config for creation of the masked model
-    base_model_config = base_model_wrapper.model.get_config()
-    # Copy original weights by value
-    base_weights = []
-    base_biases = []
-    for j in range(len(base_model_wrapper.model.weights)):
-        if (j % 2) == 0:
-            base_weights.append(tf.identity(base_model_wrapper.model.weights[j]))
-        elif (j % 2) == 1:
-            base_biases.append(tf.identity(base_model_wrapper.model.weights[j]))
-        else:
-            print("Separation weights and biases failed!")
-
     print("Quantifying datapoints...")
     data_splits = mnist.quantify_datapoints()
     train_datapoints = data_splits['train']
     test_datapoints = data_splits['test']
 
+    print("Developing full " + model_identifier + "...")
+    base_model_wrapper = NetworkWrapper(model_identifier=model_identifier)
+    # Read out the config for creation of the masked model
+    base_model_config = base_model_wrapper.model.get_config()
+    # Copy original weights by value
+    base_weights, base_biases = custom_weight_copy(base_model_wrapper)
     print("Training full network...")
     full_prediction_history = inspect_metrics_while_training(model_wrapper=base_model_wrapper,
                                                              training_data=train_datapoints,
@@ -42,8 +32,8 @@ def search_for_lottery_tickets(epochs, model_identifier, pruning_percentage=20, 
                                                              epochs=epochs,
                                                              batch_size=60,
                                                              verbosity=2)
-
     masked_prediction_histories = []
+
     for i in range(0, pruning_iterations):
         print("-"*15 + " Pruning Iteration " + str(i) + " " + "-"*15)
         print("Developing the masked network...")
@@ -52,25 +42,15 @@ def search_for_lottery_tickets(epochs, model_identifier, pruning_percentage=20, 
                                                   initial_biases=base_biases,
                                                   model_config=base_model_config,
                                                   pruning_percentage=20)
-
         lottery_ticket_wrapper = NetworkWrapper(model_identifier='GivenModel',
                                                 given_model=masked_model)
 
         # Set this masked network as base for the next iteration
         base_model_wrapper = lottery_ticket_wrapper
-
         # Read out the config for creation of the masked model
         base_model_config = base_model_wrapper.model.get_config()
         # Copy original weights by value
-        base_weights = []
-        base_biases = []
-        for j in range(len(base_model_wrapper.model.weights)):
-            if (j % 2) == 0:
-                base_weights.append(tf.identity(base_model_wrapper.model.weights[j]))
-            elif (j % 2) == 1:
-                base_biases.append(tf.identity(base_model_wrapper.model.weights[j]))
-            else:
-                print("Separation weights and biases failed!")
+        base_weights, base_biases = custom_weight_copy(base_model_wrapper)
 
         print("Training masked network...")
         masked_prediction_history = inspect_metrics_while_training(model_wrapper=lottery_ticket_wrapper,
@@ -80,8 +60,35 @@ def search_for_lottery_tickets(epochs, model_identifier, pruning_percentage=20, 
                                                                    batch_size=60,
                                                                    verbosity=2)
         masked_prediction_histories.append(masked_prediction_history)
-
     return full_prediction_history, masked_prediction_histories
+
+
+def search_early_ticket(epochs, model_identifier, reset_epochs=10, pruning_percentage=20, pruning_iterations=1):
+    print("Quantifying datapoints...")
+    data_splits = mnist.quantify_datapoints()
+    train_datapoints = data_splits['train']
+    test_datapoints = data_splits['test']
+
+    print("Developing full " + model_identifier + "...")
+    base_model_wrapper = NetworkWrapper(model_identifier=model_identifier)
+    intermediate_weights = []
+    intermediate_weights.append(custom_weight_copy(base_model_wrapper))
+
+    for i in range(1, reset_epochs+1):
+        # Read out the config for creation of the masked model
+        base_model_config = base_model_wrapper.model.get_config()
+        # Copy original weights by value
+        base_weights = custom_weight_copy(base_model_wrapper)
+        print("Training full network...")
+
+        full_prediction_history = inspect_metrics_while_training(model_wrapper=base_model_wrapper,
+                                                                 training_data=train_datapoints,
+                                                                 validation_data=test_datapoints,
+                                                                 epochs=1,
+                                                                 batch_size=60,
+                                                                 verbosity=2)
+
+    return
 
 
 def test_creation_of_masked_network(epochs):
@@ -152,6 +159,19 @@ def inspect_metrics_while_training(model_wrapper, training_data, validation_data
             'precision': precision_over_epochs,
             'recall': recall_over_epochs,
             'confusion_matrices': confusion_matrices}
+
+
+def custom_weight_copy(model_wrapper):
+    base_weights = []
+    base_biases = []
+    for j in range(len(model_wrapper.model.weights)):
+        if (j % 2) == 0:
+            base_weights.append(tf.identity(model_wrapper.model.weights[j]))
+        elif (j % 2) == 1:
+            base_biases.append(tf.identity(model_wrapper.model.weights[j]))
+        else:
+            print("Separation weights and biases failed!")
+        return (base_weights, base_biases)
 
 
 def sparsify_predictions(one_hot_predictions):
