@@ -13,7 +13,7 @@ from datasets import reuters
 from datasets import mnist
 
 
-def search_for_lottery_tickets(epochs, model_identifier, pruning_percentage=20, pruning_iterations=1):
+def search_lottery_tickets(epochs, model_identifier, pruning_percentage=20, pruning_iterations=1):
     print("Quantifying datapoints...")
     data_splits = mnist.quantify_datapoints()
     train_datapoints = data_splits['train']
@@ -35,13 +35,15 @@ def search_for_lottery_tickets(epochs, model_identifier, pruning_percentage=20, 
     masked_prediction_histories = []
 
     for i in range(0, pruning_iterations):
+        iter_pruning_percentage = (1-np.power(pruning_percentage/100, i))*100
         print("-"*15 + " Pruning Iteration " + str(i) + " " + "-"*15)
         print("Developing the masked network...")
+        # TODO: The following assumes that already masked weights are saves as 0 which might not hold. FIX IT!
         masked_model = masking.mask_initial_model(trained_model=base_model_wrapper.model,
                                                   initial_weights=base_weights,
                                                   initial_biases=base_biases,
                                                   model_config=base_model_config,
-                                                  pruning_percentage=20)
+                                                  pruning_percentage=iter_pruning_percentage)
         lottery_ticket_wrapper = NetworkWrapper(model_identifier='GivenModel',
                                                 given_model=masked_model)
 
@@ -63,7 +65,7 @@ def search_for_lottery_tickets(epochs, model_identifier, pruning_percentage=20, 
     return full_prediction_history, masked_prediction_histories
 
 
-def search_early_ticket(epochs, model_identifier, reset_epochs=10, pruning_percentage=20, pruning_iterations=1):
+def search_early_tickets(epochs, model_identifier, reset_epochs=10, pruning_percentage=20, pruning_iterations=1):
     print("Quantifying datapoints...")
     data_splits = mnist.quantify_datapoints()
     train_datapoints = data_splits['train']
@@ -71,24 +73,47 @@ def search_early_ticket(epochs, model_identifier, reset_epochs=10, pruning_perce
 
     print("Developing full " + model_identifier + "...")
     base_model_wrapper = NetworkWrapper(model_identifier=model_identifier)
-    intermediate_weights = []
-    intermediate_weights.append(custom_weight_copy(base_model_wrapper))
+    # Read out the config for creation of the masked model
+    base_model_config = base_model_wrapper.model.get_config()
 
-    for i in range(1, reset_epochs+1):
-        # Read out the config for creation of the masked model
-        base_model_config = base_model_wrapper.model.get_config()
-        # Copy original weights by value
-        base_weights = custom_weight_copy(base_model_wrapper)
-        print("Training full network...")
+    base_weights, base_biases = custom_weight_copy(base_model_wrapper)
 
-        full_prediction_history = inspect_metrics_while_training(model_wrapper=base_model_wrapper,
-                                                                 training_data=train_datapoints,
-                                                                 validation_data=test_datapoints,
-                                                                 epochs=1,
-                                                                 batch_size=60,
-                                                                 verbosity=2)
+    intermediate_wb = []
+    histories_over_pruning_iterations = []
+    for j in range(0, reset_epochs+1):
+        intermediate_wb.append((base_weights, base_biases))
 
-    return
+    for i in range(0, pruning_iterations):
+        iter_pruning_percentage = (1-np.power(pruning_percentage/100, i))*100
+        histories_over_reset_epochs = []
+        for j in range(0, reset_epochs+1):
+            last_wb = intermediate_wb[j]
+            # TODO: The following assumes that already masked weights are saves as 0 which might not hold. FIX IT!
+            masked_model = masking.mask_initial_model(trained_model=base_model_wrapper.model,
+                                                      initial_weights=last_wb[0],
+                                                      initial_biases=last_wb[1],
+                                                      model_config=base_model_config,
+                                                      pruning_percentage=iter_pruning_percentage)
+            masked_wrapper = NetworkWrapper(model_identifier='GivenModel',
+                                            given_model=masked_model)
+
+            print("Training network of iteration " + str(i) + "...")
+            building_history = []
+            for k in range(0, epochs):
+                last_history = inspect_metrics_while_training(model_wrapper=masked_wrapper,
+                                                              training_data=train_datapoints,
+                                                              validation_data=test_datapoints,
+                                                              epochs=1,
+                                                              batch_size=60,
+                                                              verbosity=2)
+                extend_history(building_history, last_history)
+                if k == j:
+                    # copy weights by value to save them
+                    intermediate_wb[k] = custom_weight_copy(masked_wrapper)
+            # TODO: Does this work?
+            histories_over_reset_epochs.append(building_history)
+        histories_over_pruning_iterations.append(histories_over_reset_epochs)
+    return histories_over_pruning_iterations
 
 
 def test_creation_of_masked_network(epochs):
@@ -171,7 +196,15 @@ def custom_weight_copy(model_wrapper):
             base_biases.append(tf.identity(model_wrapper.model.weights[j]))
         else:
             print("Separation weights and biases failed!")
-        return (base_weights, base_biases)
+        return base_weights, base_biases
+
+
+def extend_history(base_history, history_to_append):
+    return {'accuracy': base_history['accuracy'].append(history_to_append['accuracy']),
+            'precision': base_history['precision'].append(history_to_append['precision']),
+            'recall': base_history['recall'].append(history_to_append['recall']),
+            'confusion_matrices': base_history['confusion_matrices'].append(history_to_append['confusion_matrices'])
+            }
 
 
 def sparsify_predictions(one_hot_predictions):

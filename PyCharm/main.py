@@ -42,10 +42,10 @@ def main():
             os.mkdir(folder_path)
 
             (full_network_history, masked_network_histories) = \
-                experiments.search_for_lottery_tickets(epochs=20,
-                                                       model_identifier=architecture_description,
-                                                       pruning_percentage=pruning_percentage,
-                                                       pruning_iterations=4)
+                experiments.search_lottery_tickets(epochs=20,
+                                                   model_identifier=architecture_description,
+                                                   pruning_percentage=pruning_percentage,
+                                                   pruning_iterations=4)
 
             storage.save_experimental_history(full_network_history, path=folder_path, name='full')
             for idx, masked_network_history in enumerate(masked_network_histories):
