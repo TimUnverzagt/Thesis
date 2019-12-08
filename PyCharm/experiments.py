@@ -36,8 +36,8 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentage=20, prun
 
     for i in range(1, pruning_iterations+1):
         iter_pruning_percentage = (1-np.power(1 - (pruning_percentage/100), i))*100
-        print("-"*15 + " Pruning Iteration " + str(i) + " " + "-"*15)
-        print("Total Pruning Percentage: " + str(iter_pruning_percentage))
+
+        flag_pruning_iteration(i, iter_pruning_percentage)
         print("Developing the masked network...")
         # TODO: The following assumes that already masked weights are saves as 0 which might not hold. FIX IT!
         masked_model = masking.mask_initial_model(trained_model=base_model_wrapper.model,
@@ -66,7 +66,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentage=20, prun
     return full_prediction_history, masked_prediction_histories
 
 
-def search_early_tickets(epochs, model_identifier, reset_epochs=10, pruning_percentage=20, pruning_iterations=1):
+def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_percentage=20, pruning_iterations=1):
     print("Quantifying datapoints...")
     data_splits = mnist.quantify_datapoints()
     train_datapoints = data_splits['train']
@@ -84,12 +84,12 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=10, pruning_perc
     for j in range(0, reset_epochs+1):
         intermediate_wb.append((base_weights, base_biases))
 
-    for i in range(0, pruning_iterations):
+    for i in range(0, pruning_iterations+1):
         iter_pruning_percentage = (1-np.power(pruning_percentage/100, i))*100
         histories_over_reset_epochs = []
+        flag_pruning_iteration(i, iter_pruning_percentage)
         for j in range(0, reset_epochs+1):
             last_wb = intermediate_wb[j]
-            # TODO: The following assumes that already masked weights are saves as 0 which might not hold. FIX IT!
             masked_model = masking.mask_initial_model(trained_model=base_model_wrapper.model,
                                                       initial_weights=last_wb[0],
                                                       initial_biases=last_wb[1],
@@ -97,16 +97,18 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=10, pruning_perc
                                                       pruning_percentage=iter_pruning_percentage)
             masked_wrapper = NetworkWrapper(model_identifier='GivenModel',
                                             given_model=masked_model)
-
-            print("Training network of iteration " + str(i) + "...")
-            building_history = []
+            building_history = {'accuracy': [],
+                                'precision': [],
+                                'recall': [],
+                                'confusion_matrices': []}
             for k in range(0, epochs):
+                flag_epoch(k)
                 last_history = inspect_metrics_while_training(model_wrapper=masked_wrapper,
                                                               training_data=train_datapoints,
                                                               validation_data=test_datapoints,
                                                               epochs=1,
                                                               batch_size=60,
-                                                              verbosity=2)
+                                                              verbosity=0)
                 extend_history(building_history, last_history)
                 if k == j:
                     # copy weights by value to save them
@@ -164,7 +166,8 @@ def inspect_metrics_while_training(model_wrapper, training_data, validation_data
     confusion_matrices = []
     sparse_true_labels = sparsify_predictions(validation_data[1])
     for i in range(epochs):
-        print(12 * "-" + "Epoch " + str(i) + 12 * "-")
+        if verbosity > 0:
+            flag_epoch(i)
         model_wrapper.train_model(training_data,
                                   batch_size=batch_size,
                                   epochs=1,
@@ -179,7 +182,6 @@ def inspect_metrics_while_training(model_wrapper, training_data, validation_data
                                                                sparse_predictions,
                                                                average=scheme_for_averaging))
         confusion_matrices.append(sklearn.metrics.confusion_matrix(sparse_true_labels, sparse_predictions))
-    print(31 * "-")
 
     return {'accuracy': accuracy_over_epochs,
             'precision': precision_over_epochs,
@@ -210,5 +212,21 @@ def extend_history(base_history, history_to_append):
 
 def sparsify_predictions(one_hot_predictions):
     return np.argmax(one_hot_predictions, axis=1)
+
+
+def flag_epoch(index_of_epoch):
+    print(12 * "-" + "Epoch " + str(index_of_epoch) + 12 * "-")
+    return
+
+
+def flag_pruning_iteration(index_of_pruning_iteration, pruning_percentage):
+    print("-" * 18 + " Pruning Iteration " + str(index_of_pruning_iteration) + " " + "-" * 18)
+    print("Total Pruning Percentage: " + str(pruning_percentage))
+    return
+
+
+def flag_reset_epoch(index_of_reset_epoch):
+    print("-" * 24 + " Pruning Iteration " + str(index_of_reset_epoch) + " " + "-" * 24)
+    return
 
 

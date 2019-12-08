@@ -19,7 +19,7 @@ def mask_initial_model(trained_model, initial_weights, initial_biases, model_con
             masked_model.add(replacement_layer)
 
         elif (layer['class_name'] == 'Dense') | (layer['class_name'] == 'MaskedDense'):
-            print("Replacing Dense-layer of the model with a custom MaskedDense-layer")
+            print("Replacing Dense-like-layer of the model with a custom MaskedDense-layer")
             if layer['config']['activation'] == 'relu':
                 # print("Recognized an relu-activation.")
                 old_activation = tf.nn.relu
