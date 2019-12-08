@@ -24,7 +24,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentage=20, prun
     # Read out the config for creation of the masked model
     base_model_config = base_model_wrapper.model.get_config()
     # Copy original weights by value
-    base_weights, base_biases = custom_weight_copy(base_model_wrapper)
+    base_weights, base_biases = custom_wb_copy(base_model_wrapper)
     print("Training full network...")
     full_prediction_history = inspect_metrics_while_training(model_wrapper=base_model_wrapper,
                                                              training_data=train_datapoints,
@@ -34,9 +34,10 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentage=20, prun
                                                              verbosity=2)
     masked_prediction_histories = []
 
-    for i in range(0, pruning_iterations):
-        iter_pruning_percentage = (1-np.power(pruning_percentage/100, i))*100
+    for i in range(1, pruning_iterations+1):
+        iter_pruning_percentage = (1-np.power(1 - (pruning_percentage/100), i))*100
         print("-"*15 + " Pruning Iteration " + str(i) + " " + "-"*15)
+        print("Total Pruning Percentage: " + str(iter_pruning_percentage))
         print("Developing the masked network...")
         # TODO: The following assumes that already masked weights are saves as 0 which might not hold. FIX IT!
         masked_model = masking.mask_initial_model(trained_model=base_model_wrapper.model,
@@ -52,7 +53,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentage=20, prun
         # Read out the config for creation of the masked model
         base_model_config = base_model_wrapper.model.get_config()
         # Copy original weights by value
-        base_weights, base_biases = custom_weight_copy(base_model_wrapper)
+        base_weights, base_biases = custom_wb_copy(base_model_wrapper)
 
         print("Training masked network...")
         masked_prediction_history = inspect_metrics_while_training(model_wrapper=lottery_ticket_wrapper,
@@ -76,7 +77,7 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=10, pruning_perc
     # Read out the config for creation of the masked model
     base_model_config = base_model_wrapper.model.get_config()
 
-    base_weights, base_biases = custom_weight_copy(base_model_wrapper)
+    base_weights, base_biases = custom_wb_copy(base_model_wrapper)
 
     intermediate_wb = []
     histories_over_pruning_iterations = []
@@ -109,7 +110,7 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=10, pruning_perc
                 extend_history(building_history, last_history)
                 if k == j:
                     # copy weights by value to save them
-                    intermediate_wb[k] = custom_weight_copy(masked_wrapper)
+                    intermediate_wb[k] = custom_wb_copy(masked_wrapper)
             # TODO: Does this work?
             histories_over_reset_epochs.append(building_history)
         histories_over_pruning_iterations.append(histories_over_reset_epochs)
@@ -186,7 +187,7 @@ def inspect_metrics_while_training(model_wrapper, training_data, validation_data
             'confusion_matrices': confusion_matrices}
 
 
-def custom_weight_copy(model_wrapper):
+def custom_wb_copy(model_wrapper):
     base_weights = []
     base_biases = []
     for j in range(len(model_wrapper.model.weights)):
@@ -196,7 +197,7 @@ def custom_weight_copy(model_wrapper):
             base_biases.append(tf.identity(model_wrapper.model.weights[j]))
         else:
             print("Separation weights and biases failed!")
-        return base_weights, base_biases
+    return base_weights, base_biases
 
 
 def extend_history(base_history, history_to_append):

@@ -7,8 +7,9 @@ import tensorflow.keras as tfk
 from custom_layers import MaskedDense
 
 
-def mask_initial_model(trained_model, initial_weights, initial_biases, model_config, pruning_percentage):
-    masks = _create_masks(trained_model, pruning_percentage)
+def mask_initial_model(trained_model, initial_weights, initial_biases, model_config, pruning_percentage,
+                       layer_wise=False):
+    masks = _create_masks(trained_model, pruning_percentage, layer_wise=layer_wise)
 
     masked_model = tfk.Sequential()
     weight_idx = 0
@@ -52,20 +53,29 @@ def mask_initial_model(trained_model, initial_weights, initial_biases, model_con
     return masked_model
 
 
-def _create_masks(trained_model, pruning_percentage):
+def _create_masks(trained_model, pruning_percentage, layer_wise):
+    # TODO: Implement pruning per layer
+    if layer_wise:
+        print("Masking per individual layer is not yet supported.")
+        print("Falling back on global pruning!")
     flattened_weights = None
     weights_are_initialized = False
     for layer in trained_model.layers:
         if layer.weights:
             if not weights_are_initialized:
-                flattened_weights = tf.reshape(layer.weights[0], [-1])
+                if hasattr(layer, 'mask'):
+                    flattened_weights = tf.reshape(tf.multiply(layer.weights[0], layer.mask), [-1])
+                else:
+                    flattened_weights = tf.reshape(layer.weights[0], [-1])
             else:
-                flattened_weights = tf.concat(flattened_weights, tf.reshape(layer.weights[0], [-1]))
+                if hasattr(layer, 'mask'):
+                    flattened_weights = tf.concat(flattened_weights,
+                                                  tf.reshape(tf.multiply(layer.weights[0], layer.mask), [-1]))
+                else:
+                    flattened_weights = tf.concat(flattened_weights, tf.reshape(layer.weights[0], [-1]))
 
-    if pruning_percentage == 0:
-        quantile = 0
-    else:
-        quantile = np.percentile(np.abs(flattened_weights.numpy()), pruning_percentage)
+
+    quantile = np.percentile(np.abs(flattened_weights.numpy()), pruning_percentage)
     print("Weight of the threshold for masking: ", np.round(quantile, 4))
 
     # List of tuples containing the idx and mask for each layer with trainable weights
