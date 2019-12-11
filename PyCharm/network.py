@@ -9,7 +9,8 @@ import tensorflow.keras as tfk
 
 class CustomNetworkWrapper:
 
-    def __init__(self, no_of_features=0, no_of_classes=90, model_identifier='FeedForward', given_model=None):
+    def __init__(self, no_of_features=0, no_of_classes=90, model_identifier='FeedForward', given_model=None,
+                 summarize=False):
 
         # Base initialization
         optimizer = 'adam'
@@ -65,8 +66,6 @@ class CustomNetworkWrapper:
             self.model = tfk.Sequential([
                 tfk.layers.Input(shape=(28, 28)),
                 tfk.layers.Flatten(input_shape=(28, 28)),
-                # Implicit Activation is linear
-                # TODO: Find out whether the lottery ticket paper uses a more sophisticated activation or not
                 tfk.layers.Dense(units=300,
                                  activation='relu'),
                 tfk.layers.Dense(units=100,
@@ -75,9 +74,52 @@ class CustomNetworkWrapper:
                                  activation=tf.nn.softmax)
             ])
             optimizer = tfk.optimizers.Adam(learning_rate=1.2*1e-03)
-            # loss = tfk.losses.mean_squared_error
-            # Not supported by self.evaluate_model()  yet
-            # metrics = [tfk.metrics.Accuracy(), tfk.metrics.Recall(), tfk.metrics.Precision()]
+
+        elif model_identifier == 'CIFAR10-CNN-6':
+            self.model = tfk.Sequential([
+                tfk.layers.Input(shape=(32, 32, 3)),
+                tfk.layers.Conv2D(
+                    filters=64,
+                    kernel_size=(3, 3),
+                    padding='same',
+                    activation='relu'),
+                tfk.layers.Conv2D(
+                    filters=64,
+                    kernel_size=(3, 3),
+                    padding='same',
+                    activation='relu'),
+                tfk.layers.MaxPool2D(),
+                tfk.layers.Conv2D(
+                    filters=128,
+                    kernel_size=(3, 3),
+                    padding='same',
+                    activation='relu'),
+                tfk.layers.Conv2D(
+                    filters=128,
+                    kernel_size=(3, 3),
+                    padding='same',
+                    activation='relu'),
+                tfk.layers.MaxPool2D(),
+                tfk.layers.Conv2D(
+                    filters=256,
+                    kernel_size=(3, 3),
+                    padding='same',
+                    activation='relu'),
+                tfk.layers.Conv2D(
+                    filters=256,
+                    kernel_size=(3, 3),
+                    padding='same',
+                    activation='relu'),
+                tfk.layers.MaxPool2D(),
+                tfk.layers.Flatten(),
+                tfk.layers.Dense(units=256,
+                                 activation='relu'),
+                tfk.layers.Dense(units=256,
+                                 activation='relu'),
+                tfk.layers.Dense(units=10,
+                                 activation=tf.nn.softmax),
+            ])
+            optimizer = tfk.optimizers.Adam(learning_rate=3*1e-04)
 
         else:
             print("CustomNetworkHandler does not handle a model type called: ", model_identifier)
@@ -89,7 +131,8 @@ class CustomNetworkWrapper:
         self.model.compile(optimizer=optimizer,
                            loss=loss,
                            metrics=metrics)
-        # self.model.summary()
+        if summarize:
+            self.model.summary()
         # print(self.model.get_config())
 
     def train_model(self, datapoints, epochs, batch_size=32, verbosity=1):

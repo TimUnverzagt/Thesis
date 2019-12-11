@@ -26,10 +26,13 @@ def main():
 
     histories_path = '../PyCharm/Histories'
     task_description = 'Reproduction'
-    architecture_description = 'MNIST-Lenet-FCN'
-    pruning_percentage = 20
+    architecture_description = 'CIFAR10-CNN-6'
+    # architecture_description = 'MNIST-Lenet-FCN'
+    pruning_percentages = {'dense': 20,
+                           'conv': 15}
     execution_date = str(datetime.date.today())
     experiment_path = histories_path + '/' + task_description + '/' + architecture_description + '-Test' + '/' + execution_date
+    # experiment_path = histories_path + '/' + task_description + '/' + architecture_description + '/' + execution_date
 
     train = True
     visualize = not train
@@ -42,32 +45,38 @@ def main():
             os.mkdir(folder_path)
 
             '''
-            (full_network_history, masked_network_histories) = \
-            '''
             histories_over_pruning_iterations = \
-                experiments.search_early_tickets(epochs=20,
-                                                 model_identifier=architecture_description,
-                                                 pruning_percentage=pruning_percentage,
-                                                 pruning_iterations=1)
             '''
+            (full_network_history, masked_network_histories) = \
+                experiments.search_lottery_tickets(epochs=5,
+                                                   model_identifier=architecture_description,
+                                                   pruning_percentages=pruning_percentages,
+                                                   pruning_iterations=3,
+                                                   verbosity=2)
+
+
             storage.save_experimental_history(full_network_history, path=folder_path, name='full')
             for idx, masked_network_history in enumerate(masked_network_histories):
-                model_name = 'masked_' + str(pruning_percentage) + '_times_' + str(idx+1)
+                model_name = 'masked_' + str(pruning_percentages['dense']) + '|' + str(pruning_percentages['conv']) +\
+                             '_times_' + str(idx+1)
                 storage.save_experimental_history(masked_network_history, path=folder_path, name=model_name)
             '''
 
             storage.save_experimental_history(histories_over_pruning_iterations[0], path=folder_path, name='full')
             for idx, masked_network_history in enumerate(histories_over_pruning_iterations[1:]):
-                model_name = 'masked_' + str(pruning_percentage) + '_times_' + str(idx+1)
+                model_name = 'masked_' + str(pruning_percentages) + '_times_' + str(idx+1)
                 storage.save_experimental_history(masked_network_history, path=folder_path, name=model_name)
-
+            '''
 
     if visualize:
         # TODO: Add readout for early-tick-search
         folder_path = experiment_path + '/' + str(0)
         full_network_history = storage.load_experimental_history(path=folder_path, name='full')
-        masked_network_history = storage.load_experimental_history(path=folder_path,
-                                                                   name='masked_' + str(pruning_percentage) + '_times_10')
+        masked_network_history = \
+            storage.load_experimental_history(
+                path=folder_path,
+                name='masked_' + str(pruning_percentages['dense']) + '|' + str(pruning_percentages['conv']) +
+                     '_times_1')
 
         visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
                                                              masked_network_history, 'Masked Network',
