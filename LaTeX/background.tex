@@ -5,8 +5,16 @@
 %\hint{This chapter should give a comprehensive overview on the background necessary to understand the thesis.
 %The chapter should have a length of about five pages!}
 
+To develop this work a common base of concepts is needed. This chapter aims to establish the fundamental ideas necessary to comprehend this thesis.\\
+%As such a recap can never be totally comprehensive prerequisites are %unavoidable. 
+%The most notable are:
+%\begin{itemize}
+	%\item Understanding the concept of over-fitting
+	%\item ...
+%\end{itemize}
 
-\section{Basics of Neural Networks}
+\section{Neural Networks}
+\subsection{Basics}
 Neural networks are a part of most major AI-breakthrough in the last decade enabling computers to compete in fields formerly championed by humans.\footnote{\begin{itemize}
 		\item 
 			2011: "Watson" of IBM defeats two former grand champions in "Jeopardy!" \cite{lally2011natural}
@@ -46,17 +54,16 @@ The most basic building block of the human central nervous system is a neuron wh
 The canonical mathematical model of a neuron, as seen in \ref{fig:neuron2}, is defined as:
 \begin{itemize}
 	\item \textbf{Inputs} $x_i$ \textbf{:}\\
-	All stimuli of a neuron are simply referred to as its inputs
+	All stimuli of a neuron are simply referred to as its inputs\\
 	\item \textbf{Weights} $w_i$ \textbf{:}\\
-	The ability to assign importances is modelled as weights which are coupled to specific stimuli
+	The ability to assign importances is modelled as weights which are coupled to specific stimuli\\
 	\item \textbf{Combined Weighted Inputs} $\sum_{i=1}^{n}w_i x_i$ \textbf{:}\\
-	After the inputs are scaled by their according weight they superpose to form the total excitation of the neuron
+	After the inputs are scaled by their according weight they superpose to form the total excitation of the neuron\\
 	\item \textbf{Activation Function} $\Phi(\sum_{i=1}^{n}w_i x_i)$ \textbf{:}\\
-	...
+	Correlation between excitation of an neuron and the signal thus produced\\
 	\item \textbf{Bias} $b$ \textbf{:}\\  
-	...
+	Base excitation used to model a neurons sensibility to excitation\\
 \end{itemize}
-
 
 \begin{figure}
 	\centering
@@ -76,34 +83,181 @@ The canonical mathematical model of a neuron, as seen in \ref{fig:neuron2}, is d
 	\end{minipage}
 \end{figure}
 
-As an individual neurons is too simple to model any complex relations between inputs
-and outputs the next step is to aggregate multiple neurons. Figure \ref{fig:FFNetwork} displays a few neurons coming together to form a simple fully-connected feed-forward network.
-\footnote{
-	Inputs of neural networks are often called "features" and fully-connected networks are frequently referred to as "dense"	}
+\subsection{Data}
+In addition to this model a numerical representation of any utilized data is also needed. A single data point is represented as a collection of inputs. Generally two descriptions can be distinguished:
+\begin{itemize}
+	\item \textbf{One-Hot-Encoding :}\\
+	For each form the data point can assume a single input is modelled. Said input is activated if it fully represents the data otherwise it is not.\\
+	Example:\\
+	If a vocabulary of size $n$ is given its $m$-th word can be described as a vector with $n$ entries where only the $m$-th entry is non-zero.
+	\item \textbf{Embedding :}\\
+	If the data point can be described through features it can be though of as being embedded in a lower-dimensional more expressive space comparable to one-hot-encoding. An important advantage of this description is the resulting continuity of the input-space.\\
+	Example: \\
+	A sound could be described through its volume, pitch and duration
+\end{itemize} 
+
+\textbf{TODO: multidimensionality}
+
+\subsection{Layers}
+As an individual neuron is too simple to model any complex relations between inputs and outputs the next step is to aggregate multiple neurons. At the core of neural networks is the idea to collect the signal many different neurons produce for a given input and reuse them as new features for another round of neurons. Such a collection is called a \textbf{layer} and especially a \textbf{hidden layer} if neither its inputs where original data nor are its outputs the final activations. \footnote{
+	This hierarchy of abstracts features is essential to the descriptive abilities of neural network. As such any sensible function between input and output can be approximated up to arbitrary precision by a network with at least one hidden layer. \cite{universal}
+	}\\
+A layer is defined by the structure of connections it prescribes. The layers used in this thesis consist of:
+
+\begin{itemize}
+	\item \textbf{Input :}\\
+	The numeric representation of data points can be thought of activations a input-layer produces. In applications this layer is commonly used to describe assumptions on the data-points.  \\
+	\item \textbf{Fully-Connected | Dense :}\\
+	Every neuron of the layer is connected to every input.\\
+	\item \textbf{Convolution :}\\
+	Every neuron is only connected to a small neighbourhood of features.\\
+	The Parameters are: neighbourhood size, amount of considered neighbourhoods and definition of behaviour at the edges of data points.\\
+	Example:...\\
+	\item \textbf{Pooling :}\\
+	Not a conventional layer but rather a data-processing-step between other layers. Reduces the number of features by condensing a small neighbourhood into a single feature.\\
+	\item \textbf{Flatten :}\\  
+	Not a conventional layer but rather a data-processing-step between other layers. Collapses features from multiple dimensions into a single one.\\
+\end{itemize}
+
+\subsection{Architectures}
+The collection of layers used for a given task is called an \textbf{architecture}. As multiple architectures are discussed throughout this work a clear system to note them is fundamental. Any architecture description first declares all default assumptions on its layers. Afterwards a list of layers follows defining the type of said layers, their hyper-parameters and especially the dimensionality of their outputs. Additionally and in interest of compatibility the following notation while be close to the functional Keras-API utilized throughout the associated source code.\\
+The following two examples are meant to illustrate the notation:
+
+
 \begin{figure}
 	\centering
-		\includegraphics[height=150px]{gfx/Dense_FFNetwork.jpg}
-		\caption{A small fully-connected network\\
-			\cite{dense_network}}
-		\label{fig:FFNetwork}
+	\includegraphics[height=200px]{gfx/Dense_FFNetwork.jpg}
+	\caption{Architecture of a small fully-connected network\\
+		\cite{dense_network}}
+	\label{fig:FFNetwork}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[height=200px]{gfx/vgg16.png}
+	\caption{Macroarchitecture of VGG16\\
+		\cite{VGG16}}
+	\label{fig:VGG16}
 \end{figure}
 
 \begin{itemize}
-	\item FNN as universal approximator (but overfitting)
-	\item Issue of computational expense
-	\item CNNs 
+	\item[] \textbf{Simple-FCN} | \ref{fig:FFNetwork}
+	\begin{itemize}
+			\item[]\textbf{def. activation:} rectified linear unit
+			\item[]\textbf{Input:} 
+				\begin{itemize}
+					\item[] dim-output: 5
+				\end{itemize}
+				\item[]\textbf{Dense:} 
+				\begin{itemize}
+					\item[] dim-output: 3
+				\end{itemize}
+				\item[]\textbf{Dense:} 
+				\begin{itemize}
+					\item[] dim-output: 2
+					\item[] activation: soft-max
+				\end{itemize}
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item[] \textbf{VGG-16} | \ref{fig:VGG16}
+	\begin{itemize}
+			\item[]\textbf{Defaults:} 
+			\begin{itemize}
+				\item[] convolution-neighbourhood-size: [3,3]
+				\item[] convolution-neighbourhood-shift: [1,1]
+				\item[] convolution-edge-behaviour: same-dim, zero-padding
+				\item[] softmax-size: [2,2]
+				\item[] softmax-shift: [2,2]
+			\end{itemize}
+			
+			\item[]\textbf{Input:} 
+			\begin{itemize}
+				\item[] dim-output: [224, 224 | 3]
+			\end{itemize}
+			
+			\item[]\textbf{2x Convolution:} 
+			\begin{itemize}
+				\item[] dim-output: [224, 224 | 64]
+			\end{itemize}
+			
+			\item[]\textbf{Softmax:} 
+			\begin{itemize}
+				\item[] dim-output: [112, 112 | 64]
+			\end{itemize}
+			
+			\item[]\textbf{2x Convolution:} 
+			\begin{itemize}
+				\item[] dim-output: [112, 112 | 128]
+			\end{itemize}
+			
+			\item[]\textbf{Softmax:} 
+			\begin{itemize}
+				\item[] dim-output: [56, 56 | 128]				
+			\end{itemize}
+			
+			\item[]\textbf{3x Convolution:} 
+			\begin{itemize}
+				\item[] dim-output: [56, 56 | 256]
+			\end{itemize}
+			
+			\item[]\textbf{Softmax:} 
+			\begin{itemize}
+				\item[] dim-output: [28, 28 | 256]				
+			\end{itemize}
+			
+			\item[]\textbf{3x Convolution:} 
+			\begin{itemize}
+				\item[] dim-output: [28, 28 | 512]
+			\end{itemize}
+			
+			\item[]\textbf{Softmax:} 
+			\begin{itemize}
+				\item[] dim-output: [14, 14 | 512]				
+			\end{itemize}
+			
+			\item[]\textbf{3x Convolution:} 
+			\begin{itemize}
+				\item[] dim-output: [14, 14 | 512]
+			\end{itemize}
+			
+			\item[]\textbf{Softmax:} 
+			\begin{itemize}
+				\item[] dim-output: [7, 7 | 512]				
+			\end{itemize}
+			
+			\item[]\textbf{Flatten:} 
+			\begin{itemize}
+				\item[] dim-output: 25.088				
+			\end{itemize}
+			
+			\item[]\textbf{Dense:} 
+			\begin{itemize}
+				\item[] dim-output: 4096
+			\end{itemize}
+			
+			\item[]\textbf{Dense:} 
+			\begin{itemize}
+				\item[] dim-output: 4096
+			\end{itemize}
+			
+			\item[]\textbf{Dense:} 
+			\begin{itemize}
+				\item[] dim-output: 1000
+				\item[] activation: softmax
+			\end{itemize}
+			
+	\end{itemize}
 \end{itemize}
 
 \section{Pruning}
-\begin{itemize}
-	\item Generalization (Anti-Overfitting)
-	\item weight magnitude based pruning
-	\item Levels of pruning
-\end{itemize}
+As the computational power of modern devices increases ever larger architectures become possible. While this allows for more precise models on any given data it is important to recall that pure representation is not the ultimate goal of most applications. Being more concrete, all tasks discussed in this work can be categorized as \textbf{supervised learning}, meaning they provide a collection of labelled data points and demand an extrapolation of the implicit labelling process, called \textbf{generalization}.
+It is a well known phenomenon in the field of supervised learning\footnote{called \textbf{overfitting}} that generalization suffers from over-adaptation to the given data and that said over-adaptation tends to happen more easily in complex architectures.\\
+On the other hand does massive parametrization not only enable us to approximate the labelling process\footnote{Which can be encoded as a function} more precisely but also to find such an approximation in a feasible way. \cite{Overparametrization}.\\
+Pruning is a compromise in which a large model is fitted to a given data set and then truncated as much as possible while maintaining accuracy. 
 
-\section{Basics of Natural Language Processing}
-\begin{itemize}
-	\item Preprocessing (Padding)
-	\item Quantifying text (Features, ngrams, BoW)
-	\item Language models
-\end{itemize}
+\section{Preprocessing for Natural Language Processing}
+In addition the previously mentioned treatment for any dataset there are additional preprocessing steps when handling text-inputs in natural language\footnote{The term \textbf{natural language} describes language written, spoken and otherwise used by humans in contrast to precisely defined languages used for communication between computation devices.}. The most important ones are \textbf{tokenization}, the separation of a text into words and/or sentences, and \textbf{stopword removal}, the removal of little to no syntactic or semantic importance.\\
+As the former is almost always necessary to even quantify the numeric representation of the datapoints most frameworks provide datasets already preprocessed in such a manner.\\
+The later is a canonical inclusion into any natural-language-processing data-flow but also is generally not preemptively applied to dataset.
