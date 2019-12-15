@@ -59,6 +59,9 @@ https://github.com/mmihaltz/word2vec-GoogleNews-vectors
 nltk.download('reuters')
 nltk.download('punkt')
 
+# Download the vocabulary for 20newsgroup and save it under
+/datasets/newsgroups_vocabulary
+
 
 	
 ---4. IDE--- 
