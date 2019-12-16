@@ -6,29 +6,17 @@ from sklearn.datasets import fetch_20newsgroups
 from datasets import preprocessing as pre
 
 
-def quantify_datapoints():
-    newsgroups_train = fetch_20newsgroups(subset='train')
-    newsgroups_test = fetch_20newsgroups(subset='test')
+def quantify_datapoints(target_doc_len):
     vocabulary = get_vocabulary()
 
     print("Embedding the documents...")
-    emb_train_data = []
-    for idx, text in enumerate(newsgroups_train.data):
-        if ((idx % 1000) == 0) & (idx != 0):
-            print(str(idx) + " training documents have been embedded.")
-        tok_text = pre.tokenize(text, lower=True, head_stripper="\n\n")
-        emb_train_data.append(pre.embed(tok_text=tok_text, vocabulary=vocabulary))
-    trainining_datapoints = (emb_train_data, newsgroups_train.target)
-
-    emb_test_data = []
-    for idx, text in enumerate(newsgroups_test.data):
-        if ((idx % 1000) == 0) & (idx != 0):
-            print(str(idx) + " testing documents have been embedded.")
-        tok_text = pre.tokenize(text, lower=True, head_stripper="\n\n")
-        emb_test_data.append(pre.embed(tok_text=tok_text, vocabulary=vocabulary))
-    test_datapoints = (emb_test_data, newsgroups_test.target)
-
-    return {'train': trainining_datapoints, 'test': test_datapoints}
+    training_datapoints = translate_wrapper(old_wrapper=fetch_20newsgroups(subset='train'),
+                                            target_doc_len=target_doc_len,
+                                            vocabulary=vocabulary)
+    test_datapoints = translate_wrapper(old_wrapper=fetch_20newsgroups(subset='test'),
+                                        target_doc_len=target_doc_len,
+                                        vocabulary=vocabulary)
+    return {'train': training_datapoints, 'test': test_datapoints}
 
 
 def get_vocabulary():
@@ -37,4 +25,23 @@ def get_vocabulary():
         for idx, line in enumerate(txt_file):
             vocabulary[line.rstrip('\n')] = idx
     return vocabulary
+
+
+def translate_wrapper(old_wrapper, target_doc_len, vocabulary):
+    emb_data = []
+    for idx, text in enumerate(old_wrapper.data):
+        if ((idx % 1000) == 0) & (idx != 0):
+            print(str(idx) + " documents have been embedded.")
+        tok_text = pre.tokenize(text, lower=True, head_stripper="\n\n")
+        emb_text = pre.embed(tok_text=tok_text, vocabulary=vocabulary)
+        emb_data.append(pre.unify_length(tok_doc=emb_text,
+                        target_length=target_doc_len,
+                        padding='zero'))
+    train_array = np.zeros(shape=(len(old_wrapper.data), target_doc_len), dtype=np.int)
+    for i, doc in enumerate(emb_data):
+        for j in range(len(doc)):
+            train_array[i][j] = doc[j]
+    datapoints = (train_array, old_wrapper.target)
+    print("-" * 10)
+    return datapoints
 

@@ -12,7 +12,8 @@ def embed(tok_text, vocabulary):
         if word in vocabulary:
             embedding.append(vocabulary[word])
         else:
-            embedding.append(idx_for_unrec)
+            continue
+            # embedding.append(idx_for_unrec)
     return embedding
 
 
@@ -24,6 +25,22 @@ def tokenize(text, lower=False, head_stripper=None):
         tok_text = tok_text.lower()
     tok_text = word_tokenize(tok_text)
     return tok_text
+
+
+def unify_length(tok_doc, target_length, padding='zero'):
+    doc_len = len(tok_doc)
+    if doc_len > target_length:
+        edited_doc = tok_doc[0:target_length]
+    elif doc_len < target_length:
+        edited_doc = tok_doc
+        for j in range(doc_len, target_length):
+            if padding == 'zero':
+                edited_doc.append(0)
+            else:
+                print('Padding identifier not recognized while unifying length of documents')
+    else:
+        edited_doc = tok_doc
+    return edited_doc
 
 
 def strip_head(text, stripper):

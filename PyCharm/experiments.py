@@ -9,9 +9,27 @@ from tensorflow import keras as tfk
 import masking
 import visualization
 from network import CustomNetworkWrapper as NetworkWrapper
+from datasets import newsgroups
 from datasets import reuters
 from datasets import mnist
 from datasets import cifar10
+
+
+def test_cnn_for_nlp(epochs, verbosity=1):
+    print("Quantifying datapoints...")
+    data_splits = newsgroups.quantify_datapoints(target_doc_len=200)
+    train_datapoints = data_splits['train']
+    test_datapoints = data_splits['test']
+
+    model_wrapper = NetworkWrapper(model_identifier='Newsgroups-End2End-CNN', summarize=True)
+
+    full_prediction_history = inspect_metrics_while_training(model_wrapper=model_wrapper,
+                                                             training_data=train_datapoints,
+                                                             validation_data=test_datapoints,
+                                                             epochs=epochs,
+                                                             batch_size=60,
+                                                             verbosity=verbosity)
+    return
 
 
 def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense': 20, 'conv': 15},
@@ -41,7 +59,8 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
                                                              validation_data=test_datapoints,
                                                              epochs=epochs,
                                                              batch_size=60,
-                                                             verbosity=verbosity)
+                                                             verbosity=verbosity,
+                                                             one_hot_labels=True)
     masked_prediction_histories = []
 
     for i in range(1, pruning_iterations+1):
@@ -69,7 +88,8 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
                                                                    validation_data=test_datapoints,
                                                                    epochs=epochs,
                                                                    batch_size=60,
-                                                                   verbosity=verbosity)
+                                                                   verbosity=verbosity,
+                                                                   one_hot_labels=True)
         masked_prediction_histories.append(masked_prediction_history)
     return full_prediction_history, masked_prediction_histories
 
@@ -118,7 +138,8 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_perce
                                                               validation_data=test_datapoints,
                                                               epochs=1,
                                                               batch_size=60,
-                                                              verbosity=verbosity)
+                                                              verbosity=verbosity,
+                                                              one_hot_labels=True)
                 _extend_history(building_history, last_history)
                 if k == j:
                     # copy weights by value to save them
@@ -168,13 +189,16 @@ def test_creation_of_masked_network(epochs):
 
 
 def inspect_metrics_while_training(model_wrapper, training_data, validation_data, epochs, batch_size,
-                                   verbosity=2, scheme_for_averaging="micro"):
+                                   verbosity=2, scheme_for_averaging="micro", one_hot_labels=False):
 
     accuracy_over_epochs = []
     precision_over_epochs = []
     recall_over_epochs = []
     confusion_matrices = []
-    sparse_true_labels = _sparsify_predictions(validation_data[1])
+    if one_hot_labels:
+        sparse_true_labels = _sparsify_predictions(validation_data[1])
+    else:
+        sparse_true_labels = validation_data[1]
     for i in range(epochs):
         if verbosity > 0:
             _flag_epoch(i + 1)

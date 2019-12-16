@@ -84,7 +84,8 @@ def main():
                                                              masked_network_history, 'Masked Network',
                                                              'accuracy', 'accuracy')
     if test_new_structure:
-        datapoints = newsgroups.quantify_datapoints()
+        experiments.test_cnn_for_nlp(epochs=5)
+        # print("No new structure to test. Check main.py")
 
     return
 

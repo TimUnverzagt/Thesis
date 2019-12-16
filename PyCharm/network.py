@@ -7,6 +7,19 @@ import tensorflow as tf
 import tensorflow.keras as tfk
 
 
+def init_submodel(kernel_size, pool_size):
+    submodel = tfk.Sequential()
+    submodel.add(tfk.layers.Embedding(input_dim=61188,
+                                      input_length=200,
+                                      output_dim=300))
+    submodel.add(tfk.layers.Conv1D(filters=3,
+                                   kernel_size=kernel_size))
+    submodel.add(tfk.layers.AvgPool1D(pool_size=pool_size))
+    submodel.add(tfk.layers.Dropout(rate=0.5))
+    submodel.add(tfk.layers.GlobalAveragePooling1D())
+    return submodel
+
+
 class CustomNetworkWrapper:
 
     def __init__(self, no_of_features=0, no_of_classes=90, model_identifier='FeedForward', given_model=None,
@@ -75,6 +88,24 @@ class CustomNetworkWrapper:
             ])
             optimizer = tfk.optimizers.Adam(learning_rate=1.2*1e-03)
 
+        elif model_identifier == 'Newsgroups-End2End-CNN':
+            common_input = tfk.layers.Input(shape=200)
+
+            submodels = []
+            outputs = []
+            for i in range(2):
+                for j in range(8):
+                    submodels.append(init_submodel(1+3*j, 2+5*i))
+                    outputs.append(submodels[i](common_input))
+
+            merged = tfk.layers.concatenate(outputs)
+            regularized = tfk.layers.Dropout(rate=0.5)(merged)
+            output = tfk.layers.Dense(20,
+                                      activation='softmax')(regularized)
+            self.model = tfk.Model(inputs=[common_input],
+                                   outputs=output)
+            loss = 'sparse_categorical_crossentropy'
+
         elif model_identifier == 'CIFAR10-CNN-6':
             self.model = tfk.Sequential([
                 tfk.layers.Input(shape=(32, 32, 3)),
@@ -127,6 +158,7 @@ class CustomNetworkWrapper:
             print("'Given-Model'")
             print("'Reuters-FeedForward', 'Reuters-CNN'")
             print("'MNIST-Lenet-FCN'")
+            print("'Newsgroups-End2End-CNN'")
 
         self.model.compile(optimizer=optimizer,
                            loss=loss,
@@ -164,5 +196,7 @@ class CustomNetworkWrapper:
 
         print("F1: ", f1_measure)
         return
+
+
 
 
