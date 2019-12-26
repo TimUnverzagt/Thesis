@@ -38,8 +38,13 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
     # Identify dataset
     if 'MNIST' in model_identifier:
         data_splits = mnist.quantify_datapoints()
+        one_hot_labeled = True
     elif 'CIFAR10' in model_identifier:
         data_splits = cifar10.quantify_datapoints()
+        one_hot_labeled = True
+    elif 'Newsgroups' in model_identifier:
+        data_splits = newsgroups.quantify_datapoints(target_doc_len=200)
+        one_hot_labeled = False
     else:
         print("Dataset was not recognized from the model_identifier.")
         print("A critical error is imminent!")
@@ -60,7 +65,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
                                                              epochs=epochs,
                                                              batch_size=60,
                                                              verbosity=verbosity,
-                                                             one_hot_labels=True)
+                                                             one_hot_labels=one_hot_labeled)
     masked_prediction_histories = []
 
     for i in range(1, pruning_iterations+1):
@@ -89,7 +94,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
                                                                    epochs=epochs,
                                                                    batch_size=60,
                                                                    verbosity=verbosity,
-                                                                   one_hot_labels=True)
+                                                                   one_hot_labels=one_hot_labeled)
         masked_prediction_histories.append(masked_prediction_history)
     return full_prediction_history, masked_prediction_histories
 

@@ -93,9 +93,13 @@ class CustomNetworkWrapper:
 
             submodels = []
             outputs = []
-            for i in range(2):
-                for j in range(8):
-                    submodels.append(init_submodel(1+3*j, 2+5*i))
+            for i in range(16):
+                if i < 8:
+                    submodels.append(init_submodel(1+3*i, 2))
+                    outputs.append(submodels[i](common_input))
+                else:
+
+                    submodels.append(init_submodel(1+3*(i % 8), 7))
                     outputs.append(submodels[i](common_input))
 
             merged = tfk.layers.concatenate(outputs)

@@ -9,7 +9,7 @@ from datasets import preprocessing as pre
 def quantify_datapoints(target_doc_len):
     vocabulary = get_vocabulary()
 
-    print("Embedding the documents...")
+    print("Encoding the documents...")
     training_datapoints = translate_wrapper(old_wrapper=fetch_20newsgroups(subset='train'),
                                             target_doc_len=target_doc_len,
                                             vocabulary=vocabulary)
@@ -31,7 +31,7 @@ def translate_wrapper(old_wrapper, target_doc_len, vocabulary):
     emb_data = []
     for idx, text in enumerate(old_wrapper.data):
         if ((idx % 1000) == 0) & (idx != 0):
-            print(str(idx) + " documents have been embedded.")
+            print(str(idx) + " documents have been encoded.")
         tok_text = pre.tokenize(text, lower=True, head_stripper="\n\n")
         emb_text = pre.embed(tok_text=tok_text, vocabulary=vocabulary)
         emb_data.append(pre.unify_length(tok_doc=emb_text,
