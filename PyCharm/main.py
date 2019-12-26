@@ -53,10 +53,10 @@ def main():
             histories_over_pruning_iterations = \
             '''
             (full_network_history, masked_network_histories) = \
-                experiments.search_lottery_tickets(epochs=50,
+                experiments.search_lottery_tickets(epochs=0,
                                                    model_identifier=architecture_description,
                                                    pruning_percentages=pruning_percentages,
-                                                   pruning_iterations=0,
+                                                   pruning_iterations=1,
                                                    verbosity=1)
 
             storage.save_experimental_history(full_network_history, path=folder_path, name='full')

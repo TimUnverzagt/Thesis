@@ -57,7 +57,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
     # Read out the config for creation of the masked model
     base_model_config = base_model_wrapper.model.get_config()
     # Copy original weights by value
-    base_weights, base_biases = _custom_wb_copy(base_model_wrapper)
+    base_weights, base_biases = masking.save_trainable_values(base_model_wrapper)
     print("Training full network...")
     full_prediction_history = inspect_metrics_while_training(model_wrapper=base_model_wrapper,
                                                              training_data=train_datapoints,
@@ -85,7 +85,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
         # Read out the config for creation of the masked model
         base_model_config = base_model_wrapper.model.get_config()
         # Copy original weights by value
-        base_weights, base_biases = _custom_wb_copy(base_model_wrapper)
+        base_weights, base_biases = masking.save_trainable_values(base_model_wrapper)
 
         print("Training masked network...")
         masked_prediction_history = inspect_metrics_while_training(model_wrapper=lottery_ticket_wrapper,
@@ -111,7 +111,7 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_perce
     # Read out the config for creation of the masked model
     base_model_config = base_model_wrapper.model.get_config()
 
-    base_weights, base_biases = _custom_wb_copy(base_model_wrapper)
+    base_weights, base_biases = masking.save_trainable_values(base_model_wrapper)
 
     intermediate_wb = []
     histories_over_pruning_iterations = []
@@ -148,13 +148,14 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_perce
                 _extend_history(building_history, last_history)
                 if k == j:
                     # copy weights by value to save them
-                    intermediate_wb[k] = _custom_wb_copy(masked_wrapper)
+                    intermediate_wb[k] = masking.save_trainable_values(masked_wrapper)
             # TODO: Does this work?
             histories_over_reset_epochs.append(building_history)
         histories_over_pruning_iterations.append(histories_over_reset_epochs)
     return histories_over_pruning_iterations
 
-
+'''
+---DEPRECATED---
 def test_creation_of_masked_network(epochs):
     """
     reuters_model_wrapper = NetworkWrapper(no_of_features=0,
@@ -191,6 +192,7 @@ def test_creation_of_masked_network(epochs):
     lottery_ticket_wrapper.evaluate_model(test_datapoints)
 
     return full_history, masked_history
+'''
 
 
 def inspect_metrics_while_training(model_wrapper, training_data, validation_data, epochs, batch_size,
@@ -227,7 +229,8 @@ def inspect_metrics_while_training(model_wrapper, training_data, validation_data
             'recall': recall_over_epochs,
             'confusion_matrices': confusion_matrices}
 
-
+'''
+---DEPRECATED---
 def _custom_wb_copy(model_wrapper):
     base_weights = []
     base_biases = []
@@ -239,6 +242,7 @@ def _custom_wb_copy(model_wrapper):
         else:
             print("Separation weights and biases failed!")
     return base_weights, base_biases
+'''
 
 
 def _extend_history(base_history, history_to_append):
