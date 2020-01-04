@@ -4,69 +4,103 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras as tfk
+import time
+from collections import Iterable
+
+# Personal modules
 from custom_layers import MaskedDense
 from custom_layers import MaskedConv2D
 
 
-def save_trainable_values(model_wrapper):
-    config = model_wrapper.model.get_config()
-    n_o_trainable_layers_per_submodel = []
-    for subconfig in config['layers']:
-        n_o_trainable_layers_per_submodel.append(
-            _find_amount_of_values_for_subconfig(subconfig)
-        )
-    save_values = []
-    n_o_already_saved_values = 0
-    for n_o_trainable_layers in n_o_trainable_layers_per_submodel:
-        save_values_per_submodel = []
-        for i in range(n_o_trainable_layers):
-            save_values_per_submodel.append(
-                (tf.identity(model_wrapper.model.weights[n_o_already_saved_values]))
+def extract_trainable_values(model):
+    config = model.get_config()
+    weights = model.weights
+
+    # Go over the config recursively once to understand how the value tensors are spread
+    no_of_tensors = _find_no_of_tensors_rec(config)
+
+    # Go over all tensors to recursevly associate them to the structure
+    structured_tensors = _structurize_tensors_rec(
+        config,
+        tensor_distribution=no_of_tensors,
+        tensors=weights)
+
+    return structured_tensors
+
+
+def _structurize_tensors_rec(config, tensor_distribution, tensors):
+    structured_tensors = []
+    if _is_functional_config(config):
+        # TODO: I am uncertain whether functional configs and functional subconfigs behave identical
+        # TODO: Additionally the use of nested functional models has not been tested
+        for idx, subconfig in enumerate(config['layers']):
+            if isinstance(tensor_distribution[idx], Iterable):
+                no_needed_tensors = sum(_flatten(tensor_distribution[idx]))
+            else:
+                no_needed_tensors = tensor_distribution[idx]
+
+            no_used_tensors = sum(_flatten(tensor_distribution[0:idx]))
+            subtensors = tensors[no_used_tensors: (no_used_tensors + no_needed_tensors)]
+            structured_tensors.append(
+                _structurize_tensors_rec(
+                    subconfig,
+                    tensor_distribution[idx],
+                    subtensors)
             )
-            n_o_already_saved_values += 1
-        save_values.append(save_values_per_submodel)
-    '''
-    if _is_functional_config(config):
-        print()
-    elif _is_sequential_subconfig():
-        print()
-    elif _is_layer_subconfig():
-        print()
-    else:
-        print("Failed to read out config while saving values")
-    '''
-    '''
-    base_weights = []
-    base_biases = []
-    for j in range(len(model_wrapper.model.weights)):
-        if (j % 2) == 0:
-            base_weights.append(tf.identity(model_wrapper.model.weights[j]))
-        elif (j % 2) == 1:
-            base_biases.append(tf.identity(model_wrapper.model.weights[j]))
-        else:
-            print("Separation of weights and biases failed!")
-    '''
-    # return base_weights, base_biases
-    return save_values
-
-
-def _find_amount_of_values_for_subconfig(config):
-    no_values = 0
-    if _is_functional_config(config):
-        for subconfig in config['layers']:
-            no_values += _find_amount_of_values_for_subconfig(subconfig)
 
     elif _is_sequential_subconfig(config):
+        # TODO: Might not recognize full sequential configs
+        layers = config['config']['layers']
+        no_used_tensors = 0
+        for idx, layer_config in enumerate(layers):
+            wb_dict = {}
+            if _is_layer_with_weights(layer_config):
+                wb_dict['weights'] = tf.identity(tensors[no_used_tensors])
+                no_used_tensors += 1
+                if _is_layer_with_biases(layer_config):
+                    wb_dict['biases'] = tf.identity(tensors[no_used_tensors])
+                    no_used_tensors += 1
+            structured_tensors.append(wb_dict)
+
+    elif _is_layer_subconfig(config):
+        # TODO: Might not recognize full layer configs
+        eb_dict = {}
+        if _is_layer_with_weights(config):
+            eb_dict['weights'] = tf.identity(tensors[0])
+            if _is_layer_with_biases(config):
+                eb_dict['biases'] = tf.identity(tensors[1])
+        structured_tensors = eb_dict
+    return structured_tensors
+
+
+def _find_no_of_tensors_rec(config):
+    # TODO: I am uncertain whether functional configs and functional subconfigs behave identical
+    # TODO: This might cause problems as the use of nested functional models has not been tested
+    if _is_functional_config(config):
+        no_tensor = []
+        for subconfig in config['layers']:
+           no_tensor.append(_find_no_of_tensors_rec(subconfig))
+
+    # TODO: Might not recognize full sequential configs
+    elif _is_sequential_subconfig(config):
+        no_tensor = 0
         layers = config['config']['layers']
         for layer_config in layers:
-            no_values += int(_is_layer_with_weights(layer_config))
-            no_values += int(_is_layer_with_bias(layer_config))
+            no_tensor += int(_is_layer_with_weights(layer_config))
+            no_tensor += int(_is_layer_with_biases(layer_config))
+
+    # TODO: Might not recognize full layer configs
     elif _is_layer_subconfig(config):
-        no_values += int(_is_layer_with_weights(config))
-        no_values += int(_is_layer_with_bias(config))
-    else:
-        print("Failed to read out config while saving values")
-    return no_values
+        no_tensor = int(_is_layer_with_weights(config)) \
+                    + int(_is_layer_with_biases(config))
+    return no_tensor
+
+
+def future_mask_model(trained_model, initial_values, pruning_percentages):
+    config = trained_model.get_config()
+    masks = _create_mask_for_functional_model(config, initial_values,
+                                              pruning_percentages)
+    return masks
 
 
 def mask_model(trained_model, initial_weights, initial_biases, model_config, pruning_percentages,
@@ -186,31 +220,59 @@ def _create_masks_for_sequential_model(trained_model, pruning_percentages, layer
     return masks
 
 
-def _create_mask_for_functional_model(trained_model, pruning_percentages, layer_wise):
-    masked_submodels = ()
-    main_config = trained_model.get_config()
-
+def _create_mask_for_functional_model(config, values, pruning_percentages):
     masks = []
-    for subconfig in main_config['layers']:
-        if _is_functional_config(subconfig):
-            print("Detected subconfig in functional shape")
-        elif _is_sequential_subconfig(subconfig):
-            print("Detected subconfig in sequential shape")
-        elif _is_layer_subconfig(subconfig):
-            print("Detected subconfig in layer shape")
-            if _is_maskable_layer(subconfig):
-                masks.append(_create_mask_for_layer(subconfig, pruning_percentages, ))
-    return 0
+    if _is_functional_config(config):
+        print("---Begin masking of a functional model---")
+        for idx, subconfig in enumerate(config['layers']):
+            masks.append(_create_mask_for_functional_model(
+                config=subconfig,
+                values=values[idx],
+                pruning_percentages=pruning_percentages)
+            )
+        print("---End masking of a functional model---")
+    elif _is_sequential_subconfig(config):
+        layers = config['config']['layers']
+        for idx, layer_config in enumerate(layers):
+            if _is_maskable_layer(layer_config):
+                print("Masking sequential layer")
+                # TODO: Extend to multiple pruning percentages
+                tensor = values[idx]['weights']
+                quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['conv'])
+                masks.append(_magnitude_threshold_mask(
+                    tensor=tensor,
+                    threshold=quantile
+                ))
+
+    elif _is_layer_subconfig(config):
+        print("Masking a single layer")
+        if _is_maskable_layer(config):
+            print("Masking sequential layer")
+            # TODO: Extend to multiple pruning percentages
+            tensor = values['weights']
+            quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['conv'])
+            masks.append(_magnitude_threshold_mask(
+                tensor=tensor,
+                threshold=quantile
+            ))
+    return masks
 
 
 def _create_mask_for_layer(config, pruning_percentages, weights):
     return
 
 
-def _magnitude_threshold_mask(values, threshold):
-    print("Weight of the threshold for masking: ", np.round(threshold, 4))
+def _magnitude_threshold_mask(tensor, threshold):
+    print("Weight of the threshold for masking: " + str(np.round(threshold, 4)))
     # Does this work as intended with numeric errors?
-    return tf.cast(tf.map_fn(lambda x: abs(x) >= threshold, values, bool), tf.int32)
+    prev_time = time.time()
+    mask = tensor.numpy()
+    with np.nditer(mask, op_flags=['readwrite']) as it:
+        for x in it:
+            x[...] = int(abs(x) >= threshold)
+    # mask = tf.cast(tf.map_fn(lambda x: abs(x) >= threshold, tensor, bool), tf.int32)
+    print("Time used: " + str((time.time() - prev_time)))
+    return mask
 
 
 def _is_maskable_layer(config):
@@ -219,6 +281,7 @@ def _is_maskable_layer(config):
     maskable = (config['class_name'] == 'MaskedDense') | maskable
     maskable = (config['class_name'] == 'Conv2D') | maskable
     maskable = (config['class_name'] == 'MaskedConv2D') | maskable
+    maskable = (config['class_name'] == 'Embedding') | maskable
     return maskable
 
 
@@ -229,7 +292,7 @@ def _is_layer_with_weights(config):
     return has_weights
 
 
-def _is_layer_with_bias(config):
+def _is_layer_with_biases(config):
     has_bias = _is_layer_with_weights(config)
     # Remove layers with weights only
     has_bias = (not (config['class_name'] == 'Embedding')) & has_bias
@@ -249,3 +312,13 @@ def _is_sequential_subconfig(subconfig):
 def _is_layer_subconfig(subconfig):
     # TODO: There might be more robust ways of identification
     return 'layers' not in subconfig['config']
+
+
+def _flatten(collection):
+    for element in collection:
+        if isinstance(element, Iterable):
+            for x in _flatten(element):
+                yield x
+        else:
+            yield element
+

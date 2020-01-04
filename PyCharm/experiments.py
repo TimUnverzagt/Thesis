@@ -57,7 +57,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
     # Read out the config for creation of the masked model
     base_model_config = base_model_wrapper.model.get_config()
     # Copy original weights by value
-    base_weights, base_biases = masking.save_trainable_values(base_model_wrapper)
+    base_values = masking.extract_trainable_values(base_model_wrapper.model)
     print("Training full network...")
     full_prediction_history = inspect_metrics_while_training(model_wrapper=base_model_wrapper,
                                                              training_data=train_datapoints,
@@ -72,11 +72,9 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
         iter_pruning_percentages = _iterate_pruning_percentages(percentages=pruning_percentages, iteration=i)
         _flag_pruning_iteration(i, iter_pruning_percentages)
         print("Developing the masked network...")
-        masked_model = masking.mask_model(trained_model=base_model_wrapper.model,
-                                          initial_weights=base_weights,
-                                          initial_biases=base_biases,
-                                          model_config=base_model_config,
-                                          pruning_percentages=iter_pruning_percentages)
+        masked_model = masking.future_mask_model(trained_model=base_model_wrapper.model,
+                                                 initial_values=base_values,
+                                                 pruning_percentages=iter_pruning_percentages)
         lottery_ticket_wrapper = NetworkWrapper(model_identifier='GivenModel',
                                                 given_model=masked_model)
 
@@ -85,7 +83,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
         # Read out the config for creation of the masked model
         base_model_config = base_model_wrapper.model.get_config()
         # Copy original weights by value
-        base_weights, base_biases = masking.save_trainable_values(base_model_wrapper)
+        base_values = masking.extract_trainable_values(base_model_wrapper)
 
         print("Training masked network...")
         masked_prediction_history = inspect_metrics_while_training(model_wrapper=lottery_ticket_wrapper,
@@ -111,7 +109,7 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_perce
     # Read out the config for creation of the masked model
     base_model_config = base_model_wrapper.model.get_config()
 
-    base_weights, base_biases = masking.save_trainable_values(base_model_wrapper)
+    base_weights, base_biases = masking.extract_trainable_values(base_model_wrapper.model)
 
     intermediate_wb = []
     histories_over_pruning_iterations = []
@@ -148,7 +146,7 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_perce
                 _extend_history(building_history, last_history)
                 if k == j:
                     # copy weights by value to save them
-                    intermediate_wb[k] = masking.save_trainable_values(masked_wrapper)
+                    intermediate_wb[k] = masking.extract_trainable_values(masked_wrapper.model)
             # TODO: Does this work?
             histories_over_reset_epochs.append(building_history)
         histories_over_pruning_iterations.append(histories_over_reset_epochs)
