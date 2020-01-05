@@ -76,10 +76,11 @@ def _structurize_tensors_rec(config, tensor_distribution, tensors):
 def _find_no_of_tensors_rec(config):
     # TODO: I am uncertain whether functional configs and functional subconfigs behave identical
     # TODO: This might cause problems as the use of nested functional models has not been tested
+    no_tensor = None
     if _is_functional_config(config):
         no_tensor = []
         for subconfig in config['layers']:
-           no_tensor.append(_find_no_of_tensors_rec(subconfig))
+            no_tensor.append(_find_no_of_tensors_rec(subconfig))
 
     # TODO: Might not recognize full sequential configs
     elif _is_sequential_subconfig(config):
@@ -100,7 +101,8 @@ def future_mask_model(trained_model, initial_values, pruning_percentages):
     config = trained_model.get_config()
     masks = _create_mask_for_functional_model(config, initial_values,
                                               pruning_percentages)
-    return masks
+    masked_model = _build_masked_submodels(config, initial_values, masks)
+    return masked_model
 
 
 def mask_model(trained_model, initial_weights, initial_biases, model_config, pruning_percentages,
@@ -171,6 +173,112 @@ def mask_model(trained_model, initial_weights, initial_biases, model_config, pru
         masked_model.summary()
 
     return masked_model
+
+
+def _build_masked_submodels(config, initial_values, masks):
+    submodels = []
+    if _is_functional_config(config):
+        print("---Begin recreation of a functional model---")
+        for idx, subconfig in enumerate(config['layers']):
+            submodels.append(_build_masked_submodels(
+                config=subconfig,
+                initial_values=initial_values[idx],
+                masks=masks[idx]
+            ))
+        print("---End recreation of a functional model---")
+    elif _is_sequential_subconfig(config):
+        layers = config['config']['layers']
+        masked_sequential = tfk.Sequential()
+        for idx, layer_config in enumerate(layers):
+            if _is_maskable_layer(layer_config):
+                submodels.append(_produce_masked_layer(
+                    layer_config=layer_config,
+                    wb_dict=initial_values[idx],
+                    mask=masks[idx]
+                ))
+            else:
+                submodels.append(_reproduce_layer(
+                    config=layer_config
+                ))
+        submodels.append(masked_sequential)
+    elif _is_layer_subconfig(config):
+        if _is_maskable_layer(config):
+            submodels.append(_produce_masked_layer(
+                layer_config=config,
+                wb_dict=initial_values,
+                mask=masks
+            ))
+        else:
+            submodels.append(_reproduce_layer(
+                layer_config=config
+            ))
+    return submodels
+
+
+def _reproduce_layer(config):
+    layer_config = config.config
+    print("Reproducing Layer")
+    if _is_input_config(layer_config):
+        reproduced_layer = tfk.layers.Input(
+            batch_input_shape=layer_config['batch_input_shape'][0]
+        )
+
+    elif _is_avg_pool_1d_config(layer_config):
+        reproduced_layer = tfk.layers.AvgPool1D(
+            pool_size=layer_config['pool_size']
+        )
+
+    elif _is_global_avg_pool_1d_config(layer_config):
+        reproduced_layer = tfk.layers.GlobalAveragePooling1D()
+
+    elif _is_dropout_config(layer_config):
+        reproduced_layer = tfk.layers.Dropout(
+            rate=layer_config['rate']
+        )
+
+    elif _is_concatenate_config(layer_config):
+        reproduced_layer = tfk.layers.Concatenate()
+
+    return reproduced_layer
+
+
+def _produce_masked_layer(config, wb_dict, mask):
+    layer_config = config.config
+    print("Producing masked layer")
+    # TODO: Swap to masked variants xD
+    if _is_conv_1d_config(layer_config):
+        reproduced_layer = tfk.layers.Conv1D(
+            filters=layer_config['filters'],
+            kernel_size=layer_config['kernel_size']
+        )
+
+    elif _is_conv_2d_config(layer_config):
+        reproduced_layer = tfk.layers.Conv2D(
+            filters=layer_config['filters'],
+            kernel_size=layer_config['kernel_size'],
+            padding=layer_config['padding'],
+            activation=layer_config['activation'],
+            batch_input_shape=layer_config['batch_input_shape'],
+        )
+
+    elif _is_dense_config(layer_config):
+        reproduced_layer = tfk.layers.Dense(
+            units=layer_config['units'],
+            activation=layer_config['activation'],
+        )
+
+    elif _is_embedding_config(layer_config):
+        reproduced_layer = tfk.layers.Embedding(
+            batch_input_shape=layer_config['batch_input_shape'],
+            input_dim=layer_config['input_dim'],
+            input_length=layer_config['input_length'],
+            output_dim=layer_config['output_dim'],
+            embeddings_initializer=layer_config['embeddings_initializer'],
+            embeddings_regularizer=layer_config['embeddings_regularizer'],
+            embeddings_constraint=layer_config['embeddings_constraint'],
+            activity_regularizer=layer_config['activity_regularizer']
+        )
+    return
 
 
 def _create_masks_for_sequential_model(trained_model, pruning_percentages, layer_wise):
@@ -258,10 +366,6 @@ def _create_mask_for_functional_model(config, values, pruning_percentages):
     return masks
 
 
-def _create_mask_for_layer(config, pruning_percentages, weights):
-    return
-
-
 def _magnitude_threshold_mask(tensor, threshold):
     print("Weight of the threshold for masking: " + str(np.round(threshold, 4)))
     # Does this work as intended with numeric errors?
@@ -277,18 +381,18 @@ def _magnitude_threshold_mask(tensor, threshold):
 
 def _is_maskable_layer(config):
     maskable = False
-    maskable = (config['class_name'] == 'Dense') | maskable
-    maskable = (config['class_name'] == 'MaskedDense') | maskable
-    maskable = (config['class_name'] == 'Conv2D') | maskable
-    maskable = (config['class_name'] == 'MaskedConv2D') | maskable
-    maskable = (config['class_name'] == 'Embedding') | maskable
+    maskable = _is_conv_1d_config(config) | maskable
+    maskable = _is_conv_2d_config(config) | maskable
+    maskable = _is_dense_config(config) | maskable
+    maskable = _is_embedding_config(config) | maskable
     return maskable
 
 
 def _is_layer_with_weights(config):
     has_weights = _is_maskable_layer(config)
-    has_weights = (config['class_name'] == 'Embedding') | has_weights
-    has_weights = (config['class_name'] == 'Conv1D') | has_weights
+    # If the code gets extended there might be discrepancies between
+    # maskable layers and layers with weights.
+    # These should be represented here.
     return has_weights
 
 
@@ -312,6 +416,56 @@ def _is_sequential_subconfig(subconfig):
 def _is_layer_subconfig(subconfig):
     # TODO: There might be more robust ways of identification
     return 'layers' not in subconfig['config']
+
+
+def _is_input_config(layer_config):
+    is_input = layer_config['class_name'] == 'InputLayer'
+    is_input = (layer_config['class_name'] == 'Input') | is_input
+    return is_input
+
+
+def _is_avg_pool_1d_config(layer_config):
+    is_avg_pool_1d = layer_config['class_name'] == 'AveragePooling1D'
+    return is_avg_pool_1d
+
+
+def _is_dropout_config(layer_config):
+    is_dropout = layer_config['class_name'] == 'Dropout'
+    return is_dropout
+
+
+def _is_global_avg_pool_1d_config(layer_config):
+    is_global_avg_pool_1d = layer_config['class_name'] == 'GlobalAveragePooling1D'
+    return is_global_avg_pool_1d
+
+
+def _is_concatenate_config(layer_config):
+    is_concatenate = layer_config['class_name'] == 'Concatenate'
+    return is_concatenate
+
+
+def _is_conv_1d_config(layer_config):
+    is_conv_1d = layer_config['class_name'] == 'Conv1D'
+    is_conv_1d = (layer_config['class_name'] == 'MaskedConv1D') | is_conv_1d
+    return is_conv_1d
+
+
+def _is_conv_2d_config(layer_config):
+    is_conv_2d = layer_config['class_name'] == 'Conv2D'
+    is_conv_2d = (layer_config['class_name'] == 'MaskedConv2D') | is_conv_2d
+    return is_conv_2d
+
+
+def _is_dense_config(layer_config):
+    is_dense = layer_config['class_name'] == 'Dense'
+    is_dense = (layer_config['class_name'] == 'MaskedDense') | is_dense
+    return is_dense
+
+
+def _is_embedding_config(layer_config):
+    is_embedding = layer_config['class_name'] == 'Embedding'
+    is_embedding = (layer_config['class_name'] == 'MaskedEmbedding') | is_embedding
+    return is_embedding
 
 
 def _flatten(collection):
