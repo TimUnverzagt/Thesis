@@ -189,8 +189,10 @@ def _build_masked_submodels(config, initial_values, masks):
     elif _is_sequential_subconfig(config):
         layers = config['config']['layers']
         masked_sequential = tfk.Sequential()
-        for idx, layer_config in enumerate(layers):
-            if _is_maskable_layer(layer_config):
+        for idx, subconfig in enumerate(layers):
+            layer_config = subconfig['config']
+            layer_config['class_name'] = subconfig['class_name']
+            if _is_maskable_layer(subconfig):
                 submodels.append(_produce_masked_layer(
                     layer_config=layer_config,
                     wb_dict=initial_values[idx],
@@ -198,29 +200,30 @@ def _build_masked_submodels(config, initial_values, masks):
                 ))
             else:
                 submodels.append(_reproduce_layer(
-                    config=layer_config
+                    layer_config=layer_config
                 ))
         submodels.append(masked_sequential)
     elif _is_layer_subconfig(config):
+        layer_config = config['config']
+        layer_config['class_name'] = config['class_name']
         if _is_maskable_layer(config):
             submodels.append(_produce_masked_layer(
-                layer_config=config,
+                layer_config=layer_config,
                 wb_dict=initial_values,
                 mask=masks
             ))
         else:
             submodels.append(_reproduce_layer(
-                layer_config=config
+                layer_config=layer_config
             ))
     return submodels
 
 
-def _reproduce_layer(config):
-    layer_config = config.config
+def _reproduce_layer(layer_config):
     print("Reproducing Layer")
     if _is_input_config(layer_config):
-        reproduced_layer = tfk.layers.Input(
-            batch_input_shape=layer_config['batch_input_shape'][0]
+        reproduced_layer = tfk.layers.InputLayer(
+            input_shape=layer_config['batch_input_shape'][1:]
         )
 
     elif _is_avg_pool_1d_config(layer_config):
@@ -242,8 +245,7 @@ def _reproduce_layer(config):
     return reproduced_layer
 
 
-def _produce_masked_layer(config, wb_dict, mask):
-    layer_config = config.config
+def _produce_masked_layer(layer_config, wb_dict, mask):
     print("Producing masked layer")
     # TODO: Swap to masked variants xD
     if _is_conv_1d_config(layer_config):
@@ -257,19 +259,17 @@ def _produce_masked_layer(config, wb_dict, mask):
             filters=layer_config['filters'],
             kernel_size=layer_config['kernel_size'],
             padding=layer_config['padding'],
-            activation=layer_config['activation'],
-            batch_input_shape=layer_config['batch_input_shape'],
+            activation=layer_config['activation']
         )
 
     elif _is_dense_config(layer_config):
         reproduced_layer = tfk.layers.Dense(
             units=layer_config['units'],
-            activation=layer_config['activation'],
+            activation=layer_config['activation']
         )
 
     elif _is_embedding_config(layer_config):
         reproduced_layer = tfk.layers.Embedding(
-            batch_input_shape=layer_config['batch_input_shape'],
             input_dim=layer_config['input_dim'],
             input_length=layer_config['input_length'],
             output_dim=layer_config['output_dim'],
@@ -278,7 +278,7 @@ def _produce_masked_layer(config, wb_dict, mask):
             embeddings_constraint=layer_config['embeddings_constraint'],
             activity_regularizer=layer_config['activity_regularizer']
         )
-    return
+    return reproduced_layer
 
 
 def _create_masks_for_sequential_model(trained_model, pruning_percentages, layer_wise):
@@ -331,19 +331,20 @@ def _create_masks_for_sequential_model(trained_model, pruning_percentages, layer
 def _create_mask_for_functional_model(config, values, pruning_percentages):
     masks = []
     if _is_functional_config(config):
-        print("---Begin masking of a functional model---")
+        print("=====Begin masking of a functional model=====")
         for idx, subconfig in enumerate(config['layers']):
             masks.append(_create_mask_for_functional_model(
                 config=subconfig,
                 values=values[idx],
                 pruning_percentages=pruning_percentages)
             )
-        print("---End masking of a functional model---")
+        print("=====End masking of a functional model=====")
     elif _is_sequential_subconfig(config):
         layers = config['config']['layers']
+        print("-----Begin masking of a sequential model-----")
         for idx, layer_config in enumerate(layers):
             if _is_maskable_layer(layer_config):
-                print("Masking sequential layer")
+                print("Masking a " + layer_config['class_name'] + "layer")
                 # TODO: Extend to multiple pruning percentages
                 tensor = values[idx]['weights']
                 quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['conv'])
@@ -351,11 +352,11 @@ def _create_mask_for_functional_model(config, values, pruning_percentages):
                     tensor=tensor,
                     threshold=quantile
                 ))
+        print("-----End masking of a sequential model-----")
 
     elif _is_layer_subconfig(config):
-        print("Masking a single layer")
         if _is_maskable_layer(config):
-            print("Masking sequential layer")
+            print("Masking a single " + config['class_name'] + "layer")
             # TODO: Extend to multiple pruning percentages
             tensor = values['weights']
             quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['conv'])
@@ -375,7 +376,7 @@ def _magnitude_threshold_mask(tensor, threshold):
         for x in it:
             x[...] = int(abs(x) >= threshold)
     # mask = tf.cast(tf.map_fn(lambda x: abs(x) >= threshold, tensor, bool), tf.int32)
-    print("Time used: " + str((time.time() - prev_time)))
+    print("Time used: " + str(np.round((time.time() - prev_time), 4)))
     return mask
 
 

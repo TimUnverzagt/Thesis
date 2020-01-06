@@ -57,7 +57,7 @@ def main():
                                                    model_identifier=architecture_description,
                                                    pruning_percentages=pruning_percentages,
                                                    pruning_iterations=1,
-                                                   verbosity=1)
+                                                   verbosity=2)
 
             storage.save_experimental_history(full_network_history, path=folder_path, name='full')
             for idx, masked_network_history in enumerate(masked_network_histories):
