@@ -25,21 +25,19 @@ class CustomNetworkWrapper:
     def __init__(self, no_of_features=0, no_of_classes=90, model_identifier='FeedForward', given_model=None,
                  summarize=False):
 
-        # Base initialization
-        optimizer = 'adam'
-        loss = 'categorical_crossentropy',
-        # TODO: This breaks the self.model.evaluate function atm. Fix it!
-        metrics = []
-        # metrics = [tfk.metrics.Accuracy(), tfk.metrics.Recall(), tfk.metrics.Precision()]
-
         if model_identifier == 'GivenModel':
             if given_model is None:
                 print("The CustomNetworkWrapper was instructed to initialize with a given model but none was provided.")
                 print("A critical error is imminent!")
             else:
                 self.model = given_model
+                return
+            
+        # Base initialization
+        optimizer = 'adam'
+        loss = 'categorical_crossentropy',
 
-        elif model_identifier == 'Reuters-FeedForward':
+        if model_identifier == 'Reuters-FeedForward':
             if no_of_features <= 0:
                 print("The CustomNetworkWrapper expects a positive number of features for the reuters dataset.")
                 print("A critical error is imminent!")
@@ -166,8 +164,7 @@ class CustomNetworkWrapper:
             print("'Newsgroups-End2End-CNN'")
 
         self.model.compile(optimizer=optimizer,
-                           loss=loss,
-                           metrics=metrics)
+                           loss=loss)
         if summarize:
             self.model.summary()
         # print(self.model.get_config())

@@ -83,7 +83,7 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
         # Read out the config for creation of the masked model
         base_model_config = base_model_wrapper.model.get_config()
         # Copy original weights by value
-        base_values = masking.extract_trainable_values(base_model_wrapper)
+        base_values = masking.extract_trainable_values(base_model_wrapper.model)
 
         print("Training masked network...")
         masked_prediction_history = inspect_metrics_while_training(model_wrapper=lottery_ticket_wrapper,

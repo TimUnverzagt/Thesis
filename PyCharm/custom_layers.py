@@ -8,12 +8,14 @@ from tensorflow.python.keras import regularizers
 from tensorflow.python.keras import activations
 from tensorflow.python.keras import initializers
 
+from tensorflow.python.keras import backend as K
 from tensorflow.python.eager import context
 from tensorflow.python.ops import gen_math_ops
 from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import nn
 from tensorflow.python.ops import standard_ops
 from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import embedding_ops
 
 
 class MaskedDense(keras_layers.Dense):
@@ -21,7 +23,7 @@ class MaskedDense(keras_layers.Dense):
     def __init__(self,
                  units,
                  initialization_weights=None,
-                 initialization_bias=None,
+                 initialization_biases=None,
                  mask=None,
                  activation=None,
                  use_bias=True,
@@ -49,7 +51,6 @@ class MaskedDense(keras_layers.Dense):
                                           **kwargs)
 
         if initialization_weights is None:
-            # TODO: Raise real exception
             print("No weight kernel has been supplied for the custom MaskedDense-layer!")
             print("A Critical Error is imminent!")
         else:
@@ -60,15 +61,14 @@ class MaskedDense(keras_layers.Dense):
         else:
             self.mask = tf.cast(mask, self.dtype)
         self.use_bias = use_bias
-        if initialization_bias is None:
-            # TODO Raise real exception
+        if initialization_biases is None:
             print("No bias has been supplied for the custom MaskedDense-layer!")
             if use_bias:
                 print("As the layer is set to use biases a critical Error is imminent!")
             else:
                 print("As the layer is not set to use biases no problem may occur, but you are inviting problems.")
         else:
-            self.init_bias = initialization_bias
+            self.init_bias = initialization_biases
 
     def build(self, input_shape):
         super(MaskedDense, self).build(input_shape)
@@ -140,7 +140,6 @@ class MaskedConv2D(keras_layers.Conv2D):
             **kwargs)
 
         if initialization_weights is None:
-            # TODO: Raise real exception
             print("No weight kernel has been supplied for the custom MaskedConv2D-layer!")
             print("A Critical Error is imminent!")
         else:
@@ -152,7 +151,6 @@ class MaskedConv2D(keras_layers.Conv2D):
             self.mask = tf.cast(mask, self.dtype)
         self.use_bias = use_bias
         if initialization_bias is None:
-            # TODO Raise real exception
             print("No bias has been supplied for the custom MaskedConv2D-layer!")
             if use_bias:
                 print("As the layer is set to use biases a critical Error is imminent!")
@@ -186,4 +184,53 @@ class MaskedConv2D(keras_layers.Conv2D):
         if self.activation is not None:
             return self.activation(outputs)
         return outputs
+
+
+class MaskedEmbedding(keras_layers.Embedding):
+    def __init__(self,
+                 input_dim,
+                 output_dim,
+                 initialization_weights=None,
+                 mask=None,
+                 embeddings_initializer='uniform',
+                 embeddings_regularizer=None,
+                 activity_regularizer=None,
+                 embeddings_constraint=None,
+                 mask_zero=False,
+                 input_length=None,
+                 **kwargs):
+        super(MaskedEmbedding, self).__init__(
+            input_dim=input_dim,
+            output_dim=output_dim,
+            embeddings_initializer=embeddings_initializer,
+            embeddings_regularizer=embeddings_regularizer,
+            activity_regularizer=activity_regularizer,
+            embeddings_constraint=embeddings_constraint,
+            mask_zero=mask_zero,
+            input_length=input_length,
+            **kwargs
+        )
+
+        if initialization_weights is None:
+            print("No weight kernel has been supplied for the custom MaskedConv2D-layer!")
+            print("A Critical Error is imminent!")
+        else:
+            self.init_kernel = initialization_weights
+        if mask is None:
+            print("No mask has been supplied for the custom MaskedConv2D-layer!")
+            print("While the layer is still functional it's reduced to a poor version of tf.keras.layers.Conv2D")
+        else:
+            self.mask = tf.cast(mask, self.dtype)
+
+    def build(self, input_shape):
+        super(MaskedEmbedding, self).build(input_shape)
+        if self.init_kernel is not None:
+            self.set_weights([self.init_kernel])
+
+    def call(self, inputs):
+        dtype = K.dtype(inputs)
+        if dtype != 'int32' and dtype != 'int64':
+            inputs = math_ops.cast(inputs, 'int32')
+        out = embedding_ops.embedding_lookup(standard_ops.mul(self.weights[0], self.mask), inputs)
+        return out
 

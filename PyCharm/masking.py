@@ -10,6 +10,7 @@ from collections import Iterable
 # Personal modules
 from custom_layers import MaskedDense
 from custom_layers import MaskedConv2D
+from custom_layers import MaskedEmbedding
 
 
 def extract_trainable_values(model):
@@ -92,8 +93,7 @@ def _find_no_of_tensors_rec(config):
 
     # TODO: Might not recognize full layer configs
     elif _is_layer_subconfig(config):
-        no_tensor = int(_is_layer_with_weights(config)) \
-                    + int(_is_layer_with_biases(config))
+        no_tensor = int(_is_layer_with_weights(config)) + int(_is_layer_with_biases(config))
     return no_tensor
 
 
@@ -102,6 +102,10 @@ def future_mask_model(trained_model, initial_values, pruning_percentages, summar
     masks = _create_mask_for_functional_model(config, initial_values,
                                               pruning_percentages)
     masked_model = _build_masked_model(config, initial_values, masks)
+    masked_model.compile(
+        optimizer=trained_model.optimizer,
+        loss=trained_model.loss
+    )
     if summarize:
         masked_model.summary()
     return masked_model
@@ -163,8 +167,8 @@ def mask_model(trained_model, initial_weights, initial_biases, model_config, pru
             masked_model.add(MaskedDense(units=config['units'],
                                          activation=config['activation'],
                                          initialization_weights=initial_weights[weight_idx],
-                                         mask=masks[weight_idx],
-                                         initialization_bias=initial_biases[weight_idx]
+                                         initialization_biases=initial_biases[weight_idx],
+                                         mask=masks[weight_idx]
                                          ))
             weight_idx += 1
         else:
@@ -203,7 +207,6 @@ def _build_masked_model(config, initial_values, masks, input_layers=None):
                     input_layers = input_layers[0]
                 submodels.append(masked_submodel(input_layers))
             else: submodels.append(masked_submodel)
-
 
         # Collect everything into a functional model by defining global inputs and outputs
         input_name = config['input_layers'][0][0]
@@ -245,7 +248,7 @@ def _build_masked_model(config, initial_values, masks, input_layers=None):
             masked_model = _produce_masked_layer(
                 layer_config=layer_config,
                 wb_dict=initial_values,
-                mask=masks
+                mask=masks[0]
             )
         else:
             masked_model = _reproduce_layer(layer_config=layer_config)
@@ -282,37 +285,50 @@ def _reproduce_layer(layer_config):
 
 
 def _produce_masked_layer(layer_config, wb_dict, mask):
-    print("Producing masked layer")
     # TODO: Swap to masked variants xD
     if _is_conv_1d_config(layer_config):
+        print("MaskedConv1D is not yet implemented")
+        print("Conv1D will simply be replaced")
         reproduced_layer = tfk.layers.Conv1D(
             filters=layer_config['filters'],
             kernel_size=layer_config['kernel_size']
         )
 
     elif _is_conv_2d_config(layer_config):
-        reproduced_layer = tfk.layers.Conv2D(
-            filters=layer_config['filters'],
-            kernel_size=layer_config['kernel_size'],
-            padding=layer_config['padding'],
-            activation=layer_config['activation']
+        print("Replacing Conv2D-layer of the model with a custom MaskedConv2D-layer")
+        reproduced_layer = MaskedConv2D(
+                filters=layer_config['filters'],
+                kernel_size=layer_config['kernel_size'],
+                padding=layer_config['padding'],
+                activation=layer_config['activation'],
+                initialization_weights=wb_dict['weights'],
+                initialization_bias=wb_dict['biases'],
+                mask=mask
         )
 
     elif _is_dense_config(layer_config):
-        reproduced_layer = tfk.layers.Dense(
+        print("Replacing Dense-layer of the model with a custom MaskedDense-layer")
+        reproduced_layer = MaskedDense(
             units=layer_config['units'],
-            activation=layer_config['activation']
+            activation=layer_config['activation'],
+            initialization_weights=wb_dict['weights'],
+            initialization_biases=wb_dict['biases'],
+            mask=mask
         )
 
     elif _is_embedding_config(layer_config):
-        reproduced_layer = tfk.layers.Embedding(
+        print("MaskedEmbedding is not yet implemented")
+        print("Embedding will simply be replaced")
+        reproduced_layer = MaskedEmbedding(
             input_dim=layer_config['input_dim'],
             input_length=layer_config['input_length'],
             output_dim=layer_config['output_dim'],
             embeddings_initializer=layer_config['embeddings_initializer'],
             embeddings_regularizer=layer_config['embeddings_regularizer'],
             embeddings_constraint=layer_config['embeddings_constraint'],
-            activity_regularizer=layer_config['activity_regularizer']
+            activity_regularizer=layer_config['activity_regularizer'],
+            initialization_weights=wb_dict['weights'],
+            mask=mask
         )
     return reproduced_layer
 
@@ -392,7 +408,7 @@ def _create_mask_for_functional_model(config, values, pruning_percentages):
 
     elif _is_layer_subconfig(config):
         if _is_maskable_layer(config):
-            print("Masking a functional " + config['class_name'] + "layer")
+            print("Masking a functional " + config['class_name'] + "-layer")
             # TODO: Extend to multiple pruning percentages
             tensor = values['weights']
             quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['conv'])
@@ -404,6 +420,7 @@ def _create_mask_for_functional_model(config, values, pruning_percentages):
 
 
 def _magnitude_threshold_mask(tensor, threshold):
+    print("Shape of input: " + str(tensor.shape))
     print("Weight of the threshold for masking: " + str(np.round(threshold, 4)))
     # Does this work as intended with numeric errors?
     prev_time = time.time()
@@ -412,7 +429,9 @@ def _magnitude_threshold_mask(tensor, threshold):
         for x in it:
             x[...] = int(abs(x) >= threshold)
     # mask = tf.cast(tf.map_fn(lambda x: abs(x) >= threshold, tensor, bool), tf.int32)
+    print("Shape of mask: " + str(mask.shape))
     print("Time used: " + str(np.round((time.time() - prev_time), 4)))
+    print("")
     return mask
 
 
@@ -436,7 +455,7 @@ def _is_layer_with_weights(config):
 def _is_layer_with_biases(config):
     has_bias = _is_layer_with_weights(config)
     # Remove layers with weights only
-    has_bias = (not (config['class_name'] == 'Embedding')) & has_bias
+    has_bias = (not _is_embedding_config(config)) & has_bias
     return has_bias
 
 

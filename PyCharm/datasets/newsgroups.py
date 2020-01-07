@@ -1,5 +1,6 @@
 # General modules
 import numpy as np
+import tensorflow as tf
 from sklearn.datasets import fetch_20newsgroups
 
 # personal modules
@@ -35,8 +36,8 @@ def translate_wrapper(old_wrapper, target_doc_len, vocabulary):
         tok_text = pre.tokenize(text, lower=True, head_stripper="\n\n")
         emb_text = pre.embed(tok_text=tok_text, vocabulary=vocabulary)
         emb_data.append(pre.unify_length(tok_doc=emb_text,
-                        target_length=target_doc_len,
-                        padding='zero'))
+                                         target_length=target_doc_len,
+                                         padding='zero'))
     train_array = np.zeros(shape=(len(old_wrapper.data), target_doc_len), dtype=np.int)
     for i, doc in enumerate(emb_data):
         for j in range(len(doc)):
@@ -44,4 +45,3 @@ def translate_wrapper(old_wrapper, target_doc_len, vocabulary):
     datapoints = (train_array, old_wrapper.target)
     print("-" * 10)
     return datapoints
-
