@@ -91,18 +91,18 @@ class CustomNetworkWrapper:
         elif model_identifier == 'Newsgroups-End2End-CNN':
             common_input = tfk.layers.Input(shape=200)
 
-            submodels = []
-            outputs = []
-            for i in range(16):
+            sequentials = []
+            seq_outputs = []
+            # for i in range(16):
+            for i in range(2):
                 if i < 8:
-                    submodels.append(init_submodel(1+3*i, 2))
-                    outputs.append(submodels[i](common_input))
+                    sequentials.append(init_submodel(1+3*i, 2))
+                    seq_outputs.append(sequentials[i](common_input))
                 else:
+                    sequentials.append(init_submodel(1+3*(i % 8), 7))
+                    seq_outputs.append(sequentials[i](common_input))
 
-                    submodels.append(init_submodel(1+3*(i % 8), 7))
-                    outputs.append(submodels[i](common_input))
-
-            merged = tfk.layers.concatenate(outputs)
+            merged = tfk.layers.concatenate(seq_outputs)
             regularized = tfk.layers.Dropout(rate=0.5)(merged)
             output = tfk.layers.Dense(20,
                                       activation='softmax')(regularized)
@@ -162,6 +162,7 @@ class CustomNetworkWrapper:
             print("'Given-Model'")
             print("'Reuters-FeedForward', 'Reuters-CNN'")
             print("'MNIST-Lenet-FCN'")
+            print("'CIFAR10-CNN-6'")
             print("'Newsgroups-End2End-CNN'")
 
         self.model.compile(optimizer=optimizer,

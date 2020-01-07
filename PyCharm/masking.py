@@ -97,11 +97,13 @@ def _find_no_of_tensors_rec(config):
     return no_tensor
 
 
-def future_mask_model(trained_model, initial_values, pruning_percentages):
+def future_mask_model(trained_model, initial_values, pruning_percentages, summarize=True):
     config = trained_model.get_config()
     masks = _create_mask_for_functional_model(config, initial_values,
                                               pruning_percentages)
     masked_model = _build_masked_model(config, initial_values, masks)
+    if summarize:
+        masked_model.summary()
     return masked_model
 
 
@@ -178,25 +180,30 @@ def mask_model(trained_model, initial_weights, initial_biases, model_config, pru
 def _build_masked_model(config, initial_values, masks, input_layers=None):
     masked_model = []
     if _is_functional_config(config):
-        print("---Begin recreation of a functional model---")
+        print("===Begin recreation of a functional model===")
         submodels = []
         submodel_idxs = {}
         for idx, subconfig in enumerate(config['layers']):
-            # Remember where to submodul was placed by name so it can later be handed over as input
-            
+            # Identify the layers that act as inputs for the submodel
             input_layers = []
-            for inbound_node in subconfig['inbound_nodes'][0]:
-                layer_names = inbound_node[0]
-                input_layer_idxs = submodel_idxs[layer_names]
-                input_layers.append(submodels[input_layer_idxs])
+            if subconfig['inbound_nodes']:
+                for inbound_node in subconfig['inbound_nodes'][0]:
+                    layer_names = inbound_node[0]
+                    input_layer_idxs = submodel_idxs[layer_names]
+                    input_layers.append(submodels[input_layer_idxs])
+            # Remember where to submodul was placed by name so it can later be handed over as input
             submodel_idxs[subconfig['name']] = idx
             masked_submodel = _build_masked_model(
                 config=subconfig,
                 initial_values=initial_values[idx],
-                masks=masks[idx],
-                input_layers=input_layers
+                masks=masks[idx]
             )
-            submodels.append(masked_submodel)
+            if input_layers:
+                if len(input_layers) == 1:
+                    input_layers = input_layers[0]
+                submodels.append(masked_submodel(input_layers))
+            else: submodels.append(masked_submodel)
+
 
         # Collect everything into a functional model by defining global inputs and outputs
         input_name = config['input_layers'][0][0]
@@ -208,156 +215,105 @@ def _build_masked_model(config, initial_values, masks, input_layers=None):
 
         masked_model = tfk.Model(inputs=input_layer,
                                  outputs=output_layer)
+        print("===End recreation of a functional model===")
 
-        print("---End recreation of a functional model---")
     elif _is_sequential_subconfig(config):
+        print("---Begin recreation sequential model---")
         layers = config['config']['layers']
-        masked_sequential = tfk.Sequential()
+        masked_model = tfk.Sequential()
         for idx, subconfig in enumerate(layers):
+            print("Recreate single sequential layer")
             layer_config = subconfig['config']
             layer_config['class_name'] = subconfig['class_name']
             if _is_maskable_layer(subconfig):
-                masked_sequential.add(_produce_masked_layer(
+                masked_model.add(_produce_masked_layer(
                     layer_config=layer_config,
                     wb_dict=initial_values[idx],
                     mask=masks[idx]
                 ))
             else:
-                masked_sequential.add(_reproduce_layer(
+                masked_model.add(_reproduce_layer(
                     layer_config=layer_config
                 ))
-        masked_model = masked_sequential(input_layers)
+        print("---End recreation sequential model---")
+
     elif _is_layer_subconfig(config):
+        print("Recreate single functional layer")
         layer_config = config['config']
         layer_config['class_name'] = config['class_name']
         if _is_maskable_layer(config):
             masked_model = _produce_masked_layer(
                 layer_config=layer_config,
                 wb_dict=initial_values,
-                mask=masks,
-                input_layers=input_layers
+                mask=masks
             )
         else:
-            masked_model = _reproduce_layer(
-                layer_config=layer_config,
-                input_layers=input_layers
-            )
+            masked_model = _reproduce_layer(layer_config=layer_config)
     return masked_model
 
 
-def _reproduce_layer(layer_config, input_layers=None):
+def _reproduce_layer(layer_config):
     print("Reproducing Layer")
+    # Extract singular Inputs to ensure the correct size of the inputs
+
     if _is_input_config(layer_config):
-        if input_layers:
-            reproduced_layer = tfk.layers.InputLayer(
-                input_shape=layer_config['batch_input_shape'][1:]
-            )(input_layers)
-        else:
-            reproduced_layer = tfk.layers.InputLayer(
-                input_shape=layer_config['batch_input_shape'][1:]
-            )
+        reproduced_layer = tfk.layers.Input(
+            shape=layer_config['batch_input_shape'][1:],
+            batch_size=layer_config['batch_input_shape'][0]
+        )
 
     elif _is_avg_pool_1d_config(layer_config):
-        if input_layers:
-            reproduced_layer = tfk.layers.AvgPool1D(
-                pool_size=layer_config['pool_size']
-            )(input_layers)
-        else:
-            reproduced_layer = tfk.layers.AvgPool1D(
-                pool_size=layer_config['pool_size']
-            )
+        reproduced_layer = tfk.layers.AvgPool1D(
+            pool_size=layer_config['pool_size']
+        )
 
     elif _is_global_avg_pool_1d_config(layer_config):
-        if input_layers:
-            reproduced_layer = tfk.layers.GlobalAveragePooling1D()\
-                (input_layers)
-        else:
-            reproduced_layer = tfk.layers.GlobalAveragePooling1D()
+        reproduced_layer = tfk.layers.GlobalAveragePooling1D()
 
     elif _is_dropout_config(layer_config):
-        if input_layers:
-            reproduced_layer = tfk.layers.Dropout(
-                rate=layer_config['rate']
-            )(input_layers)
-        else:
-            reproduced_layer = tfk.layers.Dropout(
-                rate=layer_config['rate']
-            )
+        reproduced_layer = tfk.layers.Dropout(
+            rate=layer_config['rate']
+        )
 
     elif _is_concatenate_config(layer_config):
-        if input_layers:
-            reproduced_layer = tfk.layers.Concatenate()\
-                (input_layers)
-        else:
-            reproduced_layer = tfk.layers.Concatenate()
+        reproduced_layer = tfk.layers.Concatenate()
 
     return reproduced_layer
 
 
-def _produce_masked_layer(layer_config, wb_dict, mask, input_layers=None):
+def _produce_masked_layer(layer_config, wb_dict, mask):
     print("Producing masked layer")
     # TODO: Swap to masked variants xD
     if _is_conv_1d_config(layer_config):
-        if input_layers:
-            reproduced_layer = tfk.layers.Conv1D(
-                filters=layer_config['filters'],
-                kernel_size=layer_config['kernel_size']
-            )(input_layers)
-        else:
-            reproduced_layer = tfk.layers.Conv1D(
-                filters=layer_config['filters'],
-                kernel_size=layer_config['kernel_size']
-            )
+        reproduced_layer = tfk.layers.Conv1D(
+            filters=layer_config['filters'],
+            kernel_size=layer_config['kernel_size']
+        )
 
     elif _is_conv_2d_config(layer_config):
-        if input_layers:
-            reproduced_layer = tfk.layers.Conv2D(
-                filters=layer_config['filters'],
-                kernel_size=layer_config['kernel_size'],
-                padding=layer_config['padding'],
-                activation=layer_config['activation']
-            )(input_layers)
-        else:
-            reproduced_layer = tfk.layers.Conv2D(
-                filters=layer_config['filters'],
-                kernel_size=layer_config['kernel_size'],
-                padding=layer_config['padding'],
-                activation=layer_config['activation']
-            )
+        reproduced_layer = tfk.layers.Conv2D(
+            filters=layer_config['filters'],
+            kernel_size=layer_config['kernel_size'],
+            padding=layer_config['padding'],
+            activation=layer_config['activation']
+        )
 
     elif _is_dense_config(layer_config):
-        if input_layers:
-            reproduced_layer = tfk.layers.Dense(
-                units=layer_config['units'],
-                activation=layer_config['activation']
-            )(input_layers)
-        else:
-            reproduced_layer = tfk.layers.Dense(
-                units=layer_config['units'],
-                activation=layer_config['activation']
-            )
+        reproduced_layer = tfk.layers.Dense(
+            units=layer_config['units'],
+            activation=layer_config['activation']
+        )
 
     elif _is_embedding_config(layer_config):
-        if input_layers:
-            reproduced_layer = tfk.layers.Embedding(
-                input_dim=layer_config['input_dim'],
-                input_length=layer_config['input_length'],
-                output_dim=layer_config['output_dim'],
-                embeddings_initializer=layer_config['embeddings_initializer'],
-                embeddings_regularizer=layer_config['embeddings_regularizer'],
-                embeddings_constraint=layer_config['embeddings_constraint'],
-                activity_regularizer=layer_config['activity_regularizer']
-            )
-        else:
-            reproduced_layer = tfk.layers.Embedding(
-                input_dim=layer_config['input_dim'],
-                input_length=layer_config['input_length'],
-                output_dim=layer_config['output_dim'],
-                embeddings_initializer=layer_config['embeddings_initializer'],
-                embeddings_regularizer=layer_config['embeddings_regularizer'],
-                embeddings_constraint=layer_config['embeddings_constraint'],
-                activity_regularizer=layer_config['activity_regularizer']
-            )
+        reproduced_layer = tfk.layers.Embedding(
+            input_dim=layer_config['input_dim'],
+            input_length=layer_config['input_length'],
+            output_dim=layer_config['output_dim'],
+            embeddings_initializer=layer_config['embeddings_initializer'],
+            embeddings_regularizer=layer_config['embeddings_regularizer'],
+            embeddings_constraint=layer_config['embeddings_constraint'],
+            activity_regularizer=layer_config['activity_regularizer']
+        )
     return reproduced_layer
 
 
@@ -424,7 +380,7 @@ def _create_mask_for_functional_model(config, values, pruning_percentages):
         print("-----Begin masking of a sequential model-----")
         for idx, layer_config in enumerate(layers):
             if _is_maskable_layer(layer_config):
-                print("Masking a " + layer_config['class_name'] + "layer")
+                print("Masking a sequential " + layer_config['class_name'] + "layer")
                 # TODO: Extend to multiple pruning percentages
                 tensor = values[idx]['weights']
                 quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['conv'])
@@ -436,7 +392,7 @@ def _create_mask_for_functional_model(config, values, pruning_percentages):
 
     elif _is_layer_subconfig(config):
         if _is_maskable_layer(config):
-            print("Masking a single " + config['class_name'] + "layer")
+            print("Masking a functional " + config['class_name'] + "layer")
             # TODO: Extend to multiple pruning percentages
             tensor = values['weights']
             quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['conv'])
