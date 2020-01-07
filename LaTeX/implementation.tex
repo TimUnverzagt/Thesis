@@ -11,11 +11,13 @@
 5. What are limitations of the implementation? \\ \\
 The section should have a length of about five pages.}
 \section{Design Decisions}
-\begin{itemize}
-	\item tensorflow 2.0
-	\item scikit-learn
-	\item pickle
-\end{itemize} 
+\textbf{Tensorflow 2.0} is used as the framework for all experiments presented in this thesis. It enables software development on a high level of abstraction while ensuring code performance. Because some
+procedures are not naturally compatible with the implementation of Tensorflow 2.0  this thesis needs to employ a few workarounds. Notably pruned weights are not removed from the network but rather set to zero each time a layer is evaluated. As such they do not affect the predictions but are influenced by backpropagation. \textit{The effect on the presented experiments is unclear to me.}
+
+\subsection*{Missing Parameters}
+Through the related work referenced in this thesis specifications of any one model where incomplete. The following subsection aims to explain how the parameters were inferred or chosen. 
+
+\subsection{title}
 
 \section{Architecture}
 \begin{figure}[H]
