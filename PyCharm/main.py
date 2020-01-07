@@ -26,7 +26,7 @@ def main():
         tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
 
     histories_path = '../PyCharm/Histories'
-    # task_description = 'Reroduction'
+    # task_description = 'Reproduction'
     task_description = 'Transfer'
     # architecture_description = 'CIFAR10-CNN-6'
     # architecture_description = 'MNIST-Lenet-FCN'
@@ -34,14 +34,15 @@ def main():
     pruning_percentages = {'dense': 20,
                            'conv': 15}
     execution_date = str(datetime.date.today())
-    # experiment_path = histories_path + '/' + task_description + '/' + architecture_description + '-Test' + '/' + execution_date
-    experiment_path = histories_path + '/' + task_description + '/' + architecture_description + '/' + execution_date
 
     train = True
-    visualize = False
-    # visualize = not train
+    # visualize = False
+    visualize = not train
     test_new_structure = False
+
     if train:
+        # experiment_path = histories_path + '/' + task_description + '/' + architecture_description + '-Test' + '/' + execution_date
+        experiment_path = histories_path + '/' + task_description + '/' + architecture_description + '/' + execution_date
         if os.path.exists(experiment_path):
             shutil.rmtree(experiment_path)
         os.mkdir(experiment_path)
@@ -53,7 +54,7 @@ def main():
             histories_over_pruning_iterations = \
             '''
             (full_network_history, masked_network_histories) = \
-                experiments.search_lottery_tickets(epochs=1,
+                experiments.search_lottery_tickets(epochs=5,
                                                    model_identifier=architecture_description,
                                                    pruning_percentages=pruning_percentages,
                                                    pruning_iterations=2,
@@ -73,21 +74,20 @@ def main():
             '''
 
     if visualize:
+
         # TODO: Add readout for early-tick-search
-        folder_path = experiment_path + '/' + str(0)
+        folder_path = histories_path + '/Visualization/' + architecture_description + '/' + str(0)
         full_network_history = storage.load_experimental_history(path=folder_path, name='full')
-        masked_network_history = storage.load_experimental_history(path=folder_path, name='full')
-        '''
         masked_network_history = \
             storage.load_experimental_history(
                 path=folder_path,
                 name='masked_' + str(pruning_percentages['dense']) + '|' + str(pruning_percentages['conv']) +
-                     '_times_7')
-        '''
+                     '_times_1')
 
         visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
                                                              masked_network_history, 'Masked Network',
                                                              'accuracy', 'accuracy')
+
     if test_new_structure:
         experiments.test_cnn_for_nlp(epochs=5)
         # print("No new structure to test. Check main.py")
