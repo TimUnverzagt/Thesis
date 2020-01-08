@@ -27,7 +27,7 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    functional = True
+    functional = False
     if functional:
         task_description = 'Transfer'
         architecture_description = 'Newsgroups-End2End-CNN'
@@ -36,8 +36,8 @@ def main():
         architecture_description = 'CIFAR10-CNN-6'
         # architecture_description = 'MNIST-Lenet-FCN'
 
-    pruning_percentages = {'dense': 20,
-                           'conv': 15}
+    pruning_percentages = {'dense': 20, 'conv': 15}
+    # pruning_percentages = 20
     execution_date = str(datetime.date.today())
 
     train = True
@@ -59,10 +59,10 @@ def main():
             histories_over_pruning_iterations = \
             '''
             (full_network_history, masked_network_histories) = \
-                experiments.search_lottery_tickets(epochs=20,
+                experiments.search_lottery_tickets(epochs=36,
                                                    model_identifier=architecture_description,
                                                    pruning_percentages=pruning_percentages,
-                                                   pruning_iterations=5,
+                                                   pruning_iterations=25,
                                                    verbosity=1)
 
             storage.save_experimental_history(full_network_history, path=folder_path, name='full')
@@ -83,12 +83,18 @@ def main():
         # TODO: Add readout for early-tick-search
         folder_path = histories_path + '/Visualization/' + architecture_description + '/' + str(0)
         full_network_history = storage.load_experimental_history(path=folder_path, name='full')
+        '''
         masked_network_history = \
             storage.load_experimental_history(
                 path=folder_path,
                 name='masked_' + str(pruning_percentages['dense']) + '|' + str(pruning_percentages['conv']) +
                      '_times_1')
-
+        '''
+        masked_network_history = \
+            storage.load_experimental_history(
+                path=folder_path,
+                name='masked_' + str(pruning_percentages) +
+                     '_times_5')
         visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
                                                              masked_network_history, 'Masked Network',
                                                              'accuracy', 'accuracy')
