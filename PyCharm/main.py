@@ -26,11 +26,16 @@ def main():
         tf.compat.v2.config.experimental.set_memory_growth(gpu, True)
 
     histories_path = '../PyCharm/Histories'
-    # task_description = 'Reproduction'
-    task_description = 'Transfer'
-    # architecture_description = 'CIFAR10-CNN-6'
-    # architecture_description = 'MNIST-Lenet-FCN'
-    architecture_description = 'Newsgroups-End2End-CNN'
+
+    functional = True
+    if functional:
+        task_description = 'Transfer'
+        architecture_description = 'Newsgroups-End2End-CNN'
+    else:
+        task_description = 'Reproduction'
+        architecture_description = 'CIFAR10-CNN-6'
+        # architecture_description = 'MNIST-Lenet-FCN'
+
     pruning_percentages = {'dense': 20,
                            'conv': 15}
     execution_date = str(datetime.date.today())
@@ -54,7 +59,7 @@ def main():
             histories_over_pruning_iterations = \
             '''
             (full_network_history, masked_network_histories) = \
-                experiments.search_lottery_tickets(epochs=5,
+                experiments.search_lottery_tickets(epochs=1,
                                                    model_identifier=architecture_description,
                                                    pruning_percentages=pruning_percentages,
                                                    pruning_iterations=2,

@@ -32,9 +32,9 @@ def extract_trainable_values(model):
 def _structurize_tensors_rec(config, tensor_distribution, tensors):
     structured_tensors = []
     if _is_functional_config(config):
-        # TODO: I am uncertain whether functional configs and functional subconfigs behave identical
-        # TODO: Additionally the use of nested functional models has not been tested
-        for idx, subconfig in enumerate(config['layers']):
+        for idx, wrapped_config in enumerate(config['layers']):
+            subconfig = wrapped_config['config']
+            subconfig['class_name'] = wrapped_config['class_name']
             if isinstance(tensor_distribution[idx], Iterable):
                 no_needed_tensors = sum(_flatten(tensor_distribution[idx]))
             else:
@@ -49,11 +49,12 @@ def _structurize_tensors_rec(config, tensor_distribution, tensors):
                     subtensors)
             )
 
-    elif _is_sequential_subconfig(config):
-        # TODO: Might not recognize full sequential configs
-        layers = config['config']['layers']
+    elif _is_sequential_config(config):
+        layers = config['layers']
         no_used_tensors = 0
-        for idx, layer_config in enumerate(layers):
+        for idx, wrapped_config in enumerate(layers):
+            layer_config = wrapped_config['config']
+            layer_config['class_name'] = wrapped_config['class_name']
             wb_dict = {}
             if _is_layer_with_weights(layer_config):
                 wb_dict['weights'] = tf.identity(tensors[no_used_tensors])
@@ -63,8 +64,7 @@ def _structurize_tensors_rec(config, tensor_distribution, tensors):
                     no_used_tensors += 1
             structured_tensors.append(wb_dict)
 
-    elif _is_layer_subconfig(config):
-        # TODO: Might not recognize full layer configs
+    elif _is_layer_config(config):
         eb_dict = {}
         if _is_layer_with_weights(config):
             eb_dict['weights'] = tf.identity(tensors[0])
@@ -75,24 +75,24 @@ def _structurize_tensors_rec(config, tensor_distribution, tensors):
 
 
 def _find_no_of_tensors_rec(config):
-    # TODO: I am uncertain whether functional configs and functional subconfigs behave identical
-    # TODO: This might cause problems as the use of nested functional models has not been tested
     no_tensor = None
     if _is_functional_config(config):
         no_tensor = []
-        for subconfig in config['layers']:
+        for wrapped_config in config['layers']:
+            subconfig = wrapped_config['config']
+            subconfig['class_name'] = wrapped_config['class_name']
             no_tensor.append(_find_no_of_tensors_rec(subconfig))
 
-    # TODO: Might not recognize full sequential configs
-    elif _is_sequential_subconfig(config):
+    elif _is_sequential_config(config):
         no_tensor = 0
-        layers = config['config']['layers']
-        for layer_config in layers:
+        layers = config['layers']
+        for wrapped_config in layers:
+            layer_config = wrapped_config['config']
+            layer_config['class_name'] = wrapped_config['class_name']
             no_tensor += int(_is_layer_with_weights(layer_config))
             no_tensor += int(_is_layer_with_biases(layer_config))
 
-    # TODO: Might not recognize full layer configs
-    elif _is_layer_subconfig(config):
+    elif _is_layer_config(config):
         no_tensor = int(_is_layer_with_weights(config)) + int(_is_layer_with_biases(config))
     return no_tensor
 
@@ -101,7 +101,16 @@ def future_mask_model(trained_model, initial_values, pruning_percentages, summar
     config = trained_model.get_config()
     masks = _create_mask_for_functional_model(config, initial_values,
                                               pruning_percentages)
-    masked_model = _build_masked_model(config, initial_values, masks)
+    if _is_sequential_config(config):
+        input_layer = tfk.layers.Input(shape=trained_model.input_shape[1:])
+        masked_model = _build_masked_model(
+            config, initial_values, masks,
+            has_sequential_base=True,
+            sequential_input=input_layer
+        )
+    else:
+        masked_model = _build_masked_model(config, initial_values, masks)
+
     masked_model.compile(
         optimizer=trained_model.optimizer,
         loss=trained_model.loss
@@ -181,32 +190,35 @@ def mask_model(trained_model, initial_weights, initial_biases, model_config, pru
     return masked_model
 
 
-def _build_masked_model(config, initial_values, masks, input_layers=None):
+def _build_masked_model(config, initial_values, masks, has_sequential_base=False, sequential_input=None):
     masked_model = []
     if _is_functional_config(config):
         print("===Begin recreation of a functional model===")
         submodels = []
         submodel_idxs = {}
-        for idx, subconfig in enumerate(config['layers']):
+        for idx, wrapped_config in enumerate(config['layers']):
             # Identify the layers that act as inputs for the submodel
-            input_layers = []
-            if subconfig['inbound_nodes']:
-                for inbound_node in subconfig['inbound_nodes'][0]:
+            input_layer = []
+            if wrapped_config['inbound_nodes']:
+                for inbound_node in wrapped_config['inbound_nodes'][0]:
                     layer_names = inbound_node[0]
                     input_layer_idxs = submodel_idxs[layer_names]
-                    input_layers.append(submodels[input_layer_idxs])
+                    input_layer.append(submodels[input_layer_idxs])
             # Remember where to submodul was placed by name so it can later be handed over as input
-            submodel_idxs[subconfig['name']] = idx
+            submodel_idxs[wrapped_config['name']] = idx
+            subconfig = wrapped_config['config']
+            subconfig['class_name'] = wrapped_config['class_name']
             masked_submodel = _build_masked_model(
                 config=subconfig,
                 initial_values=initial_values[idx],
                 masks=masks[idx]
             )
-            if input_layers:
-                if len(input_layers) == 1:
-                    input_layers = input_layers[0]
-                submodels.append(masked_submodel(input_layers))
-            else: submodels.append(masked_submodel)
+            if input_layer:
+                if len(input_layer) == 1:
+                    input_layer = input_layer[0]
+                submodels.append(masked_submodel(input_layer))
+            else:
+                submodels.append(masked_submodel)
 
         # Collect everything into a functional model by defining global inputs and outputs
         input_name = config['input_layers'][0][0]
@@ -220,15 +232,18 @@ def _build_masked_model(config, initial_values, masks, input_layers=None):
                                  outputs=output_layer)
         print("===End recreation of a functional model===")
 
-    elif _is_sequential_subconfig(config):
+    elif _is_sequential_config(config):
         print("---Begin recreation sequential model---")
-        layers = config['config']['layers']
+        layers = config['layers']
         masked_model = tfk.Sequential()
-        for idx, subconfig in enumerate(layers):
+        if has_sequential_base:
+            masked_model.add(sequential_input)
+        no_weights_used = 0
+        for idx, wrapped_config in enumerate(layers):
             print("Recreate single sequential layer")
-            layer_config = subconfig['config']
-            layer_config['class_name'] = subconfig['class_name']
-            if _is_maskable_layer(subconfig):
+            layer_config = wrapped_config['config']
+            layer_config['class_name'] = wrapped_config['class_name']
+            if _is_maskable_layer(wrapped_config):
                 masked_model.add(_produce_masked_layer(
                     layer_config=layer_config,
                     wb_dict=initial_values[idx],
@@ -240,18 +255,16 @@ def _build_masked_model(config, initial_values, masks, input_layers=None):
                 ))
         print("---End recreation sequential model---")
 
-    elif _is_layer_subconfig(config):
+    elif _is_layer_config(config):
         print("Recreate single functional layer")
-        layer_config = config['config']
-        layer_config['class_name'] = config['class_name']
         if _is_maskable_layer(config):
             masked_model = _produce_masked_layer(
-                layer_config=layer_config,
+                layer_config=config,
                 wb_dict=initial_values,
                 mask=masks[0]
             )
         else:
-            masked_model = _reproduce_layer(layer_config=layer_config)
+            masked_model = _reproduce_layer(layer_config=config)
     return masked_model
 
 
@@ -280,6 +293,17 @@ def _reproduce_layer(layer_config):
 
     elif _is_concatenate_config(layer_config):
         reproduced_layer = tfk.layers.Concatenate()
+
+    elif _is_max_pool_2d_config(layer_config):
+        reproduced_layer = tfk.layers.MaxPool2D()
+
+    elif _is_flatten_config(layer_config):
+        reproduced_layer = tfk.layers.Flatten()
+
+    else:
+        print("### None of the following layers fit the config supplied: ###")
+        print("### Input, AvgPool1D, GlobalAveragePooling1D, Dropout, .. ###")
+        print("### Concatenate, MaxPool2D, Flatten ###")
 
     return reproduced_layer
 
@@ -330,6 +354,12 @@ def _produce_masked_layer(layer_config, wb_dict, mask):
             initialization_weights=wb_dict['weights'],
             mask=mask
         )
+
+    else:
+        print("### Although the config should belong to a maskable layer no specific one could be found. ###")
+        print("### None of the following layers fit the config supplied: ###")
+        print("### (Masked)Conv1D, (Masked)Conv2D, (Masked)Dense, .. ###")
+        print("### (Masked)Embedding ###")
     return reproduced_layer
 
 
@@ -384,29 +414,41 @@ def _create_mask_for_functional_model(config, values, pruning_percentages):
     masks = []
     if _is_functional_config(config):
         print("=====Begin masking of a functional model=====")
-        for idx, subconfig in enumerate(config['layers']):
+        for idx, wrapped_config in enumerate(config['layers']):
+            subconfig = wrapped_config['config']
+            subconfig['class_name'] = wrapped_config['class_name']
             masks.append(_create_mask_for_functional_model(
                 config=subconfig,
                 values=values[idx],
                 pruning_percentages=pruning_percentages)
             )
         print("=====End masking of a functional model=====")
-    elif _is_sequential_subconfig(config):
-        layers = config['config']['layers']
+    elif _is_sequential_config(config):
         print("-----Begin masking of a sequential model-----")
-        for idx, layer_config in enumerate(layers):
+        for idx, wrapped_config in enumerate(config['layers']):
+            layer_config = wrapped_config['config']
+            layer_config['class_name'] = wrapped_config['class_name']
             if _is_maskable_layer(layer_config):
                 print("Masking a sequential " + layer_config['class_name'] + "layer")
                 # TODO: Extend to multiple pruning percentages
                 tensor = values[idx]['weights']
-                quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['conv'])
+                if _is_dense_config(layer_config) | _is_embedding_config(layer_config):
+                    quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['dense'])
+                elif _is_conv_1d_config(layer_config) | _is_conv_2d_config(layer_config):
+                    quantile = np.percentile(np.abs(tensor.numpy()), pruning_percentages['conv'])
+                else:
+                    print("### No pruning percentage could be assigned to maskable layer. ###")
+                    print("### Critical error is imminent! ###")
                 masks.append(_magnitude_threshold_mask(
                     tensor=tensor,
                     threshold=quantile
                 ))
+            else:
+                masks.append(None)
+
         print("-----End masking of a sequential model-----")
 
-    elif _is_layer_subconfig(config):
+    elif _is_layer_config(config):
         if _is_maskable_layer(config):
             print("Masking a functional " + config['class_name'] + "-layer")
             # TODO: Extend to multiple pruning percentages
@@ -416,6 +458,8 @@ def _create_mask_for_functional_model(config, values, pruning_percentages):
                 tensor=tensor,
                 threshold=quantile
             ))
+        else:
+            masks.append(None)
     return masks
 
 
@@ -460,18 +504,30 @@ def _is_layer_with_biases(config):
 
 
 def _is_functional_config(config):
-    # TODO: There might be more robust ways of identification
     return 'input_layers' in config
 
 
-def _is_sequential_subconfig(subconfig):
-    # TODO: There might be more robust ways of identification
-    return 'Sequential' == subconfig['class_name']
+def _is_sequential_config(config):
+    is_sequential = ('layers' in config) & (not _is_functional_config(config))
+    if is_sequential:
+        if 'inbound_nodes' in config:
+            print("### The sequential config supplied is wrapped from a functional model. ###.")
+            print("### For compatibility reasons only unwrapped sequential configs are expected. ###")
+            print("### The wrapped config contains the unwrapped config under the key 'config'. ###")
+            is_sequential = False
+    return is_sequential
 
 
-def _is_layer_subconfig(subconfig):
+def _is_layer_config(config):
     # TODO: There might be more robust ways of identification
-    return 'layers' not in subconfig['config']
+    is_layer = not ('layers' in config)
+    if is_layer:
+        if 'inbound_nodes' in config:
+            print("### The layer config supplied is wrapped from a functional model. ###.")
+            print("### For compatibility reasons only unwrapped layer configs are expected. ###")
+            print("### The wrapped config contains the unwrapped config under the key 'config'. ###")
+            is_layer = False
+    return is_layer
 
 
 def _is_input_config(layer_config):
@@ -498,6 +554,16 @@ def _is_global_avg_pool_1d_config(layer_config):
 def _is_concatenate_config(layer_config):
     is_concatenate = layer_config['class_name'] == 'Concatenate'
     return is_concatenate
+
+
+def _is_max_pool_2d_config(layer_config):
+    is_max_pool_2d = layer_config['class_name'] == 'MaxPooling2D'
+    return is_max_pool_2d
+
+
+def _is_flatten_config(layer_config):
+    is_flatten = layer_config['class_name'] == 'Flatten'
+    return is_flatten
 
 
 def _is_conv_1d_config(layer_config):
