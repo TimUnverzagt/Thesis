@@ -78,8 +78,6 @@ def main():
                           str(i)
             os.mkdir(folder_path)
 
-            if
-
             if searching_for_early_tickets:
                 histories_over_pruning_iterations = \
                     experiments.search_early_tickets(
