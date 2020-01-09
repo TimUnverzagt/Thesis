@@ -28,7 +28,7 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = False
+    train = True
     # visualize = False
     visualize = not train
     test_new_structure = False
