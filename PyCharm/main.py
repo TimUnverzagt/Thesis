@@ -28,10 +28,9 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = True
+    train = False
     # visualize = False
     visualize = not train
-    test_new_structure = False
 
     no_experiments = 3
 
@@ -152,9 +151,6 @@ def main():
                 history_names=network_names,
                 measure_key='accuracy'
             )
-    if test_new_structure:
-        experiments.test_cnn_for_nlp(epochs=5)
-        # print("No new structure to test. Check main.py")
 
     return
 

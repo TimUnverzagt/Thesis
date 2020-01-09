@@ -15,23 +15,6 @@ from datasets import mnist
 from datasets import cifar10
 
 
-def test_cnn_for_nlp(epochs, verbosity=1):
-    print("Quantifying datapoints...")
-    data_splits = newsgroups.quantify_datapoints(target_doc_len=200)
-    train_datapoints = data_splits['train']
-    test_datapoints = data_splits['test']
-
-    model_wrapper = NetworkWrapper(model_identifier='Newsgroups-End2End-CNN', summarize=True)
-
-    full_prediction_history = inspect_metrics_while_training(model_wrapper=model_wrapper,
-                                                             training_data=train_datapoints,
-                                                             validation_data=test_datapoints,
-                                                             epochs=epochs,
-                                                             batch_size=60,
-                                                             verbosity=verbosity)
-    return
-
-
 def search_lottery_tickets(epochs, model_identifier, pruning_percentages, pruning_iterations, verbosity=2):
     print("Quantifying datapoints...")
     # Identify dataset
