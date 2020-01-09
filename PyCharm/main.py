@@ -35,8 +35,8 @@ def main():
     no_experiments = 3
 
     # task_description = 'Transfer'
-    # task_description = 'Reproduction'
-    task_description = 'Early-Tickets'
+    task_description = 'Reproduction'
+    # task_description = 'Early-Tickets'
     # architecture_description = 'Newsgroups-End2End-CNN'
     # architecture_description = 'CIFAR10-CNN-6'
     architecture_description = 'MNIST-Lenet-FCN'
@@ -118,39 +118,76 @@ def main():
                     storage.save_experimental_history(masked_network_history, path=folder_path, name=model_name)
 
     if visualize:
+        # Values to be set manually
+        no_masking_iteration_provided = 25
+        average_over_multiple_experiments = True
+        no_experiments_provided = 3
+        measure_key = 'accuracy'
         # TODO: Add readout for early-tick-search
-        folder_path = histories_path + '/' + \
-                      'Visualization/' + \
-                      task_description + '/' + \
-                      architecture_description + '/' + \
-                      str(0)
+        if average_over_multiple_experiments:
+            print("Averaging not yet supported")
+            if searching_for_early_tickets:
+                print("There is no visualization for early-ticket search yet...")
 
-        if searching_for_early_tickets:
-            print("There is no visualization for early-ticket search yet...")
+            else:
+                experiment_results = []
+                for i in range(no_experiments_provided):
+                    folder_path = histories_path + '/' + \
+                                  'Visualization/' + \
+                                  task_description + '/' + \
+                                  architecture_description + '/' + \
+                                  str(0)
+                    network_names = []
+                    network_histories = []
+
+                    network_names.append('Full Network')
+                    network_histories.append(storage.load_experimental_history(path=folder_path, name='full'))
+
+                    for j in range(no_masking_iteration_provided):
+                        history_name = 'masked_' + str(pruning_percentages['dense'])
+                        history_name = history_name + '|' + str(pruning_percentages['conv'])
+                        history_name = history_name + '_times_' + str(i + 1)
+
+                        network_histories.append(
+                            storage.load_experimental_history(path=folder_path, name=history_name)
+                        )
+                        network_names.append(str(i+1) + 'x Masked Network')
+                    experiment_results.append({'network_histories': network_histories,
+                                        'network_names': network_names})
+
+                visualization.plot_averaged_experiments(experiment_results, measure_key)
 
         else:
-            no_masking_iteration_provided = 25
-            network_names = []
-            network_histories = []
+            if searching_for_early_tickets:
+                print("There is no visualization for early-ticket search yet...")
 
-            network_names.append('Full Network')
-            network_histories.append(storage.load_experimental_history(path=folder_path, name='full'))
+            else:
+                folder_path = histories_path + '/' + \
+                              'Visualization/' + \
+                              task_description + '/' + \
+                              architecture_description + '/' + \
+                              str(0)
+                network_names = []
+                network_histories = []
 
-            for i in range(0, no_masking_iteration_provided):
-                history_name = 'masked_' + str(pruning_percentages['dense'])
-                history_name = history_name + '|' + str(pruning_percentages['conv'])
-                history_name = history_name + '_times_' + str(i + 1)
+                network_names.append('Full Network')
+                network_histories.append(storage.load_experimental_history(path=folder_path, name='full'))
 
-                network_histories.append(
-                    storage.load_experimental_history(path=folder_path, name=history_name)
+                for i in range(no_masking_iteration_provided):
+                    history_name = 'masked_' + str(pruning_percentages['dense'])
+                    history_name = history_name + '|' + str(pruning_percentages['conv'])
+                    history_name = history_name + '_times_' + str(i + 1)
+
+                    network_histories.append(
+                        storage.load_experimental_history(path=folder_path, name=history_name)
+                    )
+                    network_names.append(str(i+1) + 'x Masked Network')
+
+                visualization.plot_measure_over_n_trainings(
+                    histories=network_histories,
+                    history_names=network_names,
+                    measure_key=measure_key
                 )
-                network_names.append(str(i+1) + 'x Masked Network')
-
-            visualization.plot_measure_over_n_trainings(
-                histories=network_histories,
-                history_names=network_names,
-                measure_key='accuracy'
-            )
 
     return
 
