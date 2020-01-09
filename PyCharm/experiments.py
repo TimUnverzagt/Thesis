@@ -32,8 +32,7 @@ def test_cnn_for_nlp(epochs, verbosity=1):
     return
 
 
-def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense': 20, 'conv': 15},
-                           pruning_iterations=1, verbosity=2):
+def search_lottery_tickets(epochs, model_identifier, pruning_percentages, pruning_iterations, verbosity=2):
     print("Quantifying datapoints...")
     # Identify dataset
     if 'MNIST' in model_identifier:
@@ -149,46 +148,6 @@ def search_early_tickets(epochs, model_identifier, reset_epochs, pruning_percent
             histories_over_reset_epochs.append(building_history)
         histories_over_pruning_iterations.append(histories_over_reset_epochs)
     return histories_over_pruning_iterations
-
-'''
----DEPRECATED---
-def test_creation_of_masked_network(epochs):
-    """
-    reuters_model_wrapper = NetworkWrapper(no_of_features=0,
-                                           model_identifier='GivenModel',
-                                           given_model=tfk.models.load_model('SavedModels/test-trained'))
-    """
-    print("Developing feedforward network on reuters...")
-    reuters_model_wrapper = NetworkWrapper(no_of_features=30,
-                                           model_identifier='Reuters-FeedForward')
-    initial_model = reuters_model_wrapper.model
-
-    print("Quantifying reuters datapoints...")
-    data_splits = reuters.quantify_datapoints(target_no_of_features=30)
-    train_datapoints = data_splits['train']
-    test_datapoints = data_splits['test']
-
-    print("Training full network...")
-    full_history = reuters_model_wrapper.train_model(datapoints=train_datapoints,
-                                                     epochs=epochs)
-
-    print("Developing a masked network with the initial weights...")
-    masked_model = masking.mask_model(trained_model=reuters_model_wrapper.model,
-                                      initial_model=initial_model)
-    lottery_ticket_wrapper = NetworkWrapper(no_of_features=0,
-                                            model_identifier='GivenModel',
-                                            given_model=masked_model)
-
-    print("Training masked network...")
-    masked_history = lottery_ticket_wrapper.train_model(datapoints=train_datapoints,
-                                                        epochs=epochs)
-
-    print("Quickly evaluating both networks...")
-    reuters_model_wrapper.evaluate_model(test_datapoints)
-    lottery_ticket_wrapper.evaluate_model(test_datapoints)
-
-    return full_history, masked_history
-'''
 
 
 def inspect_metrics_while_training(model_wrapper, training_data, validation_data, epochs, batch_size,
