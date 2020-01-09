@@ -72,9 +72,9 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
         iter_pruning_percentages = _iterate_pruning_percentages(percentages=pruning_percentages, iteration=i)
         _flag_pruning_iteration(i, iter_pruning_percentages)
         print("Developing the masked network...")
-        masked_model = masking.future_mask_model(trained_model=base_model_wrapper.model,
-                                                 initial_values=base_values,
-                                                 pruning_percentages=iter_pruning_percentages)
+        masked_model = masking.mask_model(trained_model=base_model_wrapper.model,
+                                          initial_values=base_values,
+                                          pruning_percentages=iter_pruning_percentages)
         lottery_ticket_wrapper = NetworkWrapper(model_identifier='GivenModel',
                                                 given_model=masked_model)
 
@@ -97,8 +97,8 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages={'dense
     return full_prediction_history, masked_prediction_histories
 
 
-def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_percentages={'dense': 20, 'conv': 15},
-                         pruning_iterations=1, verbosity=2):
+def search_early_tickets(epochs, model_identifier, reset_epochs, pruning_percentages, pruning_iterations,
+                         verbosity=2):
     print("Quantifying datapoints...")
     data_splits = mnist.quantify_datapoints()
     train_datapoints = data_splits['train']
@@ -109,12 +109,12 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_perce
     # Read out the config for creation of the masked model
     base_model_config = base_model_wrapper.model.get_config()
 
-    base_weights, base_biases = masking.extract_trainable_values(base_model_wrapper.model)
+    base_values = masking.extract_trainable_values(base_model_wrapper.model)
 
-    intermediate_wb = []
+    list_of_intermediate_values = []
     histories_over_pruning_iterations = []
     for j in range(0, reset_epochs+1):
-        intermediate_wb.append((base_weights, base_biases))
+        list_of_intermediate_values.append(base_values)
 
     for i in range(0, pruning_iterations+1):
         iter_pruning_percentages = _iterate_pruning_percentages(percentages=pruning_percentages, iteration=i)
@@ -122,11 +122,8 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_perce
         histories_over_reset_epochs = []
         for j in range(0, reset_epochs+1):
             _flag_reset_epoch(j)
-            last_wb = intermediate_wb[j]
             masked_model = masking.mask_model(trained_model=base_model_wrapper.model,
-                                              initial_weights=last_wb[0],
-                                              initial_biases=last_wb[1],
-                                              model_config=base_model_config,
+                                              initial_values=list_of_intermediate_values[j],
                                               pruning_percentages=iter_pruning_percentages)
             masked_wrapper = NetworkWrapper(model_identifier='GivenModel',
                                             given_model=masked_model)
@@ -142,11 +139,12 @@ def search_early_tickets(epochs, model_identifier, reset_epochs=5, pruning_perce
                                                               epochs=1,
                                                               batch_size=60,
                                                               verbosity=verbosity,
-                                                              one_hot_labels=True)
+                                                              one_hot_labels=True,
+                                                              flag_epochs=False)
                 _extend_history(building_history, last_history)
                 if k == j:
                     # copy weights by value to save them
-                    intermediate_wb[k] = masking.extract_trainable_values(masked_wrapper.model)
+                    list_of_intermediate_values[k] = masking.extract_trainable_values(masked_wrapper.model)
             # TODO: Does this work?
             histories_over_reset_epochs.append(building_history)
         histories_over_pruning_iterations.append(histories_over_reset_epochs)
@@ -194,7 +192,8 @@ def test_creation_of_masked_network(epochs):
 
 
 def inspect_metrics_while_training(model_wrapper, training_data, validation_data, epochs, batch_size,
-                                   verbosity=2, scheme_for_averaging="micro", one_hot_labels=False):
+                                   verbosity=2, scheme_for_averaging="micro", one_hot_labels=False,
+                                   flag_epochs=True):
 
     accuracy_over_epochs = []
     precision_over_epochs = []
@@ -205,7 +204,7 @@ def inspect_metrics_while_training(model_wrapper, training_data, validation_data
     else:
         sparse_true_labels = validation_data[1]
     for i in range(epochs):
-        if verbosity > 0:
+        if (verbosity > 0) & flag_epochs:
             _flag_epoch(i + 1)
         model_wrapper.train_model(training_data,
                                   batch_size=batch_size,
@@ -226,21 +225,6 @@ def inspect_metrics_while_training(model_wrapper, training_data, validation_data
             'precision': precision_over_epochs,
             'recall': recall_over_epochs,
             'confusion_matrices': confusion_matrices}
-
-'''
----DEPRECATED---
-def _custom_wb_copy(model_wrapper):
-    base_weights = []
-    base_biases = []
-    for j in range(len(model_wrapper.model.weights)):
-        if (j % 2) == 0:
-            base_weights.append(tf.identity(model_wrapper.model.weights[j]))
-        elif (j % 2) == 1:
-            base_biases.append(tf.identity(model_wrapper.model.weights[j]))
-        else:
-            print("Separation weights and biases failed!")
-    return base_weights, base_biases
-'''
 
 
 def _extend_history(base_history, history_to_append):
@@ -267,7 +251,7 @@ def _flag_pruning_iteration(index_of_pruning_iteration, pruning_percentage):
 
 
 def _flag_reset_epoch(index_of_reset_epoch):
-    print("-" * 24 + " Pruning Iteration " + str(index_of_reset_epoch) + " " + "-" * 24)
+    print("+" * 18 + " Train model for masking at epoch " + str(index_of_reset_epoch) + " " + "+" * 18)
     return
 
 

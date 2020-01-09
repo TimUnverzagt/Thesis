@@ -97,7 +97,7 @@ def _find_no_of_tensors_rec(config):
     return no_tensor
 
 
-def future_mask_model(trained_model, initial_values, pruning_percentages, summarize=True):
+def mask_model(trained_model, initial_values, pruning_percentages, summarize=True):
     config = trained_model.get_config()
     masks = _create_mask_for_functional_model(config, initial_values,
                                               pruning_percentages)
@@ -117,76 +117,6 @@ def future_mask_model(trained_model, initial_values, pruning_percentages, summar
     )
     if summarize:
         masked_model.summary()
-    return masked_model
-
-
-def mask_model(trained_model, initial_weights, initial_biases, model_config, pruning_percentages,
-               layer_wise=False, summarize=False):
-    # TODO: Rewrite code to handle specific non-dense pruning percentages more flexibly
-    if not (pruning_percentages['conv'] < 1.0e-3):
-        print("A special pruning percentage for convolutional layers is currently only supported layer_wise.")
-        print("Mask creation has been set to layer_wise!")
-        layer_wise = True
-
-    # masks = _create_masks_for_sequential_model(trained_model, pruning_percentages, layer_wise=layer_wise)
-    masks = _create_mask_for_functional_model(trained_model, pruning_percentages, layer_wise=True)
-
-    masked_model = tfk.Sequential()
-    weight_idx = 0
-    for layer in iter(model_config['layers']):
-        config = layer['config']
-
-        if layer['class_name'] == 'Flatten':
-            if 'batch_input_shape' in config:
-                masked_model.add(tfk.layers.Flatten(batch_input_shape=config['batch_input_shape']))
-            else:
-                masked_model.add(tfk.layers.Flatten())
-
-        elif layer['class_name'] == 'MaxPooling2D':
-            masked_model.add(tfk.layers.MaxPool2D())
-
-        elif (layer['class_name'] == 'Conv2D') | (layer['class_name'] == 'MaskedConv2D'):
-            print("Replacing Conv2D-layer of the model with a custom MaskedConv2D-layer")
-            if 'batch_input_shape' in config:
-                masked_model.add(MaskedConv2D(
-                    filters=config['filters'],
-                    kernel_size=config['kernel_size'],
-                    padding=config['padding'],
-                    activation=config['activation'],
-                    batch_input_shape=config['batch_input_shape'],
-                    initialization_weights=initial_weights[weight_idx],
-                    mask=masks[weight_idx],
-                    initialization_bias=initial_biases[weight_idx])
-                )
-            else:
-
-                masked_model.add(MaskedConv2D(
-                    filters=config['filters'],
-                    kernel_size=config['kernel_size'],
-                    padding=config['padding'],
-                    activation=config['activation'],
-                    initialization_weights=initial_weights[weight_idx],
-                    mask=masks[weight_idx],
-                    initialization_bias=initial_biases[weight_idx])
-                )
-            weight_idx += 1
-
-        elif (layer['class_name'] == 'Dense') | (layer['class_name'] == 'MaskedDense'):
-            print("Replacing Dense-like-layer of the model with a custom MaskedDense-layer")
-            masked_model.add(MaskedDense(units=config['units'],
-                                         activation=config['activation'],
-                                         initialization_weights=initial_weights[weight_idx],
-                                         initialization_biases=initial_biases[weight_idx],
-                                         mask=masks[weight_idx]
-                                         ))
-            weight_idx += 1
-        else:
-            print("Layer " + layer['class_name'] + " not recognized. Fatal Error imminent!")
-
-    masked_model.build()
-    if summarize:
-        masked_model.summary()
-
     return masked_model
 
 
@@ -321,13 +251,13 @@ def _produce_masked_layer(layer_config, wb_dict, mask):
     elif _is_conv_2d_config(layer_config):
         print("Replacing Conv2D-layer of the model with a custom MaskedConv2D-layer")
         reproduced_layer = MaskedConv2D(
-                filters=layer_config['filters'],
-                kernel_size=layer_config['kernel_size'],
-                padding=layer_config['padding'],
-                activation=layer_config['activation'],
-                initialization_weights=wb_dict['weights'],
-                initialization_bias=wb_dict['biases'],
-                mask=mask
+            filters=layer_config['filters'],
+            kernel_size=layer_config['kernel_size'],
+            padding=layer_config['padding'],
+            activation=layer_config['activation'],
+            initialization_weights=wb_dict['weights'],
+            initialization_bias=wb_dict['biases'],
+            mask=mask
         )
 
     elif _is_dense_config(layer_config):
@@ -597,4 +527,3 @@ def _flatten(collection):
                 yield x
         else:
             yield element
-
