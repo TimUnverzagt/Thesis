@@ -13,6 +13,7 @@ import experiments
 import visualization
 from datasets import newsgroups
 
+
 # tf.debugging.set_log_device_placement(True)
 
 
@@ -27,7 +28,7 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = True
+    train = False
     # visualize = False
     visualize = not train
     test_new_structure = False
@@ -95,7 +96,7 @@ def main():
                     model_name = 'masked_' + \
                                  str(pruning_percentages['dense']) + \
                                  '_times_' + \
-                                 str(idx+1)
+                                 str(idx + 1)
                     storage.save_experimental_history(masked_network_history, path=folder_path, name=model_name)
 
             else:
@@ -104,7 +105,7 @@ def main():
                         epochs=approx_no_epochs_needed_for_convergence,
                         model_identifier=architecture_description,
                         pruning_percentages=pruning_percentages,
-                        pruning_iterations=26,
+                        pruning_iterations=25,
                         verbosity=architecture_verbosity)
 
                 storage.save_experimental_history(full_network_history, path=folder_path, name='full')
@@ -119,44 +120,38 @@ def main():
 
     if visualize:
         # TODO: Add readout for early-tick-search
-        folder_path = histories_path + \
-                      '/Visualization/' + \
-                      task_description + \
-                      '/' + \
-                      architecture_description + \
-                      '/' + \
+        folder_path = histories_path + '/' + \
+                      'Visualization/' + \
+                      task_description + '/' + \
+                      architecture_description + '/' + \
                       str(0)
 
-        full_network_history = storage.load_experimental_history(path=folder_path, name='full')
-
-        no_interation_to_compare = 5
-
-        if architecture_description == 'MNIST-Lenet-FCN':
-            history_name = 'masked_' + \
-                           str(pruning_percentages['dense']) + \
-                           '_times_' + \
-                           str(no_interation_to_compare)
-
-        else:
-            history_name = 'masked_' + \
-                           str(pruning_percentages['dense']) + \
-                           '|' + \
-                           str(pruning_percentages['conv']) + \
-                           '_times_' + \
-                           str(no_interation_to_compare)
-
         if searching_for_early_tickets:
-            network_histories_per_pruning_iteration = storage.load_experimental_history(path=folder_path, name=history_name)
-
             print("There is no visualization for early-ticket search yet...")
 
         else:
-            masked_network_history = storage.load_experimental_history(path=folder_path, name=history_name)
+            no_masking_iteration_provided = 25
+            network_names = []
+            network_histories = []
 
-            visualization.plot_measure_comparision_over_training(full_network_history, 'Full Network',
-                                                                masked_network_history, 'Masked Network',
-                                                                'accuracy', 'accuracy')
+            network_names.append('Full Network')
+            network_histories.append(storage.load_experimental_history(path=folder_path, name='full'))
 
+            for i in range(0, no_masking_iteration_provided):
+                history_name = 'masked_' + str(pruning_percentages['dense'])
+                history_name = history_name + '|' + str(pruning_percentages['conv'])
+                history_name = history_name + '_times_' + str(i + 1)
+
+                network_histories.append(
+                    storage.load_experimental_history(path=folder_path, name=history_name)
+                )
+                network_names.append(str(i+1) + 'x Masked Network')
+
+            visualization.plot_measure_over_n_trainings(
+                histories=network_histories,
+                history_names=network_names,
+                measure_key='accuracy'
+            )
     if test_new_structure:
         experiments.test_cnn_for_nlp(epochs=5)
         # print("No new structure to test. Check main.py")
