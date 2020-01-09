@@ -120,7 +120,6 @@ def search_early_tickets(epochs, model_identifier, reset_epochs, pruning_percent
         _flag_pruning_iteration(i, iter_pruning_percentages)
         histories_over_reset_epochs = []
         for j in range(0, reset_epochs+1):
-            _flag_reset_epoch(j)
             masked_model = masking.mask_model(trained_model=base_model_wrapper.model,
                                               initial_values=list_of_intermediate_values[j],
                                               pruning_percentages=iter_pruning_percentages)
@@ -130,6 +129,7 @@ def search_early_tickets(epochs, model_identifier, reset_epochs, pruning_percent
                                 'precision': [],
                                 'recall': [],
                                 'confusion_matrices': []}
+            _flag_reset_epoch(j)
             for k in range(0, epochs):
                 _flag_epoch(k + 1)
                 last_history = inspect_metrics_while_training(model_wrapper=masked_wrapper,
@@ -144,7 +144,7 @@ def search_early_tickets(epochs, model_identifier, reset_epochs, pruning_percent
                 if k == j:
                     # copy weights by value to save them
                     list_of_intermediate_values[k] = masking.extract_trainable_values(masked_wrapper.model)
-            # TODO: Does this work?
+
             histories_over_reset_epochs.append(building_history)
         histories_over_pruning_iterations.append(histories_over_reset_epochs)
     return histories_over_pruning_iterations
