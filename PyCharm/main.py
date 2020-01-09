@@ -27,10 +27,14 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
+    train = True
+    # visualize = False
+    visualize = not train
+    test_new_structure = False
 
     # task_description = 'Transfer'
-    # task_description = 'Reproduction'
-    task_description = 'Early-Tickets'
+    task_description = 'Reproduction'
+    # task_description = 'Early-Tickets'
     # architecture_description = 'Newsgroups-End2End-CNN'
     # architecture_description = 'CIFAR10-CNN-6'
     architecture_description = 'MNIST-Lenet-FCN'
@@ -56,11 +60,6 @@ def main():
 
     execution_date = str(datetime.date.today())
 
-    train = False
-    # visualize = False
-    visualize = not train
-    test_new_structure = False
-
     if train:
         experiment_path = histories_path + \
                           '/' + \
@@ -72,7 +71,7 @@ def main():
         if os.path.exists(experiment_path):
             shutil.rmtree(experiment_path)
         os.mkdir(experiment_path)
-        for i in range(0, 1):
+        for i in range(0, 9):
             folder_path = experiment_path + \
                           '/' + \
                           str(i)
@@ -103,7 +102,7 @@ def main():
                         epochs=approx_no_epochs_needed_for_convergence,
                         model_identifier=architecture_description,
                         pruning_percentages=pruning_percentages,
-                        pruning_iterations=25,
+                        pruning_iterations=26,
                         verbosity=architecture_verbosity)
 
                 storage.save_experimental_history(full_network_history, path=folder_path, name='full')
