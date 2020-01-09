@@ -33,7 +33,7 @@ def main():
     visualize = not train
     test_new_structure = False
 
-    no_experiments = 10
+    no_experiments = 3
 
     # task_description = 'Transfer'
     task_description = 'Reproduction'
@@ -87,7 +87,7 @@ def main():
                         model_identifier=architecture_description,
                         reset_epochs=approx_no_epochs_needed_for_convergence,
                         pruning_percentages=pruning_percentages,
-                        pruning_iterations=10,
+                        pruning_iterations=15,
                         verbosity=architecture_verbosity
                     )
 
