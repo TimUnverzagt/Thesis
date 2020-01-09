@@ -32,6 +32,8 @@ def main():
     visualize = not train
     test_new_structure = False
 
+    no_experiments = 10
+
     # task_description = 'Transfer'
     task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
@@ -71,7 +73,7 @@ def main():
         if os.path.exists(experiment_path):
             shutil.rmtree(experiment_path)
         os.mkdir(experiment_path)
-        for i in range(0, 9):
+        for i in range(0, no_experiments):
             folder_path = experiment_path + \
                           '/' + \
                           str(i)
