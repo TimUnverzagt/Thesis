@@ -32,7 +32,7 @@ def main():
     # visualize = False
     visualize = not train
 
-    no_experiments = 3
+    no_experiments = 1
 
     task_description = 'Transfer'
     # task_description = 'Reproduction'
