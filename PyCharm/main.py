@@ -77,7 +77,9 @@ def main():
                           '/' + \
                           execution_date
         if os.path.exists(experiment_path):
-            shutil.rmtree(experiment_path)
+            print("Experiment-directory already exists")
+            return
+            # shutil.rmtree(experiment_path)
         os.mkdir(experiment_path)
         for i in range(0, no_experiments):
             folder_path = experiment_path + \
