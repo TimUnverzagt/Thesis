@@ -28,18 +28,20 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = False
+    train = True
     # visualize = False
     visualize = not train
 
     no_experiments = 3
 
-    # task_description = 'Transfer'
-    task_description = 'Reproduction'
+    task_description = 'Transfer'
+    # task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
-    # architecture_description = 'Newsgroups-End2End-CNN'
+
     # architecture_description = 'CIFAR10-CNN-6'
-    architecture_description = 'MNIST-Lenet-FCN'
+    # architecture_description = 'MNIST-Lenet-FCN'
+    # Only compatible with 'Transfer'
+    architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -51,14 +53,18 @@ def main():
         architecture_verbosity = 2
         if searching_for_early_tickets:
             approx_no_epochs_needed_for_convergence = 15
+            no_pruning_iterations = 15
         else:
             approx_no_epochs_needed_for_convergence = 50
+            no_pruning_iterations = 25
     elif architecture_description == 'CIFAR10-CNN-6':
         approx_no_epochs_needed_for_convergence = 36
         architecture_verbosity = 1
+        no_pruning_iterations = 25
     elif architecture_description == 'Newsgroups-End2End-CNN':
         approx_no_epochs_needed_for_convergence = 10
         architecture_verbosity = 1
+        no_pruning_iterations = 10
 
     execution_date = str(datetime.date.today())
 
@@ -86,7 +92,7 @@ def main():
                         model_identifier=architecture_description,
                         reset_epochs=approx_no_epochs_needed_for_convergence,
                         pruning_percentages=pruning_percentages,
-                        pruning_iterations=15,
+                        pruning_iterations=no_pruning_iterations,
                         verbosity=architecture_verbosity
                     )
 
@@ -104,7 +110,7 @@ def main():
                         epochs=approx_no_epochs_needed_for_convergence,
                         model_identifier=architecture_description,
                         pruning_percentages=pruning_percentages,
-                        pruning_iterations=25,
+                        pruning_iterations=no_pruning_iterations,
                         verbosity=architecture_verbosity)
 
                 storage.save_experimental_history(full_network_history, path=folder_path, name='full')
