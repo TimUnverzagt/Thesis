@@ -99,7 +99,7 @@ In addition to this model a numerical representation of any utilized data is als
 \textbf{TODO: multidimensionality}
 
 \subsection{Layers}
-As an individual neuron is too simple to model any complex relations between inputs and outputs the next step is to aggregate multiple neurons. At the core of neural networks is the idea to collect the signal many different neurons produce for a given input and reuse them as new features for another round of neurons. Such a collection is called a \textbf{layer} and especially a \textbf{hidden layer} if neither its inputs where original data nor are its outputs the final activations. \footnote{
+As an individual neuron is too simple to model any complex relations between inputs and outputs the next step is to aggregate multiple neurons. At the core of neural networks is the idea to collect the signal many different neurons produce for a given input and reuse them as new features for another round of neurons. Such a collection is called a \textbf{layer} and especially a \textbf{hidden layer} if neither its inputs were original data nor are its outputs the final activations. \footnote{
 	This hierarchy of abstracts features is essential to the descriptive abilities of neural network. As such any sensible function between input and output can be approximated up to arbitrary precision by a network with at least one hidden layer. \cite{universal}
 	}\\
 A layer is defined by the structure of connections it prescribes. The layers used in this thesis consist of:
@@ -114,25 +114,44 @@ A layer is defined by the structure of connections it prescribes. The layers use
 	The Parameters are: neighbourhood size, amount of considered neighbourhoods and definition of behaviour at the edges of data points.\\
 	Example:...\\
 	\item \textbf{Pooling :}\\
-	Not a conventional layer but rather a data-processing-step between other layers. Reduces the number of features by condensing a small neighbourhood into a single feature.\\
+	Not a conventional trainable layer but rather a data-processing-step between other layers. Reduces the number of features by condensing a small neighbourhood into a single feature.\\
 	\item \textbf{Flatten :}\\  
-	Not a conventional layer but rather a data-processing-step between other layers. Collapses features from multiple dimensions into a single one.\\
+	Not a conventional trainable layer but rather a data-processing-step between other layers. Collapses features from multiple dimensions into a single one.\\
 \end{itemize}
 
 \subsection{Architectures}
 The collection of layers used for a given task is called an \textbf{architecture}. As multiple architectures are discussed throughout this work a clear system to note them is fundamental. Any architecture description first declares all default assumptions on its layers. Afterwards a list of layers follows defining the type of said layers, their hyper-parameters and especially the dimensionality of their outputs. Additionally and in interest of compatibility the following notation while be close to the functional Keras-API utilized throughout the associated source code.\\
 The following two examples are meant to illustrate the notation:
 
-
-\begin{figure}
+\subsection*{1}
+\begin{figure}[h]
 	\centering
 	\includegraphics[height=200px]{gfx/Dense_FFNetwork.jpg}
 	\caption{Architecture of a small fully-connected network\\
 		\cite{dense_network}}
 	\label{fig:FFNetwork}
 \end{figure}
+\begin{tabularx}{\textwidth}[!h]{X X X}
+	\multicolumn{1}{c}{\textbf{Simple-FCN | \ref{fig:FFNetwork}}}\\
+	\\
+	\hline
+	\endhead
+	\textbf{Defaults} & Dense: activation & rectified linear unit\\
+	\hline
+	\textbf{Input} & output dimension & 5\\
+	[8pt]
+	\textbf{Dense} & output dimension & 3\\
+	[8pt]
+	\textbf{Dense} & output dimension & 2\\
+	& activation & softmax\\
+	\hline
+\end{tabularx}
 
-\begin{figure}
+\newpage
+
+\subsection*{2}
+
+\begin{figure}[h]
 	\centering
 	\includegraphics[height=200px]{gfx/vgg16.png}
 	\caption{Macroarchitecture of VGG16\\
@@ -140,116 +159,52 @@ The following two examples are meant to illustrate the notation:
 	\label{fig:VGG16}
 \end{figure}
 
-\begin{itemize}
-	\item[] \textbf{Simple-FCN} | \ref{fig:FFNetwork}
-	\begin{itemize}
-			\item[]\textbf{def. activation:} rectified linear unit
-			\item[]\textbf{Input:} 
-				\begin{itemize}
-					\item[] dim-output: 5
-				\end{itemize}
-				\item[]\textbf{Dense:} 
-				\begin{itemize}
-					\item[] dim-output: 3
-				\end{itemize}
-				\item[]\textbf{Dense:} 
-				\begin{itemize}
-					\item[] dim-output: 2
-					\item[] activation: soft-max
-				\end{itemize}
-	\end{itemize}
-\end{itemize}
 
-\begin{itemize}
-	\item[] \textbf{VGG-16} | \ref{fig:VGG16}
-	\begin{itemize}
-			\item[]\textbf{Defaults:} 
-			\begin{itemize}
-				\item[] convolution-neighbourhood-size: [3,3]
-				\item[] convolution-neighbourhood-shift: [1,1]
-				\item[] convolution-edge-behaviour: same-dim, zero-padding
-				\item[] softmax-size: [2,2]
-				\item[] softmax-shift: [2,2]
-			\end{itemize}
-			
-			\item[]\textbf{Input:} 
-			\begin{itemize}
-				\item[] dim-output: [224, 224 | 3]
-			\end{itemize}
-			
-			\item[]\textbf{2x Convolution:} 
-			\begin{itemize}
-				\item[] dim-output: [224, 224 | 64]
-			\end{itemize}
-			
-			\item[]\textbf{Softmax:} 
-			\begin{itemize}
-				\item[] dim-output: [112, 112 | 64]
-			\end{itemize}
-			
-			\item[]\textbf{2x Convolution:} 
-			\begin{itemize}
-				\item[] dim-output: [112, 112 | 128]
-			\end{itemize}
-			
-			\item[]\textbf{Softmax:} 
-			\begin{itemize}
-				\item[] dim-output: [56, 56 | 128]				
-			\end{itemize}
-			
-			\item[]\textbf{3x Convolution:} 
-			\begin{itemize}
-				\item[] dim-output: [56, 56 | 256]
-			\end{itemize}
-			
-			\item[]\textbf{Softmax:} 
-			\begin{itemize}
-				\item[] dim-output: [28, 28 | 256]				
-			\end{itemize}
-			
-			\item[]\textbf{3x Convolution:} 
-			\begin{itemize}
-				\item[] dim-output: [28, 28 | 512]
-			\end{itemize}
-			
-			\item[]\textbf{Softmax:} 
-			\begin{itemize}
-				\item[] dim-output: [14, 14 | 512]				
-			\end{itemize}
-			
-			\item[]\textbf{3x Convolution:} 
-			\begin{itemize}
-				\item[] dim-output: [14, 14 | 512]
-			\end{itemize}
-			
-			\item[]\textbf{Softmax:} 
-			\begin{itemize}
-				\item[] dim-output: [7, 7 | 512]				
-			\end{itemize}
-			
-			\item[]\textbf{Flatten:} 
-			\begin{itemize}
-				\item[] dim-output: 25.088				
-			\end{itemize}
-			
-			\item[]\textbf{Dense:} 
-			\begin{itemize}
-				\item[] dim-output: 4096
-			\end{itemize}
-			
-			\item[]\textbf{Dense:} 
-			\begin{itemize}
-				\item[] dim-output: 4096
-			\end{itemize}
-			
-			\item[]\textbf{Dense:} 
-			\begin{itemize}
-				\item[] dim-output: 1000
-				\item[] activation: softmax
-			\end{itemize}
-			
-	\end{itemize}
-\end{itemize}
+\begin{tabularx}{\textwidth}{X X X}
+	\multicolumn{1}{c}{\textbf{VGG-16 | \ref{fig:VGG16}}}\\
+	\\
+	\hline
+	\endhead
+	\textbf{Defaults} & Convolution: kernel size & [3,3]\\
+	& Convolution: stride & [1,1]\\
+	& Convolution: paddig & same dimension\\
+	& & zero padding\\
+	& Softmax: kernel size & [2,2]\\
+	& Softmax: stride & [1,1]\\
+	\hline
+	\textbf{Input} & output dimension & [224,224|3]\\
+	[8pt]
+	2x \textbf{Convolution} & output dimension & [224,224|64]\\
+	[8pt]
+	\textbf{Softmax} & output dimension & [112,112|64]\\
+	[8pt]
+	2x \textbf{Convolution} & output dimension & [112,112|128]\\
+	[8pt]
+	\textbf{Softmax} & output dimension & [56,56|128]\\
+	[8pt]
+	3x \textbf{Convolution} & output dimension & [56,56|256]\\
+	[8pt]
+	\textbf{Softmax} & output dimension & [28,28|256]\\
+	[8pt]
+	3x \textbf{Convolution} & output dimension & [28,28|512]\\
+	[8pt]
+	\textbf{Softmax} & output dimension & [14,14|512]\\
+	[8pt]
+	3x \textbf{Convolution} & output dimension & [14,14|512]\\
+	[8pt]
+	\textbf{Softmax} & output dimension & [7,7|512]\\
+	[8pt]
+	\textbf{Flatten} & output dimension & 25.088\\
+	[8pt]
+	\textbf{Dense} & output dimension & 4096\\
+	[8pt]
+	\textbf{Dense} & output dimension & 4096\\
+	[8pt]
+	\textbf{Dense} & output dimension & 1000\\
+	& activation & softmax\\
+	\hline
+\end{tabularx}
+
 
 \section{Pruning}
 As the computational power of modern devices increases ever larger architectures become possible. While this allows for more precise models on any given data it is important to recall that pure representation is not the ultimate goal of most applications. Being more concrete, all tasks discussed in this work can be categorized as \textbf{supervised learning}, meaning they provide a collection of labelled data points and demand an extrapolation of the implicit labelling process, called \textbf{generalization}.
