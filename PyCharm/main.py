@@ -28,20 +28,20 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = True
+    train = False
     # visualize = False
     visualize = not train
 
     no_experiments = 1
 
-    task_description = 'Transfer'
-    # task_description = 'Reproduction'
+    # task_description = 'Transfer'
+    task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
 
-    # architecture_description = 'CIFAR10-CNN-6'
+    architecture_description = 'CIFAR10-CNN-6'
     # architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
-    architecture_description = 'Newsgroups-End2End-CNN'
+    # architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -151,15 +151,16 @@ def main():
                     network_names.append('Full Network')
                     network_histories.append(storage.load_experimental_history(path=folder_path, name='full'))
 
+                    # for j in range(10):
                     for j in range(no_masking_iteration_provided):
                         history_name = 'masked_' + str(pruning_percentages['dense'])
                         history_name = history_name + '|' + str(pruning_percentages['conv'])
-                        history_name = history_name + '_times_' + str(i + 1)
+                        history_name = history_name + '_times_' + str(j + 1)
 
                         network_histories.append(
                             storage.load_experimental_history(path=folder_path, name=history_name)
                         )
-                        network_names.append(str(i+1) + 'x Masked Network')
+                        network_names.append(str(j+1) + 'x Masked Network')
                     experiment_results.append({'network_histories': network_histories,
                                         'network_names': network_names})
 
@@ -181,6 +182,7 @@ def main():
                 network_names.append('Full Network')
                 network_histories.append(storage.load_experimental_history(path=folder_path, name='full'))
 
+                # for i in range(10):
                 for i in range(no_masking_iteration_provided):
                     history_name = 'masked_' + str(pruning_percentages['dense'])
                     history_name = history_name + '|' + str(pruning_percentages['conv'])
