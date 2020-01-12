@@ -100,6 +100,94 @@ class MaskedDense(keras_layers.Dense):
         return outputs
 
 
+class MaskedConv1D(keras_layers.Conv1D):
+    def __init__(self, filters,
+                 kernel_size,
+                 initialization_weights=None,
+                 initialization_bias=None,
+                 mask=None,
+                 strides=1,
+                 padding='valid',
+                 data_format='channels_last',
+                 dilation_rate=1,
+                 activation=None,
+                 use_bias=True,
+                 kernel_initializer=None,
+                 bias_initializer=None,
+                 kernel_regularizer=None,
+                 bias_regularizer=None,
+                 activity_regularizer=None,
+                 kernel_constraint=None,
+                 bias_constraint=None,
+                 trainable=True,
+                 name=None,
+                 **kwargs):
+        super(MaskedConv1D, self).__init__(
+            filters=filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding=padding,
+            data_format=data_format,
+            dilation_rate=dilation_rate,
+            activation=activation,
+            use_bias=use_bias,
+            kernel_initializer=kernel_initializer,
+            bias_initializer=bias_initializer,
+            kernel_regularizer=kernel_regularizer,
+            bias_regularizer=bias_regularizer,
+            activity_regularizer=activity_regularizer,
+            kernel_constraint=kernel_constraint,
+            bias_constraint=bias_constraint,
+            trainable=trainable,
+            name=name, **kwargs)
+
+        if initialization_weights is None:
+            print("No weight kernel has been supplied for the custom MaskedConv2D-layer!")
+            print("A Critical Error is imminent!")
+        else:
+            self.init_kernel = initialization_weights
+        if mask is None:
+            print("No mask has been supplied for the custom MaskedConv2D-layer!")
+            print("While the layer is still functional it's reduced to a poor version of tf.keras.layers.Conv2D")
+        else:
+            self.mask = tf.cast(mask, self.dtype)
+        self.use_bias = use_bias
+        if initialization_bias is None:
+            print("No bias has been supplied for the custom MaskedConv2D-layer!")
+            if use_bias:
+                print("As the layer is set to use biases a critical Error is imminent!")
+            else:
+                print("As the layer is not set to use biases no problem may occur, but you are inviting problems.")
+        else:
+            self.init_bias = initialization_bias
+
+    def build(self, input_shape):
+        super(MaskedConv1D, self).build(input_shape)
+        if (self.init_kernel is not None) & (self.init_bias is not None):
+            self.set_weights((self.init_kernel, self.init_bias))
+        elif(self.init_kernel is not None) | (self.init_bias is not None):
+            print("An initial weights or biases have been supplied, but the matching counterpart is missing.")
+            print("As such the given initial values are ignored!")
+
+    def call(self, inputs):
+        outputs = self._convolution_op(inputs, self.kernelgen_math_ops.mul(self.kernel, self.mask))
+
+        if self.use_bias:
+            if self.data_format == 'channels_first':
+                if self.rank == 1:
+                    # nn.bias_add does not accept a 1D input tensor.
+                    bias = array_ops.reshape(self.bias, (1, self.filters, 1))
+                    outputs += bias
+                else:
+                    outputs = nn.bias_add(outputs, self.bias, data_format='NCHW')
+            else:
+                outputs = nn.bias_add(outputs, self.bias, data_format='NHWC')
+
+        if self.activation is not None:
+            return self.activation(outputs)
+        return outputs
+
+
 class MaskedConv2D(keras_layers.Conv2D):
     def __init__(self,
                  filters,

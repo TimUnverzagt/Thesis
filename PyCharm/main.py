@@ -28,20 +28,20 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = False
+    train = True
     # visualize = False
     visualize = not train
 
     no_experiments = 1
 
-    # task_description = 'Transfer'
-    task_description = 'Reproduction'
+    task_description = 'Transfer'
+    # task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
 
-    architecture_description = 'CIFAR10-CNN-6'
+    # architecture_description = 'CIFAR10-CNN-6'
     # architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
-    # architecture_description = 'Newsgroups-End2End-CNN'
+    architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -62,6 +62,7 @@ def main():
         architecture_verbosity = 1
         no_pruning_iterations = 25
     elif architecture_description == 'Newsgroups-End2End-CNN':
+        # approx_no_epochs_needed_for_convergence = 10
         approx_no_epochs_needed_for_convergence = 10
         architecture_verbosity = 1
         no_pruning_iterations = 10
