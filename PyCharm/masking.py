@@ -393,19 +393,20 @@ def _create_mask_for_functional_model(config, values, pruning_percentages):
     return masks
 
 
-def _magnitude_threshold_mask(tensor, threshold):
-    print("Shape of input: " + str(tensor.shape))
-    print("Weight of the threshold for masking: " + str(np.round(threshold, 4)))
-    # Does this work as intended with numeric errors?
+def _magnitude_threshold_mask(tensor, threshold, verbosity=0):
+    if verbosity > 1:
+        print("Shape of input: " + str(tensor.shape))
+        print("Weight of the threshold for masking: " + str(np.round(threshold, 4)))
     prev_time = time.time()
     mask = tensor.numpy()
     with np.nditer(mask, op_flags=['readwrite']) as it:
         for x in it:
             x[...] = int(abs(x) >= threshold)
     # mask = tf.cast(tf.map_fn(lambda x: abs(x) >= threshold, tensor, bool), tf.int32)
-    print("Shape of mask: " + str(mask.shape))
-    print("Time used: " + str(np.round((time.time() - prev_time), 4)))
-    print("")
+    if verbosity > 1:
+        print("Shape of mask: " + str(mask.shape))
+        print("Time used: " + str(np.round((time.time() - prev_time), 4)))
+        print("")
     return mask
 
 

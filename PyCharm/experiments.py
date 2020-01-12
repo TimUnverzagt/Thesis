@@ -187,8 +187,12 @@ def _flag_epoch(index_of_epoch):
 
 
 def _flag_pruning_iteration(index_of_pruning_iteration, pruning_percentage):
-    print("-" * 18 + " Pruning Iteration " + str(index_of_pruning_iteration) + " " + "-" * 18)
+    print("")
+    print(58*"=")
+    print("=" * 18 + " Pruning Iteration " + str(index_of_pruning_iteration) + " " + "=" * 18)
     print("Total Pruning Percentage: " + str(pruning_percentage))
+    print(58*"=")
+    print("")
     return
 
 
