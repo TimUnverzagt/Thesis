@@ -11,11 +11,11 @@
 The performed experiments pursue different goals. At first, the validation of the code base, used in the remaining experiments, is necessary. Next, one experiment on the search for early lottery tickets is conducted and finally, a transfer to an NLP-task is attempted.
 \subsection*{Dataset and Preprocessing}
 Various Datasets are used for this thesis. A more thorough description of each one is given in section 6. If any preprocessing was used it is explained at this point.
-\subsection*{Task}
+\subsection*{Task and Architecture}
 For each Dataset, multiple tasks are reasonable. A collection of text, for example, could either be classified by one network or compressed by another. The task informs the structure of the network's output, and possibly its entire design. Different Tasks might also vary greatly in difficulty.
-\subsection*{Architecture}
 The specific shape of a network is called the \textbf{architecture}. A precise description of a network's architecture is vital to the reproducibility of any experiment. All necessary parameters are given here. Any parameters that were inferred,  because they are indiscernible from the referenced papers, are mentioned here. If I found parameters to be inconsistent or incompatible with each other it is discussed in this subsection.
-\subsection*{Pruning}
+
+\subsection*{Experimental Setup}
 Not all architectures are pruned in the same fashion. In their paper, J. Frankle and M. Carbin used different pruning percentages for different kinds of layers.\cite{LTH} Additionally, their results show that the quality of different architectures degrades at different speeds concerning the number of weights pruned. Thus the number of pruning iterations varies over different experiments, which is discussed here shortly.
 Finally, the layers in which pruning is applied are enumerated together with their corresponding pruning percentages.
 
@@ -28,7 +28,7 @@ For this experiment, I employed the image dataset MNIST. It contains gray-scale 
 No preprocessing was applied.
 \subsection*{Task}
 The network was supposed to classify each image according to the digit it displays.
-\subsection*{Architecture and Setup}\\
+\subsection*{Architecture and Setup}
 \begin{tabularx}{\textwidth}[!h]{X X X}
 	\multicolumn{1}{X}{\textbf{MNIST-Lenet-FCN}}\\
 	\\
