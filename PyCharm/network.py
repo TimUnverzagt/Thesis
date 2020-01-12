@@ -91,8 +91,8 @@ class CustomNetworkWrapper:
 
             sequentials = []
             seq_outputs = []
-            # for i in range(16):
-            for i in range(2):
+            for i in range(16):
+            # for i in range(2):
                 if i < 8:
                     sequentials.append(init_submodel(1+3*i, 2))
                     seq_outputs.append(sequentials[i](common_input))
