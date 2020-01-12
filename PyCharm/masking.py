@@ -9,6 +9,7 @@ from collections import Iterable
 
 # Personal modules
 from custom_layers import MaskedDense
+from custom_layers import MaskedConv1D
 from custom_layers import MaskedConv2D
 from custom_layers import MaskedEmbedding
 
@@ -241,11 +242,15 @@ def _reproduce_layer(layer_config):
 def _produce_masked_layer(layer_config, wb_dict, mask):
     # TODO: Swap to masked variants xD
     if _is_conv_1d_config(layer_config):
-        print("MaskedConv1D is not yet implemented")
-        print("Conv1D will simply be replaced")
-        reproduced_layer = tfk.layers.Conv1D(
+        print("Replacing Conv1D-layer of the model with a custom MaskedConv1D-layer")
+        reproduced_layer = MaskedConv1D(
             filters=layer_config['filters'],
-            kernel_size=layer_config['kernel_size']
+            kernel_size=layer_config['kernel_size'],
+            padding=layer_config['padding'],
+            activation=layer_config['activation'],
+            initialization_weights=wb_dict['weights'],
+            initialization_bias=wb_dict['biases'],
+            mask=mask
         )
 
     elif _is_conv_2d_config(layer_config):

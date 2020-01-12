@@ -170,7 +170,7 @@ class MaskedConv1D(keras_layers.Conv1D):
             print("As such the given initial values are ignored!")
 
     def call(self, inputs):
-        outputs = self._convolution_op(inputs, self.kernelgen_math_ops.mul(self.kernel, self.mask))
+        outputs = self._convolution_op(inputs, gen_math_ops.mul(self.kernel, self.mask))
 
         if self.use_bias:
             if self.data_format == 'channels_first':

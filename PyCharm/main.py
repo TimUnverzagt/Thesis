@@ -63,7 +63,7 @@ def main():
         no_pruning_iterations = 25
     elif architecture_description == 'Newsgroups-End2End-CNN':
         # approx_no_epochs_needed_for_convergence = 10
-        approx_no_epochs_needed_for_convergence = 10
+        approx_no_epochs_needed_for_convergence = 1
         architecture_verbosity = 1
         no_pruning_iterations = 10
 
