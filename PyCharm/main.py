@@ -28,20 +28,20 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = True
+    train = False
     # visualize = False
     visualize = not train
 
-    no_experiments = 1
+    no_experiments = 3
 
-    task_description = 'Transfer'
-    # task_description = 'Reproduction'
+    # task_description = 'Transfer'
+    task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
 
     # architecture_description = 'CIFAR10-CNN-6'
-    # architecture_description = 'MNIST-Lenet-FCN'
+    architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
-    architecture_description = 'Newsgroups-End2End-CNN'
+    # architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -53,7 +53,7 @@ def main():
         architecture_verbosity = 2
         if searching_for_early_tickets:
             approx_no_epochs_needed_for_convergence = 15
-            no_pruning_iterations = 15
+            no_pruning_iterations = 25
         else:
             approx_no_epochs_needed_for_convergence = 50
             no_pruning_iterations = 25
@@ -128,13 +128,12 @@ def main():
 
     if visualize:
         # Values to be set manually
-        no_masking_iteration_provided = 25
+        no_masking_iteration_provided = no_pruning_iterations
         average_over_multiple_experiments = True
         no_experiments_provided = 3
         measure_key = 'accuracy'
         # TODO: Add readout for early-tick-search
         if average_over_multiple_experiments:
-            print("Averaging not yet supported")
             if searching_for_early_tickets:
                 print("There is no visualization for early-ticket search yet...")
 

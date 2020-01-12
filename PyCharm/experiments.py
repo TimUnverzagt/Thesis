@@ -33,6 +33,10 @@ def search_lottery_tickets(epochs, model_identifier, pruning_percentages, prunin
 
     train_datapoints = data_splits['train']
     test_datapoints = data_splits['test']
+    # Shuffle the before each experiment
+    print("Shuffleling the datapoints...")
+    train_datapoints = _shuffle_in_unison(train_datapoints[0], train_datapoints[1])
+    test_datapoints = _shuffle_in_unison(test_datapoints[0], test_datapoints[1])
 
     print("Developing full " + model_identifier + "...")
     base_model_wrapper = NetworkWrapper(model_identifier=model_identifier, summarize=True)
@@ -206,5 +210,13 @@ def _iterate_pruning_percentages(percentages, iteration):
     for key in percentages:
         new_percentages[key] = (1-np.power(1 - (percentages[key]/100), iteration))*100
     return new_percentages
+
+
+# Credit to Íhor Mé
+# https://stackoverflow.com/questions/4601373/better-way-to-shuffle-two-numpy-arrays-in-unison
+def _shuffle_in_unison(a, b):
+    assert len(a) == len(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
 
 

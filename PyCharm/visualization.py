@@ -32,9 +32,11 @@ def plot_measure_with_confidence_over_n_trainings(measure_with_confidence, histo
             color_mean=c,
             color_shading=c)
 
-    plt.legend(history_names)
+    plt.legend(history_names, bbox_to_anchor=(1.05, 1.05))
     plt.xlabel(variable_name)
     plt.ylabel(measure_key)
+    plt.savefig("../LaTeX/gfx/Experiments/test.png",
+                bbox_inches='tight')
     plt.show()
     return
 
