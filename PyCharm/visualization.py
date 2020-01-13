@@ -14,11 +14,12 @@ def plot_measure_over_n_trainings(histories, history_names, measure_key,
         measure = history[measure_key]
         plt.plot(epoch_count, measure, color=c)
 
-    plt.legend(history_names)
+    plt.legend(history_names, bbox_to_anchor=(1.05, 1.05))
     plt.xlabel(variable_name)
     plt.ylabel(measure_key)
+    plt.savefig("../LaTeX/gfx/Experiments/test.png",
+                bbox_inches='tight')
     plt.show()
-
     return
 
 

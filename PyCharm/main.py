@@ -34,14 +34,14 @@ def main():
 
     no_experiments = 1
 
-    task_description = 'Transfer'
+    # task_description = 'Transfer'
     # task_description = 'Reproduction'
-    # task_description = 'Early-Tickets'
+    task_description = 'Early-Tickets'
 
     # architecture_description = 'CIFAR10-CNN-6'
-    # architecture_description = 'MNIST-Lenet-FCN'
+    architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
-    architecture_description = 'Newsgroups-End2End-CNN'
+    # architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -51,12 +51,10 @@ def main():
     if architecture_description == 'MNIST-Lenet-FCN':
         pruning_percentages = {'dense': 20, 'conv': 0}
         architecture_verbosity = 2
+        approx_no_epochs_needed_for_convergence = 50
         if searching_for_early_tickets:
-            approx_no_epochs_needed_for_convergence = 15
+            no_epochs_considered_for_masking = 15
             no_pruning_iterations = 15
-        else:
-            approx_no_epochs_needed_for_convergence = 50
-            no_pruning_iterations = 25
     elif architecture_description == 'CIFAR10-CNN-6':
         approx_no_epochs_needed_for_convergence = 36
         architecture_verbosity = 1
@@ -78,9 +76,9 @@ def main():
                           '/' + \
                           execution_date
         if os.path.exists(experiment_path):
-            print("Experiment-directory already exists")
-            return
-            # shutil.rmtree(experiment_path)
+            print("Experiment-directory already existed")
+            # return
+            shutil.rmtree(experiment_path)
         os.mkdir(experiment_path)
         for i in range(0, no_experiments):
             folder_path = experiment_path + \
@@ -93,7 +91,7 @@ def main():
                     experiments.search_early_tickets(
                         epochs=approx_no_epochs_needed_for_convergence,
                         model_identifier=architecture_description,
-                        reset_epochs=approx_no_epochs_needed_for_convergence,
+                        reset_epochs=no_epochs_considered_for_masking,
                         pruning_percentages=pruning_percentages,
                         pruning_iterations=no_pruning_iterations,
                         verbosity=architecture_verbosity
@@ -128,10 +126,11 @@ def main():
 
     if visualize:
         # Values to be set manually
-        no_masking_iteration_provided = no_pruning_iterations
-        average_over_multiple_experiments = True
+        # no_masking_iteration_provided = no_pruning_iterations
+        no_masking_iteration_provided = 15
+        average_over_multiple_experiments = False
         no_experiments_provided = 3
-        measure_key = 'accuracy'
+        measure_key = 'recall'
         if average_over_multiple_experiments:
             experiment_results = []
             if searching_for_early_tickets:
@@ -164,6 +163,7 @@ def main():
 
                     experiment_results.append({'pruning_results': pruning_results,
                                                 'pruning_names': pruning_names})
+
                 visualization.plot_averaged_early_tickets(experiment_results, 'accuracy')
 
             else:
@@ -203,7 +203,8 @@ def main():
             if searching_for_early_tickets:
                 pruning_names = []
                 pruning_results = []
-                pruning_names.append("after Epoch 0")
+                # pruning_names.append("after Epoch 0")
+                pruning_names.append('Full Network')
                 pruning_results.append(storage.load_experimental_history(path=folder_path, name='full'))
 
                 for i in range(no_masking_iteration_provided):
@@ -219,11 +220,20 @@ def main():
                     pruning_results.append(
                         storage.load_experimental_history(path=folder_path, name=pruning_name)
                     )
-                    pruning_names.append('after Epoch ' + str(i+1))
+                    pruning_names.append(str(i+1) + 'x Masked Network')
+                    # pruning_names.append('after Epoch ' + str(i+1))
+
+                """
                 visualization.plot_average_measure_over_different_pruning_depths(
                     pruning_results,
                     pruning_names,
                     'accuracy'
+                )
+                """
+                visualization.plot_measure_over_n_trainings(
+                    histories=pruning_results[15],
+                    history_names=pruning_names,
+                    measure_key=measure_key
                 )
 
             else:

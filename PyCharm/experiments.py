@@ -99,16 +99,21 @@ def search_early_tickets(epochs, model_identifier, reset_epochs, pruning_percent
 
     list_of_intermediate_values = []
     histories_over_pruning_iterations = []
-    for j in range(0, reset_epochs+1):
-        list_of_intermediate_values.append(base_values)
+    for i in range(0, reset_epochs+1):
+        list_of_intermediate_values.append([])
+        for j in range(0, pruning_iterations):
+            if i == 0:
+                list_of_intermediate_values[i].append(base_values)
 
-    for i in range(0, pruning_iterations+1):
-        iter_pruning_percentages = _iterate_pruning_percentages(percentages=pruning_percentages, iteration=i)
-        _flag_pruning_iteration(i, iter_pruning_percentages)
-        histories_over_reset_epochs = []
-        for j in range(0, reset_epochs+1):
+    for i in range(0, reset_epochs + 1):
+        pruning_results = []
+        _flag_reset_epoch(i)
+        histories = []
+        for j in range(0, pruning_iterations + 1):
+            iter_pruning_percentages = _iterate_pruning_percentages(percentages=pruning_percentages, iteration=j)
+            _flag_pruning_iteration(j, iter_pruning_percentages)
             masked_model = masking.mask_model(trained_model=base_model_wrapper.model,
-                                              initial_values=list_of_intermediate_values[j],
+                                              initial_values=list_of_intermediate_values[i][j],
                                               pruning_percentages=iter_pruning_percentages)
             masked_wrapper = NetworkWrapper(model_identifier='GivenModel',
                                             given_model=masked_model)
@@ -116,7 +121,6 @@ def search_early_tickets(epochs, model_identifier, reset_epochs, pruning_percent
                                 'precision': [],
                                 'recall': [],
                                 'confusion_matrices': []}
-            _flag_reset_epoch(j)
             for k in range(0, epochs):
                 _flag_epoch(k + 1)
                 last_history = inspect_metrics_while_training(model_wrapper=masked_wrapper,
@@ -130,11 +134,11 @@ def search_early_tickets(epochs, model_identifier, reset_epochs, pruning_percent
                 _extend_history(building_history, last_history)
                 if k == j:
                     # copy weights by value to save them
-                    list_of_intermediate_values[k] = masking.extract_trainable_values(masked_wrapper.model)
+                    list_of_intermediate_values[i][j] = masking.extract_trainable_values(masked_wrapper.model)
 
-            histories_over_reset_epochs.append(building_history)
-        histories_over_pruning_iterations.append(histories_over_reset_epochs)
-    return histories_over_pruning_iterations
+            histories.append(building_history)
+        pruning_results.append(histories)
+    return pruning_results
 
 
 def inspect_metrics_while_training(model_wrapper, training_data, validation_data, epochs, batch_size,
