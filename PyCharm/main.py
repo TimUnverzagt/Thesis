@@ -28,20 +28,20 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = False
+    train = True
     # visualize = False
     visualize = not train
 
-    no_experiments = 3
+    no_experiments = 1
 
-    # task_description = 'Transfer'
+    task_description = 'Transfer'
     # task_description = 'Reproduction'
-    task_description = 'Early-Tickets'
+    # task_description = 'Early-Tickets'
 
     # architecture_description = 'CIFAR10-CNN-6'
-    architecture_description = 'MNIST-Lenet-FCN'
+    # architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
-    # architecture_description = 'Newsgroups-End2End-CNN'
+    architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -132,7 +132,6 @@ def main():
         average_over_multiple_experiments = True
         no_experiments_provided = 3
         measure_key = 'accuracy'
-        # TODO: Add readout for early-tick-search
         if average_over_multiple_experiments:
             experiment_results = []
             if searching_for_early_tickets:

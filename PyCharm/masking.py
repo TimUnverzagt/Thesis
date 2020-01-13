@@ -276,8 +276,7 @@ def _produce_masked_layer(layer_config, wb_dict, mask):
         )
 
     elif _is_embedding_config(layer_config):
-        print("MaskedEmbedding is not yet implemented")
-        print("Embedding will simply be replaced")
+        print("Replacing Embedding-layer of the model with a custom MaskedEmbedding-layer")
         reproduced_layer = MaskedEmbedding(
             input_dim=layer_config['input_dim'],
             input_length=layer_config['input_length'],
