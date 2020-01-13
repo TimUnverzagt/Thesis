@@ -33,138 +33,141 @@ class CustomNetworkWrapper:
                 self.model = given_model
                 return
 
-        # Base initialization
-        optimizer = 'adam'
-        loss = 'categorical_crossentropy',
-
-        if model_identifier == 'Reuters-FeedForward':
-            if no_of_features <= 0:
-                print("The CustomNetworkWrapper expects a positive number of features for the reuters dataset.")
-                print("A critical error is imminent!")
-            middle_size = np.round(np.sqrt(no_of_features * 300 * no_of_classes))
-            self.model = tfk.Sequential([
-                tfk.layers.Input(shape=(no_of_features, 300)),
-                tfk.layers.Flatten(input_shape=(no_of_features, 300)),
-                # 300 = dimensionality of embedding
-                tfk.layers.Dense(300 * no_of_features,
-                                 activation=tf.nn.relu),
-                # middle layer is chosen so the downscaling factor is constant
-                tfk.layers.Dense(middle_size,
-                                 activation=tf.nn.relu),
-                # no_of_classes = number of categories
-                tfk.layers.Dense(no_of_classes,
-                                 activation=tf.nn.softmax)
-            ])
-
-        elif model_identifier == 'Reuters-CNN':
-            if no_of_features <= 0:
-                print("The CustomNetworkWrapper expects a positive number of features for the reuters dataset.")
-                print("A critical error is imminent!")
-            kernel_width = 3
-            no_of_filters = no_of_features - kernel_width
-            self.model = tfk.Sequential([
-                tfk.layers.Conv2D(filters=1,
-                                  kernel_size=(kernel_width, 300),
-                                  activation='relu',
-                                  input_shape=(no_of_features, 300, 1)),
-                tfk.layers.Flatten(input_shape=(no_of_filters, 1, 1)),
-                tfk.layers.Dense(units=no_of_classes,
-                                 input_shape=(no_of_filters,),
-                                 activation=tf.nn.softmax)
-            ])
-
-        elif model_identifier == 'MNIST-Lenet-FCN':
-            self.model = tfk.Sequential([
-                tfk.layers.Input(shape=(28, 28)),
-                tfk.layers.Flatten(input_shape=(28, 28)),
-                tfk.layers.Dense(units=300,
-                                 activation='relu'),
-                tfk.layers.Dense(units=100,
-                                 activation='relu'),
-                tfk.layers.Dense(units=10,
-                                 activation=tf.nn.softmax)
-            ])
-            optimizer = tfk.optimizers.Adam(learning_rate=1.2*1e-03)
-
-        elif model_identifier == 'Newsgroups-End2End-CNN':
-            common_input = tfk.layers.Input(shape=200)
-
-            sequentials = []
-            seq_outputs = []
-            for i in range(16):
-            # for i in range(2):
-                if i < 8:
-                    sequentials.append(init_submodel(1+3*i, 2))
-                    seq_outputs.append(sequentials[i](common_input))
-                else:
-                    sequentials.append(init_submodel(1+3*(i % 8), 7))
-                    seq_outputs.append(sequentials[i](common_input))
-
-            merged = tfk.layers.concatenate(seq_outputs)
-            regularized = tfk.layers.Dropout(rate=0.5)(merged)
-            output = tfk.layers.Dense(20,
-                                      activation='softmax')(regularized)
-            self.model = tfk.Model(inputs=[common_input],
-                                   outputs=output)
-            loss = 'sparse_categorical_crossentropy'
-
-        elif model_identifier == 'CIFAR10-CNN-6':
-            self.model = tfk.Sequential([
-                tfk.layers.Input(shape=(32, 32, 3)),
-                tfk.layers.Conv2D(
-                    filters=64,
-                    kernel_size=(3, 3),
-                    padding='same',
-                    activation='relu'),
-                tfk.layers.Conv2D(
-                    filters=64,
-                    kernel_size=(3, 3),
-                    padding='same',
-                    activation='relu'),
-                tfk.layers.MaxPool2D(),
-                tfk.layers.Conv2D(
-                    filters=128,
-                    kernel_size=(3, 3),
-                    padding='same',
-                    activation='relu'),
-                tfk.layers.Conv2D(
-                    filters=128,
-                    kernel_size=(3, 3),
-                    padding='same',
-                    activation='relu'),
-                tfk.layers.MaxPool2D(),
-                tfk.layers.Conv2D(
-                    filters=256,
-                    kernel_size=(3, 3),
-                    padding='same',
-                    activation='relu'),
-                tfk.layers.Conv2D(
-                    filters=256,
-                    kernel_size=(3, 3),
-                    padding='same',
-                    activation='relu'),
-                tfk.layers.MaxPool2D(),
-                tfk.layers.Flatten(),
-                tfk.layers.Dense(units=256,
-                                 activation='relu'),
-                tfk.layers.Dense(units=256,
-                                 activation='relu'),
-                tfk.layers.Dense(units=10,
-                                 activation=tf.nn.softmax),
-            ])
-            optimizer = tfk.optimizers.Adam(learning_rate=3*1e-04)
-
         else:
-            print("CustomNetworkHandler does not handle a model type called: ", model_identifier)
-            print("Please use one of the following names:")
-            print("'Given-Model'")
-            print("'Reuters-FeedForward', 'Reuters-CNN'")
-            print("'MNIST-Lenet-FCN'")
-            print("'CIFAR10-CNN-6'")
-            print("'Newsgroups-End2End-CNN'")
+            # Base initialization
+            optimizer = 'adam'
+            loss = 'categorical_crossentropy',
 
-        self.model.compile(optimizer=optimizer,
-                           loss=loss)
+            if model_identifier == 'Reuters-FeedForward':
+                if no_of_features <= 0:
+                    print("The CustomNetworkWrapper expects a positive number of features for the reuters dataset.")
+                    print("A critical error is imminent!")
+                middle_size = np.round(np.sqrt(no_of_features * 300 * no_of_classes))
+                self.model = tfk.Sequential([
+                    tfk.layers.Input(shape=(no_of_features, 300)),
+                    tfk.layers.Flatten(input_shape=(no_of_features, 300)),
+                    # 300 = dimensionality of embedding
+                    tfk.layers.Dense(300 * no_of_features,
+                                     activation=tf.nn.relu),
+                    # middle layer is chosen so the downscaling factor is constant
+                    tfk.layers.Dense(middle_size,
+                                     activation=tf.nn.relu),
+                    # no_of_classes = number of categories
+                    tfk.layers.Dense(no_of_classes,
+                                     activation=tf.nn.softmax)
+                ])
+
+            elif model_identifier == 'Reuters-CNN':
+                if no_of_features <= 0:
+                    print("The CustomNetworkWrapper expects a positive number of features for the reuters dataset.")
+                    print("A critical error is imminent!")
+                kernel_width = 3
+                no_of_filters = no_of_features - kernel_width
+                self.model = tfk.Sequential([
+                    tfk.layers.Conv2D(filters=1,
+                                      kernel_size=(kernel_width, 300),
+                                      activation='relu',
+                                      input_shape=(no_of_features, 300, 1)),
+                    tfk.layers.Flatten(input_shape=(no_of_filters, 1, 1)),
+                    tfk.layers.Dense(units=no_of_classes,
+                                     input_shape=(no_of_filters,),
+                                     activation=tf.nn.softmax)
+                ])
+
+            elif model_identifier == 'MNIST-Lenet-FCN':
+                self.model = tfk.Sequential([
+                    tfk.layers.Input(shape=(28, 28)),
+                    tfk.layers.Flatten(input_shape=(28, 28)),
+                    tfk.layers.Dense(units=300,
+                                     activation='relu'),
+                    tfk.layers.Dense(units=100,
+                                     activation='relu'),
+                    tfk.layers.Dense(units=10,
+                                     activation=tf.nn.softmax)
+                ])
+                optimizer = tfk.optimizers.Adam(learning_rate=1.2*1e-03)
+
+            elif model_identifier == 'Newsgroups-End2End-CNN':
+                common_input = tfk.layers.Input(shape=200)
+
+                sequentials = []
+                seq_outputs = []
+                for i in range(16):
+                # for i in range(2):
+                    if i < 8:
+                        sequentials.append(init_submodel(1+3*i, 2))
+                        seq_outputs.append(sequentials[i](common_input))
+                    else:
+                        sequentials.append(init_submodel(1+3*(i % 8), 7))
+                        seq_outputs.append(sequentials[i](common_input))
+
+                merged = tfk.layers.concatenate(seq_outputs)
+                regularized = tfk.layers.Dropout(rate=0.5)(merged)
+                output = tfk.layers.Dense(20,
+                                      activation='softmax')(regularized)
+                self.model = tfk.Model(inputs=[common_input],
+                                    outputs=output)
+                loss = 'sparse_categorical_crossentropy'
+
+            elif model_identifier == 'CIFAR10-CNN-6':
+                self.model = tfk.Sequential([
+                    tfk.layers.Input(shape=(32, 32, 3)),
+                    tfk.layers.Conv2D(
+                        filters=64,
+                        kernel_size=(3, 3),
+                        padding='same',
+                        activation='relu'),
+                    tfk.layers.Conv2D(
+                        filters=64,
+                        kernel_size=(3, 3),
+                        padding='same',
+                        activation='relu'),
+                    tfk.layers.MaxPool2D(),
+                    tfk.layers.Conv2D(
+                        filters=128,
+                        kernel_size=(3, 3),
+                        padding='same',
+                        activation='relu'),
+                    tfk.layers.Conv2D(
+                        filters=128,
+                        kernel_size=(3, 3),
+                        padding='same',
+                        activation='relu'),
+                    tfk.layers.MaxPool2D(),
+                    tfk.layers.Conv2D(
+                        filters=256,
+                        kernel_size=(3, 3),
+                        padding='same',
+                        activation='relu'),
+                    tfk.layers.Conv2D(
+                        filters=256,
+                        kernel_size=(3, 3),
+                        padding='same',
+                        activation='relu'),
+                    tfk.layers.MaxPool2D(),
+                    tfk.layers.Flatten(),
+                    tfk.layers.Dense(units=256,
+                                    activation='relu'),
+                    tfk.layers.Dense(units=256,
+                                     activation='relu'),
+                    tfk.layers.Dense(units=10,
+                                     activation=tf.nn.softmax),
+                ])
+                optimizer = tfk.optimizers.Adam(learning_rate=3*1e-04)
+
+            else:
+                print("CustomNetworkHandler does not handle a model type called: ", model_identifier)
+                print("Please use one of the following names:")
+                print("'Given-Model'")
+                print("'Reuters-FeedForward', 'Reuters-CNN'")
+                print("'MNIST-Lenet-FCN'")
+                print("'CIFAR10-CNN-6'")
+                print("'Newsgroups-End2End-CNN'")
+
+            self.model.compile(
+                optimizer=optimizer,
+                loss=loss
+            )
         if summarize:
             self.model.summary()
         # print(self.model.get_config())

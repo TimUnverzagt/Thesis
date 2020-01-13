@@ -28,7 +28,7 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = True
+    train = False
     # visualize = False
     visualize = not train
 
@@ -54,7 +54,7 @@ def main():
         approx_no_epochs_needed_for_convergence = 50
         if searching_for_early_tickets:
             no_epochs_considered_for_masking = 15
-            no_pruning_iterations = 15
+            no_pruning_iterations = 25
     elif architecture_description == 'CIFAR10-CNN-6':
         approx_no_epochs_needed_for_convergence = 36
         architecture_verbosity = 1
@@ -76,9 +76,9 @@ def main():
                           '/' + \
                           execution_date
         if os.path.exists(experiment_path):
-            print("Experiment-directory already existed")
+            print("Experiment-directory already exists")
             # return
-            shutil.rmtree(experiment_path)
+            # shutil.rmtree(experiment_path)
         os.mkdir(experiment_path)
         for i in range(0, no_experiments):
             folder_path = experiment_path + \
@@ -97,12 +97,13 @@ def main():
                         verbosity=architecture_verbosity
                     )
 
-                storage.save_experimental_history(histories_over_pruning_iterations[0], path=folder_path, name='full')
-                for idx, masked_network_history in enumerate(histories_over_pruning_iterations[1:]):
+                for idx, masked_network_history in enumerate(histories_over_pruning_iterations):
                     model_name = 'masked_' + \
                                  str(pruning_percentages['dense']) + \
-                                 '_times_' + \
-                                 str(idx + 1)
+                                 '|' + \
+                                 str(pruning_percentages['conv']) + \
+                                 '_at_epoch_' + \
+                                 str(idx)
                     storage.save_experimental_history(masked_network_history, path=folder_path, name=model_name)
 
             else:
@@ -127,10 +128,10 @@ def main():
     if visualize:
         # Values to be set manually
         # no_masking_iteration_provided = no_pruning_iterations
-        no_masking_iteration_provided = 15
+        no_masking_iteration_provided = 2
         average_over_multiple_experiments = False
         no_experiments_provided = 3
-        measure_key = 'recall'
+        measure_key = 'accuracy'
         if average_over_multiple_experiments:
             experiment_results = []
             if searching_for_early_tickets:
@@ -143,18 +144,19 @@ def main():
                                   str(0)
                     pruning_names = []
                     pruning_results = []
-                    pruning_names.append("after Epoch 0")
-                    pruning_results.append(storage.load_experimental_history(path=folder_path, name='full'))
 
-                    for j in range(no_masking_iteration_provided):
+                    for j in range(no_masking_iteration_provided+1):
                         # The names are not correctly representing whats saved because they use the same scheme as
                         # lottery ticket search results
                         # instead of the histories after prunning iteration i
                         # the object contain all histories of the experiment
                         # where pruning was applied after the n-th iteration
-                        pruning_name = 'masked_' + str(pruning_percentages['dense'])
-                        pruning_name = pruning_name + '|' + str(pruning_percentages['conv'])
-                        pruning_name = pruning_name + '_times_' + str(j + 1)
+                        pruning_name = 'masked_' + \
+                                        str(pruning_percentages['dense']) + \
+                                        '|' + \
+                                        str(pruning_percentages['conv']) + \
+                                        '_at_epoch_' + \
+                                        str(j + 1)
 
                         pruning_results.append(
                             storage.load_experimental_history(path=folder_path, name=pruning_name)
@@ -203,25 +205,24 @@ def main():
             if searching_for_early_tickets:
                 pruning_names = []
                 pruning_results = []
-                # pruning_names.append("after Epoch 0")
-                pruning_names.append('Full Network')
-                pruning_results.append(storage.load_experimental_history(path=folder_path, name='full'))
 
-                for i in range(no_masking_iteration_provided):
+                for i in range(no_masking_iteration_provided+1):
                     # The names are not correctly representing whats saved because they use the same scheme as
                     # lottery ticket search results
                     # instead of the histories after prunning iteration i
                     # the object contain all histories of the experiment
                     # where pruning was applied after the n-th iteration
-                    pruning_name = 'masked_' + str(pruning_percentages['dense'])
-                    pruning_name = pruning_name + '|' + str(pruning_percentages['conv'])
-                    pruning_name = pruning_name + '_times_' + str(i + 1)
+                    pruning_name = 'masked_' + \
+                                    str(pruning_percentages['dense']) + \
+                                    '|' + \
+                                    str(pruning_percentages['conv']) + \
+                                    '_at_epoch_' + \
+                                    str(i)
 
                     pruning_results.append(
                         storage.load_experimental_history(path=folder_path, name=pruning_name)
                     )
-                    pruning_names.append(str(i+1) + 'x Masked Network')
-                    # pruning_names.append('after Epoch ' + str(i+1))
+                    pruning_names.append('after Epoch ' + str(i))
 
                 """
                 visualization.plot_average_measure_over_different_pruning_depths(
@@ -231,7 +232,7 @@ def main():
                 )
                 """
                 visualization.plot_measure_over_n_trainings(
-                    histories=pruning_results[15],
+                    histories=pruning_results[2],
                     history_names=pruning_names,
                     measure_key=measure_key
                 )
