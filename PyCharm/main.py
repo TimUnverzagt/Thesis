@@ -35,8 +35,8 @@ def main():
     no_experiments = 3
 
     # task_description = 'Transfer'
-    task_description = 'Reproduction'
-    # task_description = 'Early-Tickets'
+    # task_description = 'Reproduction'
+    task_description = 'Early-Tickets'
 
     # architecture_description = 'CIFAR10-CNN-6'
     architecture_description = 'MNIST-Lenet-FCN'
@@ -53,7 +53,7 @@ def main():
         architecture_verbosity = 2
         if searching_for_early_tickets:
             approx_no_epochs_needed_for_convergence = 15
-            no_pruning_iterations = 25
+            no_pruning_iterations = 15
         else:
             approx_no_epochs_needed_for_convergence = 50
             no_pruning_iterations = 25
@@ -134,11 +134,40 @@ def main():
         measure_key = 'accuracy'
         # TODO: Add readout for early-tick-search
         if average_over_multiple_experiments:
+            experiment_results = []
             if searching_for_early_tickets:
-                print("There is no visualization for early-ticket search yet...")
+                print("There is no visualization for multiple early-ticket searches yet...")
+                for i in range(no_experiments_provided):
+                    folder_path = histories_path + '/' + \
+                                  'Visualization/' + \
+                                  task_description + '/' + \
+                                  architecture_description + '/' + \
+                                  str(0)
+                    pruning_names = []
+                    pruning_results = []
+                    pruning_names.append("after Epoch 0")
+                    pruning_results.append(storage.load_experimental_history(path=folder_path, name='full'))
+
+                    for j in range(no_masking_iteration_provided):
+                        # The names are not correctly representing whats saved because they use the same scheme as
+                        # lottery ticket search results
+                        # instead of the histories after prunning iteration i
+                        # the object contain all histories of the experiment
+                        # where pruning was applied after the n-th iteration
+                        pruning_name = 'masked_' + str(pruning_percentages['dense'])
+                        pruning_name = pruning_name + '|' + str(pruning_percentages['conv'])
+                        pruning_name = pruning_name + '_times_' + str(j + 1)
+
+                        pruning_results.append(
+                            storage.load_experimental_history(path=folder_path, name=pruning_name)
+                        )
+                        pruning_names.append('after Epoch ' + str(j + 1))
+
+                    experiment_results.append({'pruning_results': pruning_results,
+                                                'pruning_names': pruning_names})
+                visualization.plot_averaged_early_tickets(experiment_results, 'accuracy')
 
             else:
-                experiment_results = []
                 for i in range(no_experiments_provided):
                     folder_path = histories_path + '/' + \
                                   'Visualization/' + \
@@ -167,18 +196,40 @@ def main():
                 visualization.plot_averaged_experiments(experiment_results, measure_key)
 
         else:
+            folder_path = histories_path + '/' + \
+                         'Visualization/' + \
+                         task_description + '/' + \
+                         architecture_description + '/' + \
+                         str(0)
             if searching_for_early_tickets:
-                print("There is no visualization for early-ticket search yet...")
+                pruning_names = []
+                pruning_results = []
+                pruning_names.append("after Epoch 0")
+                pruning_results.append(storage.load_experimental_history(path=folder_path, name='full'))
+
+                for i in range(no_masking_iteration_provided):
+                    # The names are not correctly representing whats saved because they use the same scheme as
+                    # lottery ticket search results
+                    # instead of the histories after prunning iteration i
+                    # the object contain all histories of the experiment
+                    # where pruning was applied after the n-th iteration
+                    pruning_name = 'masked_' + str(pruning_percentages['dense'])
+                    pruning_name = pruning_name + '|' + str(pruning_percentages['conv'])
+                    pruning_name = pruning_name + '_times_' + str(i + 1)
+
+                    pruning_results.append(
+                        storage.load_experimental_history(path=folder_path, name=pruning_name)
+                    )
+                    pruning_names.append('after Epoch ' + str(i+1))
+                visualization.plot_average_measure_over_different_pruning_depths(
+                    pruning_results,
+                    pruning_names,
+                    'accuracy'
+                )
 
             else:
-                folder_path = histories_path + '/' + \
-                              'Visualization/' + \
-                              task_description + '/' + \
-                              architecture_description + '/' + \
-                              str(0)
                 network_names = []
                 network_histories = []
-
                 network_names.append('Full Network')
                 network_histories.append(storage.load_experimental_history(path=folder_path, name='full'))
 

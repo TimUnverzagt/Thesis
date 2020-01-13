@@ -7,9 +7,12 @@ import scipy.stats as stats
 def plot_measure_over_n_trainings(histories, history_names, measure_key,
                                   variable_name='epoch'):
     epoch_count = range(1, len(histories[0][measure_key]) + 1)
+
+    color = iter(plt.cm.rainbow(np.linspace(0, 1, len(histories))))
     for idx, history in enumerate(histories):
+        c = next(color)
         measure = history[measure_key]
-        plt.plot(epoch_count, measure)
+        plt.plot(epoch_count, measure, color=c)
 
     plt.legend(history_names)
     plt.xlabel(variable_name)
@@ -51,6 +54,58 @@ def plot_averaged_experiments(experiment_results, measure_key,
         measure_key=measure_key
     )
 
+    return
+
+
+def plot_average_measure_over_different_pruning_depths(pruning_results, pruning_names, measure_key,
+                                                       variable_name='pruning epoch'):
+    developments = []
+    for pruning_result in pruning_results:
+        development_of_average_measure = []
+        for history in pruning_result:
+            measure_at_epochs = history[measure_key]
+            development_of_average_measure.append(
+                np.average(measure_at_epochs)
+            )
+        developments.append(
+            development_of_average_measure
+        )
+
+    epoch_count = range(1, len(developments[0]) + 1)
+    color = iter(plt.cm.rainbow(np.linspace(0, 1, len(developments))))
+    for development in developments:
+        c = next(color)
+        plt.plot(epoch_count, development, color=c)
+
+    plt.legend(pruning_names)
+    plt.xlabel(variable_name)
+    plt.ylabel(measure_key)
+    plt.show()
+    return
+
+
+def plot_averaged_early_tickets(experiment_results, measure_key,
+                                variable_name='pruning epoch'):
+    processed_experiment_results = []
+    for experiment_result in experiment_results:
+        developments = []
+        for pruning_result in experiment_result['pruning_results']:
+            development_of_average_measure = []
+            for history in pruning_result:
+                measure_at_epochs = history[measure_key]
+                development_of_average_measure.append(
+                    np.average(measure_at_epochs)
+                )
+            developments.append(
+                development_of_average_measure
+            )
+        processed_experiment_results.append(
+            developments
+        )
+
+    processed_array = np.array(processed_experiment_results)
+    bundled_developments = np.moveaxis(processed_array, 0, -1)
+    print("Developing")
     return
 
 
