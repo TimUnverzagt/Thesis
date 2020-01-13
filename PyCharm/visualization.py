@@ -105,7 +105,8 @@ def plot_averaged_early_tickets(experiment_results, measure_key,
 
     processed_array = np.array(processed_experiment_results)
     bundled_developments = np.moveaxis(processed_array, 0, -1)
-    print("Developing")
+    print("Plotting the average of multiple early ticket searches is not fully implemented or funtioncal.")
+    print("Unless the code now produces different results when run multiple times there is no point in using this function tho.")
     return
 
 
