@@ -9,24 +9,66 @@
 4. What are the parameter settings used in the evaluation and why? If possible always justify why a certain threshold has been chose for a particular parameter.  \\
 5. What is the outcome of the evaluation? \\ \\
 The section should have a length of about five to ten pages.}
+
 \section{Goal and Methodology}
-\begin{itemize}
-	\item Early Pruning: \\
-		Proof of concept\\
-		+ trial of select early stopping points \\
-	\item Transfer to NLP: \\
-		Proof of concept 
-\end{itemize}
+\subsection*{Reproduction}
+\subsection*{Early Tickets}
+\subsection*{Transfer}
 
 \section{Evaluation Setup}
-\begin{itemize}
-	\item Early Pruning: \\
-	LTH holds for mask with less than 50\% of iterations to early stop\\
-	
-	\item Transfer to NLP: \\
-	Network holds performance to within 1\%-point while at least 50\% weights are pruned
-\end{itemize}
+\subsection*{Reproduction}
+\subsection*{Early Tickets}
+LTH holds for mask with less than 50\% of iterations to early stop
+\subsection*{Transfer}
+Network holds performance while at least 50\% weights are pruned
 
 \section{Evaluation Results}
+\subsection*{Reproduction}
+\begin{figure}
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[width=220px]{gfx/Experiments/Reproduction-CIFAR10-CNN/accuracy/10_iterations.png}
+		\caption*{Accuracy on CIFAR10 over 10 pruning iterations}
+		\label{fig:CIFAR10accuracy10}
+	\end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[width=220px]{gfx/Experiments/Reproduction-CIFAR10-CNN/accuracy/15_iterations.png}
+		\caption*{Accuracy on CIFAR10 over 15 pruning iterations}
+		\label{fig:CIFAR10accuracy15}
+	\end{minipage}
+	\\
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[width=220px]{gfx/Experiments/Reproduction-CIFAR10-CNN/accuracy/20_iterations.png}
+		\caption*{Accuracy on CIFAR10 over 20 pruning iterations}
+		\label{fig:CIFAR10accuracy20}
+	\end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[width=220px]{gfx/Experiments/Reproduction-CIFAR10-CNN/accuracy/25_iterations.png}
+		\caption*{Accuracy on CIFAR10 over 25 pruning iterations}
+		\label{fig:CIFAR10accuracy25}
+	\end{minipage}
+\end{figure}
+\subsection*{Early Tickets}
+\subsection*{Transfer}
+\begin{figure}
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[width=220px]{gfx/Experiments/Transfer-20Newsgroups-CNN/accuracy/5_iterations.png}
+		\caption*{Accuracy on 20Newsgroups over 5 pruning iterations}
+		\label{fig:CIFAR10accuracy10}
+	\end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[width=220px]{gfx/Experiments/Transfer-20Newsgroups-CNN/accuracy/10_iterations.png}
+		\caption*{Accuracy on 20Newsgroups over 10 pruning iterations}
+		\label{fig:CIFAR10accuracy15}
+	\end{minipage}
+\end{figure}
 
 \section{Analysis of Results}
+\subsection*{Reproduction}
+\subsection*{Early Tickets}
+\subsection*{Transfer}
