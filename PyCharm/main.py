@@ -35,8 +35,8 @@ def main():
     no_experiments = 1
 
     # task_description = 'Transfer'
-    task_description = 'Reproduction'
-    # task_description = 'Early-Tickets'
+    # task_description = 'Reproduction'
+    task_description = 'Early-Tickets'
 
     # architecture_description = 'CIFAR10-CNN-6'
     architecture_description = 'MNIST-Lenet-FCN'
