@@ -38,8 +38,8 @@ def main():
     task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
 
-    # architecture_description = 'CIFAR10-CNN-6'
-    architecture_description = 'MNIST-Lenet-FCN'
+    architecture_description = 'CIFAR10-CNN-6'
+    # architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
     # architecture_description = 'Newsgroups-End2End-CNN'
 
@@ -127,7 +127,7 @@ def main():
 
     if visualize:
         # Values to be set manually
-        no_masking_iteration_provided = 18
+        no_masking_iteration_provided = 25
         # no_masking_iteration_provided = no_pruning_iterations
         measure_key = 'accuracy'
         # The convergence of the full network happens until:
@@ -136,7 +136,7 @@ def main():
         # epoch 3 (Transfer-20Newsgroups-End2EndCNN)
         no_epochs_to_estimated_convergence = 10
         # Limits of the axis for the experiment:
-        y_limits = (0.94, 0.99)
+        y_limits = (0.6, 0.85)
 
         # no_experiments_provided = 3
         average_over_multiple_experiments = False
@@ -261,7 +261,7 @@ def main():
                         storage.load_experimental_history(path=folder_path, name=history_name)
                     )
                     network_names.append(str(i+1) + 'x Masked Network')
-
+                """
                 vis_dicts = []
                 vis_names = []
                 vis_dicts.append(network_history_dicts[0])
@@ -274,14 +274,13 @@ def main():
                 vis_names.append(network_names[15])
                 vis_dicts.append(network_history_dicts[18])
                 vis_names.append(network_names[18])
-                #"""
                 visualization.plot_measure_over_n_trainings(
                     histories=vis_dicts,
                     history_names=vis_names,
                     measure_key=measure_key,
                     y_limits=y_limits
                 )
-                #"""
+                """
                 """
                 visualization.plot_measure_over_n_trainings(
                     histories=network_history_dicts,
@@ -290,7 +289,7 @@ def main():
                     y_limits=y_limits
                 )
                 """
-                """
+                #"""
                 visualization.plot_average_measure_after_convergence(
                     experiment_result=network_history_dicts,
                     history_names=network_names,
@@ -298,7 +297,7 @@ def main():
                     head_length_to_truncate=no_epochs_to_estimated_convergence,
                     y_limits=y_limits
                 )
-                """
+                #"""
 
     return
 
