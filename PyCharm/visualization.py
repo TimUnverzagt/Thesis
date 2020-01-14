@@ -1,5 +1,6 @@
 # General modules
 import matplotlib.pyplot as plt
+import matplotlib.axes as axes
 import matplotlib.patches as mpatches
 from matplotlib.colors import colorConverter as cc
 import numpy as np
@@ -7,7 +8,7 @@ import scipy.stats as stats
 
 
 def plot_measure_over_n_trainings(histories, history_names, measure_key,
-                                  variable_name='epoch'):
+                                  y_limits=None, variable_name='epoch'):
     epoch_count = range(1, len(histories[0][measure_key]) + 1)
 
     color = iter(plt.cm.rainbow(np.linspace(0, 1, len(histories))))
@@ -16,7 +17,9 @@ def plot_measure_over_n_trainings(histories, history_names, measure_key,
         measure = history[measure_key]
         plt.plot(epoch_count, measure, color=c)
 
-    plt.legend(history_names, bbox_to_anchor=(1.05, 1.05))
+    plt.legend(history_names, bbox_to_anchor=(1.0, 1.0))
+    if y_limits:
+        plt.ylim(y_limits)
     plt.xlabel(variable_name)
     plt.ylabel(measure_key)
     plt.savefig("../LaTeX/gfx/Experiments/test.png",
@@ -26,7 +29,7 @@ def plot_measure_over_n_trainings(histories, history_names, measure_key,
 
 
 def plot_measure_with_confidence_over_n_trainings(measure_with_confidence, history_names, measure_key,
-                                                  variable_name='epoch'):
+                                                  y_limits=None, variable_name='epoch'):
     # epoch_count = range(1, len(measure_with_confidence[0]['means']))
     color = iter(plt.cm.rainbow(np.linspace(0, 1, len(measure_with_confidence))))
     for idx, measure_with_confidence in enumerate(measure_with_confidence):
@@ -39,6 +42,8 @@ def plot_measure_with_confidence_over_n_trainings(measure_with_confidence, histo
             color_shading=c)
 
     plt.legend(history_names, bbox_to_anchor=(1.05, 1.05))
+    if y_limits:
+        plt.ylim(y_limits)
     plt.xlabel(variable_name)
     plt.ylabel(measure_key)
     plt.savefig("../LaTeX/gfx/Experiments/test.png",
@@ -158,7 +163,7 @@ def _calculate_point_wise_average_over_experiments(experiment_results, measure_k
 
 
 def plot_average_measure_after_convergence(experiment_result, history_names, measure_key,
-                                           head_length_to_truncate,
+                                           head_length_to_truncate, y_limits=None,
                                            variable_name='pruning iteration'):
     means = []
     lower_bounds = []
@@ -167,8 +172,10 @@ def plot_average_measure_after_convergence(experiment_result, history_names, mea
         truncated_history = historiy_dict[measure_key][head_length_to_truncate:]
         stat_dict = _calculate_mean_and_confidence_intervals(truncated_history)
         means.append(stat_dict['mean'])
-        lower_bounds.append(stat_dict['lower_bound'])
-        upper_bounds.append(stat_dict['upper_bound'])
+        # lower_bounds.append(stat_dict['lower_bound'])
+        # upper_bounds.append(stat_dict['upper_bound'])
+        lower_bounds.append(np.min(truncated_history))
+        upper_bounds.append(np.max(truncated_history))
 
     _plot_mean_and_confidence_intervals(
         mean=means,
@@ -196,7 +203,7 @@ def plot_average_measure_after_convergence(experiment_result, history_names, mea
                bbox_to_anchor=(1.2, 1.0))
     '''
 
-
+    plt.ylim(y_limits)
     plt.xlabel(variable_name)
     plt.ylabel(measure_key)
     plt.savefig("../LaTeX/gfx/Experiments/test.png",

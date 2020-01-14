@@ -28,15 +28,15 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = True
+    train = False
     # visualize = False
     visualize = not train
 
     no_experiments = 1
 
     # task_description = 'Transfer'
-    # task_description = 'Reproduction'
-    task_description = 'Early-Tickets'
+    task_description = 'Reproduction'
+    # task_description = 'Early-Tickets'
 
     # architecture_description = 'CIFAR10-CNN-6'
     architecture_description = 'MNIST-Lenet-FCN'
@@ -127,13 +127,16 @@ def main():
 
     if visualize:
         # Values to be set manually
-        # no_masking_iteration_provided = 2
-        no_masking_iteration_provided = no_pruning_iterations
-        measure_key = 'precision'
+        no_masking_iteration_provided = 18
+        # no_masking_iteration_provided = no_pruning_iterations
+        measure_key = 'accuracy'
         # The convergence of the full network happens until:
+        # epoch 10 (Reproduction-MNIST-Lenet-FCN)
         # epoch 5 (Reproduction-CIFAR10-CNN-6)
         # epoch 3 (Transfer-20Newsgroups-End2EndCNN)
-        no_epochs_to_estimated_convergence = 3
+        no_epochs_to_estimated_convergence = 10
+        # Limits of the axis for the experiment:
+        y_limits = (0.94, 0.99)
 
         # no_experiments_provided = 3
         average_over_multiple_experiments = False
@@ -259,19 +262,43 @@ def main():
                     )
                     network_names.append(str(i+1) + 'x Masked Network')
 
+                vis_dicts = []
+                vis_names = []
+                vis_dicts.append(network_history_dicts[0])
+                vis_names.append(network_names[0])
+                vis_dicts.append(network_history_dicts[6])
+                vis_names.append(network_names[6])
+                vis_dicts.append(network_history_dicts[12])
+                vis_names.append(network_names[12])
+                vis_dicts.append(network_history_dicts[15])
+                vis_names.append(network_names[15])
+                vis_dicts.append(network_history_dicts[18])
+                vis_names.append(network_names[18])
+                #"""
+                visualization.plot_measure_over_n_trainings(
+                    histories=vis_dicts,
+                    history_names=vis_names,
+                    measure_key=measure_key,
+                    y_limits=y_limits
+                )
+                #"""
                 """
                 visualization.plot_measure_over_n_trainings(
                     histories=network_history_dicts,
                     history_names=network_names,
-                    measure_key=measure_key
+                    measure_key=measure_key,
+                    y_limits=y_limits
                 )
+                """
                 """
                 visualization.plot_average_measure_after_convergence(
                     experiment_result=network_history_dicts,
                     history_names=network_names,
                     measure_key=measure_key,
-                    head_length_to_truncate=no_epochs_to_estimated_convergence
+                    head_length_to_truncate=no_epochs_to_estimated_convergence,
+                    y_limits=y_limits
                 )
+                """
 
     return
 
