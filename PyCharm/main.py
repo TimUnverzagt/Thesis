@@ -28,7 +28,7 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = False
+    train = True
     # visualize = False
     visualize = not train
 
@@ -38,8 +38,8 @@ def main():
     task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
 
-    architecture_description = 'CIFAR10-CNN-6'
-    # architecture_description = 'MNIST-Lenet-FCN'
+    # architecture_description = 'CIFAR10-CNN-6'
+    architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
     # architecture_description = 'Newsgroups-End2End-CNN'
 
@@ -53,7 +53,7 @@ def main():
         architecture_verbosity = 2
         approx_no_epochs_needed_for_convergence = 50
         if searching_for_early_tickets:
-            no_epochs_considered_for_masking = 15
+            no_epochs_considered_for_masking = 10
             no_pruning_iterations = 25
     elif architecture_description == 'CIFAR10-CNN-6':
         approx_no_epochs_needed_for_convergence = 36
