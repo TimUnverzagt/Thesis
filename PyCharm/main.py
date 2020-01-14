@@ -34,14 +34,14 @@ def main():
 
     no_experiments = 1
 
-    # task_description = 'Transfer'
-    task_description = 'Reproduction'
+    task_description = 'Transfer'
+    # task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
 
     # architecture_description = 'CIFAR10-CNN-6'
-    architecture_description = 'MNIST-Lenet-FCN'
+    # architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
-    # architecture_description = 'Newsgroups-End2End-CNN'
+    architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -76,9 +76,9 @@ def main():
                           '/' + \
                           execution_date
         if os.path.exists(experiment_path):
-            print("Experiment-directory already exists")
-            return
-            # shutil.rmtree(experiment_path)
+            # print("Experiment-directory already exists")
+            # return
+            shutil.rmtree(experiment_path)
         os.mkdir(experiment_path)
         for i in range(0, no_experiments):
             folder_path = experiment_path + \
