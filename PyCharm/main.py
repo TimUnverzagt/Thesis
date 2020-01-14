@@ -52,9 +52,9 @@ def main():
         pruning_percentages = {'dense': 20, 'conv': 0}
         architecture_verbosity = 2
         approx_no_epochs_needed_for_convergence = 50
+        no_pruning_iterations = 25
         if searching_for_early_tickets:
             no_epochs_considered_for_masking = 10
-            no_pruning_iterations = 25
     elif architecture_description == 'CIFAR10-CNN-6':
         approx_no_epochs_needed_for_convergence = 36
         architecture_verbosity = 1
@@ -77,7 +77,7 @@ def main():
                           execution_date
         if os.path.exists(experiment_path):
             print("Experiment-directory already exists")
-            # return
+            return
             # shutil.rmtree(experiment_path)
         os.mkdir(experiment_path)
         for i in range(0, no_experiments):
