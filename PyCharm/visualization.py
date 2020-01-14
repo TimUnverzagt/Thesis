@@ -29,7 +29,7 @@ def plot_measure_with_confidence_over_n_trainings(measure_with_confidence, histo
     color = iter(plt.cm.rainbow(np.linspace(0, 1, len(measure_with_confidence))))
     for idx, measure_with_confidence in enumerate(measure_with_confidence):
         c = next(color)
-        plot_mean_and_CI(
+        _plot_mean_and_confidence_intervals(
             measure_with_confidence['means'],
             measure_with_confidence['upper_bounds'],
             measure_with_confidence['lower_bounds'],
@@ -140,22 +140,12 @@ def _calculate_point_wise_average_over_experiments(experiment_results, measure_k
         means = []
         lower_bounds = []
         upper_bounds = []
-        total = 0
-        nans = 0
         for bundled_datapoint in history:
-            bundled_stats = stats.bayes_mvs(bundled_datapoint)
-            mean = np.mean(bundled_datapoint)
-            means.append(mean)
-            if np.isnan(stats.bayes_mvs(bundled_datapoint)[0][1][0]):
-                lower_bounds.append(mean)
-                upper_bounds.append(mean)
-                # nans += 1
-            else:
-                lower_bounds.append(bundled_stats[0][1][0])
-                upper_bounds.append(bundled_stats[0][1][0])
-            # total += 1
+            stat_dict = _calculate_mean_and_confidence_intervals(bundled_datapoint)
+            means.append(stat_dict['mean'])
+            lower_bounds.append(stat_dict['lower_bound'])
+            upper_bounds.append(stat_dict['upper_bound'])
 
-        # print("Percentage of Nan-values: " + str(nans/total))
         histories_with_values_and_bounds.append(
             {'means': means,
              'lower_bounds': lower_bounds,
@@ -165,11 +155,55 @@ def _calculate_point_wise_average_over_experiments(experiment_results, measure_k
     return histories_with_values_and_bounds
 
 
+def plot_average_measure_after_convergence(experiment_result, history_names, measure_key,
+                                           head_length_to_truncate,
+                                           variable_name='pruning_iteration'):
+    means = []
+    lower_bounds = []
+    upper_bounds = []
+    for historiy_dict in experiment_result:
+        truncated_history = historiy_dict[measure_key][head_length_to_truncate:]
+        stat_dict = _calculate_mean_and_confidence_intervals(truncated_history)
+        means.append(stat_dict['mean'])
+        lower_bounds.append(stat_dict['lower_bound'])
+        upper_bounds.append(stat_dict['upper_bound'])
+
+    _plot_mean_and_confidence_intervals(
+        mean=means,
+        lb=lower_bounds,
+        ub=upper_bounds,
+    )
+    # plt.legend(history_names, bbox_to_anchor=(1.05, 1.05))
+    plt.xlabel(variable_name)
+    plt.ylabel(measure_key)
+    plt.savefig("../LaTeX/gfx/Experiments/test.png",
+                bbox_inches='tight')
+    plt.show()
+
+    return
+
+
 # credit to Studywolf
 # https://studywolf.wordpress.com/2017/11/21/matplotlib-legends-for-mean-and-confidence-interval-plots/
-def plot_mean_and_CI(mean, lb, ub, color_mean=None, color_shading=None):
+def _plot_mean_and_confidence_intervals(mean, lb, ub, color_mean=None, color_shading=None):
     # plot the shaded range of the confidence intervals
     plt.fill_between(range(len(mean)), ub, lb,
                      color=color_shading, alpha=.5)
     # plot the mean on top
     plt.plot(mean, color=color_mean)
+    return
+
+
+def _calculate_mean_and_confidence_intervals(vector):
+    bundled_stats = stats.bayes_mvs(vector)
+    mean = np.mean(vector)
+    lower_bound = bundled_stats[0][1][0]
+    upper_bound = bundled_stats[0][1][1]
+    if np.isnan(lower_bound):
+        lower_bound = mean
+        upper_bound = mean
+
+    return {'mean': mean,
+            'lower_bound': lower_bound,
+            'upper_bound': upper_bound}
+

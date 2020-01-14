@@ -28,20 +28,20 @@ def main():
 
     histories_path = '../PyCharm/Histories'
 
-    train = True
+    train = False
     # visualize = False
     visualize = not train
 
     no_experiments = 1
 
-    # task_description = 'Transfer'
+    task_description = 'Transfer'
     # task_description = 'Reproduction'
-    task_description = 'Early-Tickets'
+    # task_description = 'Early-Tickets'
 
-    # architecture_description = 'CIFAR10-CNN-6'
-    architecture_description = 'MNIST-Lenet-FCN'
+    architecture_description = 'CIFAR10-CNN-6'
+    # architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
-    # architecture_description = 'Newsgroups-End2End-CNN'
+    architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -127,12 +127,21 @@ def main():
 
     if visualize:
         # Values to be set manually
-        # no_masking_iteration_provided = no_pruning_iterations
-        no_masking_iteration_provided = 2
-        average_over_multiple_experiments = False
-        no_experiments_provided = 3
+        # no_masking_iteration_provided = 2
+        no_masking_iteration_provided = no_pruning_iterations
         measure_key = 'accuracy'
+        # The convergence of the full network happens until:
+        # epoch 5 (Reproduction-CIFAR10-CNN-6)
+        # epoch 3 (Transfer-20Newsgroups-End2EndCNN
+        no_epochs_to_estimated_convergence = 3
+
+        # no_experiments_provided = 3
+        average_over_multiple_experiments = False
         if average_over_multiple_experiments:
+            # This part of the code was not used to produce any results in the corresponding thesis to this framework
+            # Because the experiments proved to behave deterministically even tho the input data was shuffled.
+            # I am uncertain how that could happen, but it resulted in an inability to meaningfully average experiments
+            """
             experiment_results = []
             if searching_for_early_tickets:
                 print("There is no visualization for multiple early-ticket searches yet...")
@@ -146,11 +155,6 @@ def main():
                     pruning_results = []
 
                     for j in range(no_masking_iteration_provided+1):
-                        # The names are not correctly representing whats saved because they use the same scheme as
-                        # lottery ticket search results
-                        # instead of the histories after prunning iteration i
-                        # the object contain all histories of the experiment
-                        # where pruning was applied after the n-th iteration
                         pruning_name = 'masked_' + \
                                         str(pruning_percentages['dense']) + \
                                         '|' + \
@@ -176,10 +180,10 @@ def main():
                                   architecture_description + '/' + \
                                   str(0)
                     network_names = []
-                    network_histories = []
+                    network_history_dicts = []
 
                     network_names.append('Full Network')
-                    network_histories.append(storage.load_experimental_history(path=folder_path, name='full'))
+                    network_history_dicts.append(storage.load_experimental_history(path=folder_path, name='full'))
 
                     # for j in range(10):
                     for j in range(no_masking_iteration_provided):
@@ -187,14 +191,15 @@ def main():
                         history_name = history_name + '|' + str(pruning_percentages['conv'])
                         history_name = history_name + '_times_' + str(j + 1)
 
-                        network_histories.append(
+                        network_history_dicts.append(
                             storage.load_experimental_history(path=folder_path, name=history_name)
                         )
                         network_names.append(str(j+1) + 'x Masked Network')
-                    experiment_results.append({'network_histories': network_histories,
+                    experiment_results.append({'network_history_dicts': network_history_dicts,
                                         'network_names': network_names})
 
                 visualization.plot_averaged_experiments(experiment_results, measure_key)
+            """
 
         else:
             folder_path = histories_path + '/' + \
@@ -209,7 +214,7 @@ def main():
                 for i in range(no_masking_iteration_provided+1):
                     # The names are not correctly representing whats saved because they use the same scheme as
                     # lottery ticket search results
-                    # instead of the histories after prunning iteration i
+                    # instead of the histories after pruning iteration i
                     # the object contain all histories of the experiment
                     # where pruning was applied after the n-th iteration
                     pruning_name = 'masked_' + \
@@ -239,9 +244,9 @@ def main():
 
             else:
                 network_names = []
-                network_histories = []
+                network_history_dicts = []
                 network_names.append('Full Network')
-                network_histories.append(storage.load_experimental_history(path=folder_path, name='full'))
+                network_history_dicts.append(storage.load_experimental_history(path=folder_path, name='full'))
 
                 # for i in range(10):
                 for i in range(no_masking_iteration_provided):
@@ -249,15 +254,23 @@ def main():
                     history_name = history_name + '|' + str(pruning_percentages['conv'])
                     history_name = history_name + '_times_' + str(i + 1)
 
-                    network_histories.append(
+                    network_history_dicts.append(
                         storage.load_experimental_history(path=folder_path, name=history_name)
                     )
                     network_names.append(str(i+1) + 'x Masked Network')
 
+                """
                 visualization.plot_measure_over_n_trainings(
-                    histories=network_histories,
+                    histories=network_history_dicts,
                     history_names=network_names,
                     measure_key=measure_key
+                )
+                """
+                visualization.plot_average_measure_after_convergence(
+                    experiment_result=network_history_dicts,
+                    history_names=network_names,
+                    measure_key=measure_key,
+                    head_length_to_truncate=no_epochs_to_estimated_convergence
                 )
 
     return
