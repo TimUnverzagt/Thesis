@@ -34,14 +34,14 @@ def main():
 
     no_experiments = 1
 
-    task_description = 'Transfer'
-    # task_description = 'Reproduction'
+    # task_description = 'Transfer'
+    task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
 
     architecture_description = 'CIFAR10-CNN-6'
     # architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
-    architecture_description = 'Newsgroups-End2End-CNN'
+    # architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -129,10 +129,10 @@ def main():
         # Values to be set manually
         # no_masking_iteration_provided = 2
         no_masking_iteration_provided = no_pruning_iterations
-        measure_key = 'accuracy'
+        measure_key = 'precision'
         # The convergence of the full network happens until:
         # epoch 5 (Reproduction-CIFAR10-CNN-6)
-        # epoch 3 (Transfer-20Newsgroups-End2EndCNN
+        # epoch 3 (Transfer-20Newsgroups-End2EndCNN)
         no_epochs_to_estimated_convergence = 3
 
         # no_experiments_provided = 3
