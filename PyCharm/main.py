@@ -253,7 +253,7 @@ def main():
 
                 # colors = ["royalblue", "green", "peru", "crimson"]
                 # colors = ["mediumpurple", "saddlebrown", "gold", "crimson"]
-                colors = ["royalblue", "green", "peru", "crimson", "mediumpurple", "saddlebrown", "gold"]
+                colors = ["royalblue", "green", "peru", "mediumpurple", "saddlebrown", "crimson"]
                 #"""
                 visualization.plot_converged_measure_over_different_pruning_depths(
                     vis_results,
