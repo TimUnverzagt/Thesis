@@ -38,8 +38,8 @@ def main():
     task_description = 'Reproduction'
     # task_description = 'Early-Tickets'
 
-    architecture_description = 'CIFAR10-CNN-6'
-    # architecture_description = 'MNIST-Lenet-FCN'
+    # architecture_description = 'CIFAR10-CNN-6'
+    architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
     # architecture_description = 'Newsgroups-End2End-CNN'
 
@@ -134,9 +134,11 @@ def main():
         # epoch 10 (Reproduction-MNIST-Lenet-FCN)
         # epoch 5 (Reproduction-CIFAR10-CNN-6)
         # epoch 3 (Transfer-20Newsgroups-End2EndCNN)
-        no_epochs_to_estimated_convergence = 10
+        no_epochs_to_estimated_convergence = 5
         # Limits of the axis for the experiment:
-        y_limits = (0.6, 0.85)
+        # y_limits = (0.6, 0.85)
+        y_limits = (0.9, 1.0)
+        # x_limits = (0, 18)
 
         # no_experiments_provided = 3
         average_over_multiple_experiments = False
@@ -264,21 +266,28 @@ def main():
                 """
                 vis_dicts = []
                 vis_names = []
+                # colors = ["royalblue", "darkorange", "green"]
+                colors = ["royalblue", "green", "crimson", "mediumpurple", "saddlebrown"]
                 vis_dicts.append(network_history_dicts[0])
                 vis_names.append(network_names[0])
-                vis_dicts.append(network_history_dicts[6])
-                vis_names.append(network_names[6])
+                #vis_dicts.append(network_history_dicts[3])
+                #vis_names.append(network_names[3])
+                vis_dicts.append(network_history_dicts[7])
+                vis_names.append(network_names[7])
                 vis_dicts.append(network_history_dicts[12])
                 vis_names.append(network_names[12])
                 vis_dicts.append(network_history_dicts[15])
                 vis_names.append(network_names[15])
                 vis_dicts.append(network_history_dicts[18])
                 vis_names.append(network_names[18])
+
                 visualization.plot_measure_over_n_trainings(
                     histories=vis_dicts,
                     history_names=vis_names,
                     measure_key=measure_key,
-                    y_limits=y_limits
+                    y_limits=y_limits,
+                    x_limits=x_limits,
+                    colors=colors
                 )
                 """
                 """

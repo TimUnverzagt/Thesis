@@ -8,18 +8,30 @@ import scipy.stats as stats
 
 
 def plot_measure_over_n_trainings(histories, history_names, measure_key,
-                                  y_limits=None, variable_name='epoch'):
+                                  y_limits=None, x_limits=None, colors=None,
+                                  variable_name='epoch'):
     epoch_count = range(1, len(histories[0][measure_key]) + 1)
 
     color = iter(plt.cm.rainbow(np.linspace(0, 1, len(histories))))
+    x_ticks = []
+    for i in epoch_count:
+        if (i % 5) == 0:
+            x_ticks.append(i)
     for idx, history in enumerate(histories):
-        c = next(color)
+        if colors:
+            c = colors[idx]
+        else:
+            c = next(color)
         measure = history[measure_key]
         plt.plot(epoch_count, measure, color=c)
 
-    plt.legend(history_names, bbox_to_anchor=(1.0, 1.0))
+    plt.legend(history_names, bbox_to_anchor=(1.5, 1.0))
+    plt.xticks(x_ticks)
     if y_limits:
         plt.ylim(y_limits)
+    if x_limits:
+        plt.xlim(x_limits)
+    plt.grid(True)
     plt.xlabel(variable_name)
     plt.ylabel(measure_key)
     plt.savefig("../LaTeX/gfx/Experiments/test.png",
@@ -181,8 +193,8 @@ def plot_average_measure_after_convergence(experiment_result, history_names, mea
         mean=means,
         lb=lower_bounds,
         ub=upper_bounds,
-        color_mean='black',
-        color_shading='black'
+        color_mean='crimson',
+        color_shading='grey'
     )
 
     # Configure legend
@@ -203,7 +215,17 @@ def plot_average_measure_after_convergence(experiment_result, history_names, mea
                bbox_to_anchor=(1.2, 1.0))
     '''
 
-    plt.ylim(y_limits)
+    x_ticks = []
+    for i in range(len(means)):
+        if (i % 5) == 0:
+            x_ticks.append(i)
+    plt.xticks(x_ticks)
+    if y_limits:
+        y_ticks = np.arange(y_limits[0], y_limits[1], 0.025)
+        y_ticks = np.append(y_ticks, y_limits[1])
+        plt.yticks(y_ticks)
+        plt.ylim(y_limits)
+    plt.grid(True)
     plt.xlabel(variable_name)
     plt.ylabel(measure_key)
     plt.savefig("../LaTeX/gfx/Experiments/test.png",
