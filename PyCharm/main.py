@@ -127,18 +127,24 @@ def main():
 
     if visualize:
         # Values to be set manually
-        no_masking_iteration_provided = 25
+        no_masking_iteration_provided = 10
         # no_masking_iteration_provided = no_pruning_iterations
         measure_key = 'accuracy'
         # The convergence of the full network happens until:
         # epoch 10 (Reproduction-MNIST-Lenet-FCN)
         # epoch 5 (Reproduction-CIFAR10-CNN-6)
         # epoch 3 (Transfer-20Newsgroups-End2EndCNN)
-        no_epochs_to_estimated_convergence = 10
+        no_epochs_to_estimated_convergence = 3
+        # The effective amount of weights remaining per iteration
+        # 0.8 (Reproduction-MNIST-Lenet-FCN)
+        # 0.8253 (Reproduction-MNIST-Lenet-FCN)
+        # 0.80005 (Transfer-20Newsgroups-End2EndCNN)
+        compound_remaining_size = 0.80005
         # Limits of the axis for the experiment:
         # y_limits = (0.6, 0.85)
+        # y_limits = (0.6, 0.8)
         y_limits = (0.9, 1.0)
-        # x_limits = (0, 18)
+        x_limits = (0, no_masking_iteration_provided)
 
         # no_experiments_provided = 3
         average_over_multiple_experiments = False
@@ -236,24 +242,24 @@ def main():
 
                 vis_results = []
                 vis_names = []
-                vis_results.append(pruning_results[6])
-                vis_names.append(pruning_names[6])
-                vis_results.append(pruning_results[7])
-                vis_names.append(pruning_names[7])
-                vis_results.append(pruning_results[8])
-                vis_names.append(pruning_names[8])
-                vis_results.append(pruning_results[9])
-                vis_names.append(pruning_names[9])
-                vis_results.append(pruning_results[10])
-                vis_names.append(pruning_names[10])
-                # vis_results.append(pruning_results[5])
-                # vis_names.append(pruning_names[5])
+                vis_results.append(pruning_results[0])
+                vis_names.append(pruning_names[0])
+                vis_results.append(pruning_results[1])
+                vis_names.append(pruning_names[1])
+                vis_results.append(pruning_results[2])
+                vis_names.append(pruning_names[2])
+                vis_results.append(pruning_results[3])
+                vis_names.append(pruning_names[3])
+                vis_results.append(pruning_results[4])
+                vis_names.append(pruning_names[4])
+                vis_results.append(pruning_results[5])
+                vis_names.append(pruning_names[5])
                 vis_results.append(pruning_results[-1])
                 vis_names.append(pruning_names[-1])
 
                 # colors = ["royalblue", "green", "peru", "crimson"]
-                # colors = ["mediumpurple", "saddlebrown", "gold", "crimson"]
-                colors = ["royalblue", "green", "peru", "mediumpurple", "saddlebrown", "crimson"]
+                # colors = ["mediumpurple", "saddlebrown", "crimson"]
+                colors = ["royalblue", "green", "peru", "mediumpurple", "saddlebrown", "gold", "crimson"]
                 #"""
                 visualization.plot_converged_measure_over_different_pruning_depths(
                     vis_results,
@@ -311,7 +317,6 @@ def main():
                     history_names=vis_names,
                     measure_key=measure_key,
                     y_limits=y_limits,
-                    x_limits=x_limits,
                     colors=colors
                 )
                 """
@@ -323,15 +328,17 @@ def main():
                     y_limits=y_limits
                 )
                 """
-                """
+                #"""
                 visualization.plot_average_measure_after_convergence(
                     experiment_result=network_history_dicts,
                     history_names=network_names,
                     measure_key=measure_key,
                     head_length_to_truncate=no_epochs_to_estimated_convergence,
-                    y_limits=y_limits
+                    y_limits=y_limits,
+                    x_limits=x_limits,
+                    remaining_ratio=compound_remaining_size
                 )
-                """
+                #"""
 
     return
 

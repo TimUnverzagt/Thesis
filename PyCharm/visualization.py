@@ -15,7 +15,7 @@ def plot_measure_over_n_trainings(histories, history_names, measure_key,
     color = iter(plt.cm.rainbow(np.linspace(0, 1, len(histories))))
     x_ticks = []
     for i in epoch_count:
-        if (i % 5) == 0:
+        if (i % 1) == 0:
             x_ticks.append(i)
     for idx, history in enumerate(histories):
         if colors:
@@ -201,7 +201,8 @@ def _calculate_point_wise_average_over_experiments(experiment_results, measure_k
 
 
 def plot_average_measure_after_convergence(experiment_result, history_names, measure_key,
-                                           head_length_to_truncate, y_limits=None,
+                                           head_length_to_truncate, y_limits=None, x_limits=None,
+                                           remaining_ratio=None,
                                            variable_name='pruning iteration'):
     means = []
     lower_bounds = []
@@ -219,7 +220,7 @@ def plot_average_measure_after_convergence(experiment_result, history_names, mea
         mean=means,
         lb=lower_bounds,
         ub=upper_bounds,
-        color_mean='crimson',
+        color_mean='purple',
         color_shading='grey'
     )
 
@@ -241,18 +242,23 @@ def plot_average_measure_after_convergence(experiment_result, history_names, mea
                bbox_to_anchor=(1.2, 1.0))
     '''
 
-    x_ticks = []
-    for i in range(len(means)):
-        if (i % 5) == 0:
-            x_ticks.append(i)
-    plt.xticks(x_ticks)
+
+    if x_limits:
+        x_ticks = np.linspace(x_limits[0], x_limits[1], num=(x_limits[1] - x_limits[0] + 1))
+        x_percentages = np.round(np.power(np.ones(shape=np.shape(x_ticks))*remaining_ratio, x_ticks)*100, 1)
+        plt.xticks(ticks=x_ticks, labels=x_percentages)
+        plt.xlim(x_limits)
+
     if y_limits:
         y_ticks = np.arange(y_limits[0], y_limits[1], 0.025)
         y_ticks = np.append(y_ticks, y_limits[1])
         plt.yticks(y_ticks)
         plt.ylim(y_limits)
     plt.grid(True)
-    plt.xlabel(variable_name)
+    if remaining_ratio:
+        plt.xlabel("percent of weights remaining")
+    else:
+        plt.xlabel(variable_name)
     plt.ylabel(measure_key)
     plt.savefig("../LaTeX/gfx/Experiments/test.png",
                 bbox_inches='tight')
