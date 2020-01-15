@@ -13,48 +13,17 @@ The following chapter presents the results achieved throughout this thesis and a
 
 \section{Reproduction}
 \subsection*{Goal and Benchmarks}
-As the latter sections evaluate explorative experiments, the validity of the framework which supports them is crucial. The first two models described in sections [4] and [5] were trained under the exact conditions J. Frankle and M. Corbin describe in their paper. The mismatch of weights previously described forms the only difference.
-J. Frankle and M. Corbin report three different measures of their experiments: the test accuracy during training, the iteration of a primary early stopping criterion, and the accuracy at the early stopping criterion. As shown in [Figure], they displayed all these criteria with margins of confidence obtained by averaging five experiments. The goal of this reproduction is to produce results within the reported confidence intervals.  
-\subsection*{Evaluation Setup}
-Because of the difficulties between framework and backend, chapter 5 describes, no early stopping criterion is available. Furthermore, each of the results of multiple runs of the same experiment were identical, which invalidates the use of confidence intervals. A practical solution is to display the full range of accuracies from the point the network starts to converge. Additionally, this setup benefits the following explorative experiments because it is parameter-agnostic towards the early stopping criterion. Finally, for the MNIST-Lenet-FCN architecture, the accuracies during training remain for comparison.
-\subsection*{Evaluation Results}
-\begin{figure}
-	\begin{minipage}{\textwidth}
-		\centering
-		\includegraphics[width=100px]{gfx/7-Evaluation/LTH_1_legend.png}
-	\end{minipage}
-	\begin{minipage}{0.5\textwidth}
-		\centering
-		\includegraphics[height=175px]{gfx/7-Evaluation/LTH_1.png}
-		\caption*{LTH-paper: pruned 0|3|7 times}
-		\label{?}
-	\end{minipage}\hfill
-	\begin{minipage}{0.5\textwidth}
-		\centering
-		\includegraphics[height=175px]{gfx/Experiments/Reproduction-MNIST-FCN/accuracy/LTH_1.png}
-		\caption*{Thesis-Framework: pruned 0|3|7 times}
-		\label{?}
-	\end{minipage}
-\end{figure}
+As the latter sections evaluate explorative experiments, the validity of the framework which supports them is crucial. We trained the first two models described in sections [4] and [5] under the conditions J. Frankle and M. Corbin describe in their paper. The mismatch of weights previously described forms the only known difference.
+J. Frankle and M. Corbin primarily report the accuracy achieved by their implementations at the epoch of a simple stopping criterion. They executed each experiment five times and plot the mean alongside the minimum and maximum, which are represented through error bars. Additionally, they reperformed the same experiments ten times, but applied the masks, found after each epoch, to randomly reinitialized networks. The results were visualized in the same manner. [cite LTH]
+On the left side of [figure 6.1] and [figure 6.2], these measures are presented for the MNIST-FCN and the CIFAR10-CNN-6, respectively. Both plots are taken from the Lottery Ticket Hypothesis paper, but we cleaned up the latter one and brought it up to scale for improved legibility.[footnote]  The goal of this reproduction is to produce results within the reported confidence intervals of accuracy in the Lottery Ticket Hypothesis paper.  
 
-\begin{figure}
-	\begin{minipage}{\textwidth}
-		\centering
-		\includegraphics[width=100px]{gfx/7-Evaluation/LTH_2_legend.png}
-	\end{minipage}
-	\begin{minipage}{0.5\textwidth}
-		\centering
-		\includegraphics[height=175px]{gfx/7-Evaluation/LTH_2.png}
-		\caption*{LTH-paper: pruned 0|7|12|15|18 times}
-		\label{?}
-	\end{minipage}\hfill
-	\begin{minipage}{0.5\textwidth}
-		\centering
-		\includegraphics[height=175px]{gfx/Experiments/Reproduction-MNIST-FCN/accuracy/LTH_2.png}
-		\caption*{Thesis-Framework: pruned 0|7|12|15|18 times}
-		\label{?}
-	\end{minipage}
-\end{figure}
+\subsection*{Evaluation Setup}
+As the produced framework does not provide any early stopping criterion, we display the full range of accuracy a given architecture achieves after convergence. A line visualizes the mean, while a gray band denotes the interval between maximal and minimal achieved accuracy. As a positive side-effect, this setup increases the breadth of visualized data in the following explorative experiments because it is parameter-agnostic concerning the early stopping criterion. Finally,  as J. Frankle and M. Corbin present training accuracies for the MNIST-Lenet-FCN architecture, we visualize the same measure for additional points of comparison.\footnote{
+	For the Conv6 architecture, the effective pruning rate per iteration amalgamate its dense and convolutional pruning rate. We remind that the disagreement in the number of weights in the dense layers between our framework and the Lottery Ticket Hypothesis paper also results in a different pruning rate per epoch. 
+} 
+\subsection*{Evaluation Results}
+As seen in figure [6.1], the MNIST-Lenet-FCN implementation we provide achieves a lower accuracy than reported by J. Frankle and M. Corbin. Additionally, it does not show an interim improvement and degrades significantly faster at advanced pruning iterations. Said degradation is qualitatively similar to the behavior of the randomly reinitialized networks.
+The comparison in figure [6.2] yields similar results. While the CIFAR10-CNN-6 implementation produces the same accuracy as a full network, it degrades as quickly as J. Frankel and M. Corbin's reinitialized networks. Most of its graph falls into the deviation intervals they visualized.
 
 \begin{figure}
 	\begin{minipage}{\textwidth}
@@ -93,14 +62,58 @@ Because of the difficulties between framework and backend, chapter 5 describes, 
 		\label{?}
 	\end{minipage}
 \end{figure}
+
+\begin{figure}
+	\begin{minipage}{\textwidth}
+		\centering
+		\includegraphics[width=100px]{gfx/7-Evaluation/LTH_1_legend.png}
+	\end{minipage}
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[height=175px]{gfx/7-Evaluation/LTH_1.png}
+		\caption*{LTH-paper: pruned 0|3|7 times}
+		\label{?}
+	\end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[height=175px]{gfx/Experiments/Reproduction-MNIST-FCN/accuracy/LTH_1.png}
+		\caption*{Thesis-Framework: pruned 0|3|7 times}
+		\label{?}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\begin{minipage}{\textwidth}
+		\centering
+		\includegraphics[width=100px]{gfx/7-Evaluation/LTH_2_legend.png}
+	\end{minipage}
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[height=175px]{gfx/7-Evaluation/LTH_2.png}
+		\caption*{LTH-paper: pruned 0|7|12|15|18 times}
+		\label{?}
+	\end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[height=175px]{gfx/Experiments/Reproduction-MNIST-FCN/accuracy/LTH_2.png}
+		\caption*{Thesis-Framework: pruned 0|7|12|15|18 times}
+		\label{?}
+	\end{minipage}
+\end{figure}
 \subsection*{Analysis of Results}
+The implementations of the provided framework do not reproduce the results presented in the Lottery Ticket Hypothesis paper, meaning that the framework is not validated. This poses the question of how to proceed with the remaining experiments, which we discuss in the corresponding "Goal and Benchmarks" subsections.
+While the framework did not fulfill the primary goal of the experiment, two phenomena remain unclear and intriguing:
+The MNIST-Lenet-FCN architecture produces through our implementation of the Lottery Ticket algorithm degrades only by one percentage point under compression of up to ten times. Such a result is comparable to various pruning methods discussed in chapter [3]. 
+
 %*****************************************
 
 \section{Transfer}
 \subsection*{Goal and Benchmarks}
-The third experiment aims to establish whether the Lottery Ticket Hypothesis holds in the context of similar tasks on datasets of other fields. While J. Frankle and M. Carbin define a lottery ticket as any pruned network that achieves better training results than its complete counterpart [cite], lottery tickets bigger than partial networks discovered by contemporary pruning algorithms would be of little value. The related works in chapter [3] present pruning rates of about 90 percent. A lottery ticket search reaches this magnitude of reduction in ten pruning iterations. If, at that point, the quality of the remains at least the same, the proof-of-concept is valid.
+While the reproduction experiments did not validate the framework, it still pruned the MNIST-Lenet-FCN to a degree comparable to contemporary work through, and it did so through the masking of networks with frozen initialization. As such, the transfer to another field still might yield another pruning tool for additional tasks and applications. If the framework prunes about 90 percent of weight without the sacrifice of prediction quality, we consider the transfer succesful.
 \subsection*{Evaluation Setup}
+While figure [6.3] presents the accuracies collected in the same manner as before, fewer pruning iterations are displayed. Due to the sheer size of the 20Newsgroups-End2End architecture and the way our framework interacts with TensorFlow 2.0 to produce pruned networks severely limited the number of pruning iterations, a single experiment could afford to run without overflowing the memory of our computing devices. We managed to run experiments with ten pruning iterations, the minimal number to prune a network to a competitive degree.
 \subsection*{Evaluation Results}
+The right side of figure [6.4] shows that the 20Newsgroups-End2End architecture retains its accuracy even if about 90 percent of its weights are pruned. Additionally, the networks of the intermediate pruning epochs show an accuracy improvement of at least one percentage point.
 \begin{figure}
 	\begin{minipage}{0.5\textwidth}
 		\centering
@@ -126,15 +139,13 @@ The third experiment aims to establish whether the Lottery Ticket Hypothesis hol
 \end{figure}
 
 \subsection*{Analysis of Results}
+According to the previously defined goal, the transfer was successful, which shows that non-image-recognition architectures can contain efficient subnetworks upon initialization.
 
 %*****************************************
 
 \section{Early Tickets}
 \subsection*{Goal and Benchmarks}
-As J. Frankle and M. Carbin do not deal with the question of whether complete training is necessary to obtain lottery tickets, the last experiment of this thesis intends to establish a proof-of-concept for early lottery ticket retrieval. For the same reasons as before the requirements for a valid lottery ticket are: 
-A pruning rate of about 90 or above and consistent quality of the network.
 \subsection*{Evaluation Setup}
-In the sake of consistency, the presented values are of the same kind as in the first experiment. Additional visualization is available in [appendix A].
 \subsection*{Evaluation Results}
 \begin{figure}
 	\begin{minipage}{\textwidth}
@@ -144,13 +155,13 @@ In the sake of consistency, the presented values are of the same kind as in the 
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=175px]{gfx/Experiments/EarlyTicket-MNIST-FCN/012.png}
-		\caption*{Accuracy on CIFAR10 over 10 pruning iterations}
+		\caption*{Ticket candidates pruned at epochs 0|1|2}
 		\label{?}
 	\end{minipage}\hfill
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=175px]{gfx/Experiments/EarlyTicket-MNIST-FCN/345.png}
-		\caption*{Accuracy on CIFAR10 over 15 pruning iterations}
+		\caption*{Ticket candidates pruned at epochs 3|4|5}
 		\label{?}
 	\end{minipage}
 \end{figure}
@@ -162,13 +173,13 @@ In the sake of consistency, the presented values are of the same kind as in the 
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=175px]{gfx/Experiments/EarlyTicket-MNIST-FCN/678.png}
-		\caption*{Accuracy on CIFAR10 over 10 pruning iterations}
+		\caption*{Ticket candidates pruned at epochs 6|7|8}
 		\label{?}
 	\end{minipage}\hfill
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=175px]{gfx/Experiments/EarlyTicket-MNIST-FCN/910.png}
-		\caption*{Accuracy on CIFAR10 over 15 pruning iterations}
+		\caption*{Ticket candidates pruned at epochs 9 and 10}
 		\label{?}
 	\end{minipage}
 \end{figure}
