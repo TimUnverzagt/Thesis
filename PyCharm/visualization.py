@@ -77,29 +77,55 @@ def plot_averaged_experiments(experiment_results, measure_key,
     return
 
 
-def plot_average_measure_over_different_pruning_depths(pruning_results, pruning_names, measure_key,
-                                                       variable_name='pruning epoch'):
-    developments = []
-    for pruning_result in pruning_results:
-        development_of_average_measure = []
-        for history in pruning_result:
-            measure_at_epochs = history[measure_key]
-            development_of_average_measure.append(
-                np.average(measure_at_epochs)
-            )
-        developments.append(
-            development_of_average_measure
+def plot_converged_measure_over_different_pruning_depths(pruning_results, pruning_names, measure_key,
+                                                         head_length_to_truncate, y_limits=None, colors=None,
+                                                         variable_name='pruning epoch'):
+    color = iter(plt.cm.rainbow(np.linspace(0, 1, len(pruning_results))))
+    for idx, pruning_result in enumerate(pruning_results):
+        means = []
+        lower_bounds = []
+        upper_bounds = []
+
+        for historiy_dict in pruning_result:
+            truncated_history = historiy_dict[measure_key][head_length_to_truncate:]
+            stat_dict = _calculate_mean_and_confidence_intervals(truncated_history)
+            means.append(stat_dict['mean'])
+            # lower_bounds.append(stat_dict['lower_bound'])
+            # upper_bounds.append(stat_dict['upper_bound'])
+            # lower_bounds.append(np.min(truncated_history))
+            # upper_bounds.append(np.max(truncated_history))
+            lower_bounds.append(stat_dict['mean'])
+            upper_bounds.append(stat_dict['mean'])
+
+        if colors:
+            c = colors[idx]
+        else:
+            c = next(color)
+
+        _plot_mean_and_confidence_intervals(
+            mean=means,
+            lb=lower_bounds,
+            ub=upper_bounds,
+            color_mean=c,
+            color_shading='grey'
         )
 
-    epoch_count = range(1, len(developments[0]) + 1)
-    color = iter(plt.cm.rainbow(np.linspace(0, 1, len(developments))))
-    for development in developments:
-        c = next(color)
-        plt.plot(epoch_count, development, color=c)
+    epoch_count = len(pruning_results[0][0][measure_key]) - head_length_to_truncate
+    _x_ticks = range(1, epoch_count)
+    color = iter(plt.cm.rainbow(np.linspace(0, 1, epoch_count)))
 
-    plt.legend(pruning_names)
+    if y_limits:
+        y_ticks = np.arange(y_limits[0], y_limits[1], 0.025)
+        y_ticks = np.append(y_ticks, y_limits[1])
+        plt.yticks(y_ticks)
+        plt.ylim(y_limits)
+    plt.grid(True)
+
+    plt.legend(pruning_names, bbox_to_anchor=(1.4, 1.0))
     plt.xlabel(variable_name)
     plt.ylabel(measure_key)
+    plt.savefig("../LaTeX/gfx/Experiments/test.png",
+                bbox_inches='tight')
     plt.show()
     return
 

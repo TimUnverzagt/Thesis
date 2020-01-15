@@ -35,8 +35,8 @@ def main():
     no_experiments = 1
 
     # task_description = 'Transfer'
-    task_description = 'Reproduction'
-    # task_description = 'Early-Tickets'
+    # task_description = 'Reproduction'
+    task_description = 'Early-Tickets'
 
     # architecture_description = 'CIFAR10-CNN-6'
     architecture_description = 'MNIST-Lenet-FCN'
@@ -134,7 +134,7 @@ def main():
         # epoch 10 (Reproduction-MNIST-Lenet-FCN)
         # epoch 5 (Reproduction-CIFAR10-CNN-6)
         # epoch 3 (Transfer-20Newsgroups-End2EndCNN)
-        no_epochs_to_estimated_convergence = 5
+        no_epochs_to_estimated_convergence = 10
         # Limits of the axis for the experiment:
         # y_limits = (0.6, 0.85)
         y_limits = (0.9, 1.0)
@@ -216,12 +216,7 @@ def main():
                 pruning_names = []
                 pruning_results = []
 
-                for i in range(no_masking_iteration_provided+1):
-                    # The names are not correctly representing whats saved because they use the same scheme as
-                    # lottery ticket search results
-                    # instead of the histories after pruning iteration i
-                    # the object contain all histories of the experiment
-                    # where pruning was applied after the n-th iteration
+                for i in range(no_epochs_considered_for_masking+1):
                     pruning_name = 'masked_' + \
                                     str(pruning_percentages['dense']) + \
                                     '|' + \
@@ -233,19 +228,49 @@ def main():
                         storage.load_experimental_history(path=folder_path, name=pruning_name)
                     )
                     pruning_names.append('after Epoch ' + str(i))
+                pruning_results.append(storage.load_experimental_history(
+                    path=folder_path,
+                    name='masked_20|0_at_final_epoch'
+                ))
+                pruning_names.append('after final Epoch')
 
-                """
-                visualization.plot_average_measure_over_different_pruning_depths(
-                    pruning_results,
-                    pruning_names,
-                    'accuracy'
+                vis_results = []
+                vis_names = []
+                vis_results.append(pruning_results[6])
+                vis_names.append(pruning_names[6])
+                vis_results.append(pruning_results[7])
+                vis_names.append(pruning_names[7])
+                vis_results.append(pruning_results[8])
+                vis_names.append(pruning_names[8])
+                vis_results.append(pruning_results[9])
+                vis_names.append(pruning_names[9])
+                vis_results.append(pruning_results[10])
+                vis_names.append(pruning_names[10])
+                # vis_results.append(pruning_results[5])
+                # vis_names.append(pruning_names[5])
+                vis_results.append(pruning_results[-1])
+                vis_names.append(pruning_names[-1])
+
+                # colors = ["royalblue", "green", "peru", "crimson"]
+                # colors = ["mediumpurple", "saddlebrown", "gold", "crimson"]
+                colors = ["royalblue", "green", "peru", "crimson", "mediumpurple", "saddlebrown", "gold"]
+                #"""
+                visualization.plot_converged_measure_over_different_pruning_depths(
+                    vis_results,
+                    vis_names,
+                    'accuracy',
+                    head_length_to_truncate=no_epochs_to_estimated_convergence,
+                    y_limits=y_limits,
+                    colors=colors
                 )
+                #"""
                 """
                 visualization.plot_measure_over_n_trainings(
                     histories=pruning_results[2],
                     history_names=pruning_names,
                     measure_key=measure_key
                 )
+                """
 
             else:
                 network_names = []
@@ -298,7 +323,7 @@ def main():
                     y_limits=y_limits
                 )
                 """
-                #"""
+                """
                 visualization.plot_average_measure_after_convergence(
                     experiment_result=network_history_dicts,
                     history_names=network_names,
@@ -306,7 +331,7 @@ def main():
                     head_length_to_truncate=no_epochs_to_estimated_convergence,
                     y_limits=y_limits
                 )
-                #"""
+                """
 
     return
 
