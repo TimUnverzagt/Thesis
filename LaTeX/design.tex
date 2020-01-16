@@ -5,6 +5,7 @@
 
 %\hint{This chapter should describe the design of the own approach on a conceptional level without %mentioning the implementation details. The section should have a length of about five pages.}
 %The following section describes the process of this thesis from a high-level point of view. First, all %tasks performed before, during, or after the experiments are described. Afterward, these components are %used to describe the four experiments carried out for this thesis. For each experiment, a subsection %specifies its components and explains any choices made concerning hyperparameters.
+The following section describes the process of this thesis from a high-level point of view. First, all tasks performed before, during, or after the experiments are described. Afterward, these components are used to describe the four experiments carried out for this thesis. For each experiment, a subsection specifies its components and explains any choices made concerning hyperparameters.
 
 \section{Components}
 \subsection*{Aim of the Experiment}
@@ -13,7 +14,7 @@ The performed experiments pursue different goals. At first, the validation of th
 Various Datasets are used for this thesis. A more thorough description of each one is given in section 6. If any preprocessing was used it is explained at this point.
 \subsection*{Task and Architecture}
 For each Dataset, multiple tasks are reasonable. A collection of text, for example, could either be classified by one network or compressed by another. The task informs the structure of the network's output, and possibly its entire design. Different Tasks might also vary greatly in difficulty.
-The specific shape of a network is called the \textbf{architecture}. A precise description of a network's architecture is vital to the reproducibility of any experiment. All necessary parameters are given here. Any parameters that were inferred,  because they are indiscernible from the referenced papers, are mentioned here. If I found parameters to be inconsistent or incompatible with each other it is discussed in this subsection.
+The specific shape of a network is called the \textbf{architecture}. A precise description of a network's architecture is vital to the reproducibility of any experiment. All parameters needed to implement the network in our framework are given here. Any parameters that were inferred,  because they are indiscernible from the referenced papers, are mentioned here. If we found parameters to be inconsistent or incompatible with each other it is discussed in this subsection.
 
 \subsection*{Experimental Setup}
 Not all architectures are pruned in the same fashion. In their paper, J. Frankle and M. Carbin used different pruning percentages for different kinds of layers.\cite{LTH} Additionally, their results show that the quality of different architectures degrades at different speeds concerning the number of weights pruned. Thus the number of pruning iterations varies over different experiments, which is discussed here shortly.
@@ -24,13 +25,13 @@ Finally, the layers in which pruning is applied are enumerated together with the
 \subsection*{Aim of the experiment}
 Pruning the most basic architecture examined by J. Frankle and M. Carbin served as a minimal working prototype for the codebase.
 \subsection*{Dataset and Preprocessing}
-For this experiment, I employed the image dataset MNIST. It contains gray-scale images of hand-written digits with a size of 28x28 pixels. [ref section 6.1]
+For this experiment, we employed the image dataset MNIST. It contains gray-scale images of hand-written digits with a size of 28x28 pixels. [ref section 6.1]
 No preprocessing was applied.
 \subsection*{Task}
 The network was supposed to classify each image according to the digit it displays.
 \subsection*{Architecture and Setup}
 \begin{tabularx}{\textwidth}[!h]{X X X}
-	\multicolumn{3}{X}{\textbf{MNIST-Lenet-FCN}}\\
+	\multicolumn{3}{c}{\textbf{MNIST-Lenet-FCN}}\\
 	\\
 	\hline
 	\endhead
@@ -67,7 +68,7 @@ The network was supposed to classify each image according to the digit it displa
 
 \subsection*{Aim of the Experiment}
 The first network is the simplest example of architectures discussed by J.Frankle and M.Carbin. The "conv-6", they propose, utilizes an additional popular kind of trainable layer, the convolutional layer, and has an order of magnitude more weights than the previous network. Furthermore, it operates on an arguably more difficult dataset, CIFAR10. 
-In summary: This architecture uses close to all features present in the original paper, which makes it valuable for the validation of the code I produced.
+In summary: This architecture uses close to all features present in the original paper, which makes it valuable for the validation of the code we produced.
 \subsection*{Dataset and Preprocessing}
 For this task, I utilized the image dataset CIFAR10. 
 In contrast to MNIST, CIFAR10 contains colored images with a size of 32x32 pixels. Additionally, each image is subdivided by gray-scale images for its share of red, blue, and green. The result is the final size of 3x32x32 pixels. [ref Section 6.2]
@@ -81,7 +82,7 @@ As the most natural way, to prepare a multidimensional input for a dense layer, 
 	%\begin{tabularx}{\textwidth}[!h]{!{\vrule width 2pt}X|X|X!{\vrule width 2pt}}
 	\begin{tabularx}{\textwidth}[!h]{X X X}
 		% \caption{MNIST-Lenet-FCN}
-		\multicolumn{3}{X}{\textbf{CIFAR10-CNN-6}}\\
+		\multicolumn{3}{c}{\textbf{CIFAR10-CNN-6}}\\
 		\\
 		\hline
 		\endhead
