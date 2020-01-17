@@ -152,15 +152,36 @@ As the most natural way, to prepare a multidimensional input for a dense layer, 
 	\end{tabularx}
 %\subsection{Pruning}
 
+%-----
+
 \section{Transfer: Newsgroups-End2End-CNN}
 
 \subsection*{Aim of the Experiment}
 J. Frankle and M. Carbin report a desirable degree of pruning through the search for lottery tickets, but all their results pertain only to the field of image recognition. This experiment aspires to be a proof-of-concept for the search for lottery tickets in natural language applications. To this end, the code reproduces the network of an approach, of R. Pappagari et al.,  that achieved performance close to the state-of-the-art on a natural language processing task[cite End2End].
 
 \subsection*{Dataset and Preprocessing}
-The natural language dataset used for this experiment is called "20 Newsgroup". It contains articles of varying lengths in plain text. As networks only handle numerical values, the documents had to be quantified. R. Pappagari et al. one-hot-encoded the documents on a word level, utilizing the vocabulary provided on the 20 newsgroup website. [footnote] 
+The natural language dataset used for this experiment is called "20 Newsgroups". It contains articles of varying lengths in plain text. As networks only handle numerical values, the documents had to be quantified. R. Pappagari et al. one-hot-encoded the documents on a word level, utilizing the vocabulary provided on the 20 newsgroup website. [footnote] 
 While they mention that they used the canonical split of training and test data, this is not enough to accurately define the setup. First, the documents should be stripped of any metadata. Afterward, a tokenizer, of which many different ones exist, is necessary to split the articles into single words. The code provided along this thesis utilizes the word tokenizer supplied by the framework nltk. [footnote] Furthermore, the provided vocabulary does not contain all tokens. For this experiment, all such weights were removed all such tokens as stopwords. 
 Lastly, the input length of a network cannot be variable. While a few documents have an extreme length of over 3000, most of them do not [footnote]. Thus simple zero-padding would overexert the computer memory and over parametrize the architecture. As such, the preprocess truncated all documents after the first 200 words and padded the rest.
+
+
+\subsection*{Architecture and Setup}
+\begin{figure}
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[height=180px]{gfx/4-Design/base_module.png}
+		\caption*{Structure of one sequential subnetwork}
+		\label{?}
+	\end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[height=180px]{gfx/4-Design/combined_model.png}
+		\caption*{Architecture of the whole combined network}
+		\label{?}
+	\end{minipage}
+\end{figure}
+
+%-----
 
 \section{Early Ticket: MNIST-Lenet-FCN}
 As this experiment shares an architecture with the reproduction discussed earlier, redundant subsections are omitted. 
@@ -180,150 +201,6 @@ For each document, the network has to determine precisely one out of 30 possible
 \subsection*{Architecture and Setup}
 % R. Pappagari et al. do not specify the dropout rate. 
 Embedding layers are dense layers with one-hot input and special implementation. As such they are pruned like dense layers
-\begin{tabularx}{\textwidth}[!h]{X X X}
-	% \caption{MNIST-Lenet-FCN}
-	\multicolumn{3}{X}{\textbf{Newsgroup-End2End-CNN}}\\
-	\\
-	\hline
-	\endhead
-	\textbf{Model} & loss & sparse categorical cross entropy\\
-	& Optimizer & Adam\\
-	%\noalign{\hrule height 2pt}
-	\hline
-	\textbf{Sequential Layers} & \textbf{Embedding} & input dimension = 61188\\
-	& & input length = 200\\
-	& & output dimension = 300\\
-	& \textbf{1D Convolution} & filters = 3\\
-	& \textbf{1D Average Pooling} &\\
-	& \textbf{Dropout} & rate = 0.5\\
-	& \textbf{1D Global Average Pooling} &\\
-	%\noalign{\hrule height 2pt}
-	\hline
-	\textbf{Input} & output dimension & [61188|200]\\
-	[8pt]
-	\textbf{Sequential A1} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 1\\
-	& \textbf{1D Average Pooling} & pool size = 2\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential A2} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 4\\
-	& \textbf{1D Average Pooling} & pool size = 2\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential A3} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 7\\
-	& \textbf{1D Average Pooling} & pool size = 2\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential A4} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 10\\
-	& \textbf{1D Average Pooling} & pool size = 2\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential A5} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 13\\
-	& \textbf{1D Average Pooling} & pool size = 2\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential A6} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 16\\
-	& \textbf{1D Average Pooling} & pool size = 2\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential A7} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 19\\
-	& \textbf{1D Average Pooling} & pool size = 2\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential A8} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 22\\
-	& \textbf{1D Average Pooling} & pool size = 2\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential B1} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 1\\
-	& \textbf{1D Average Pooling} & pool size = 7\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential B2} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 4\\
-	& \textbf{1D Average Pooling} & pool size = 7\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential B3} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 7\\
-	& \textbf{1D Average Pooling} & pool size = 7\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential B4} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 10\\
-	& \textbf{1D Average Pooling} & pool size = 7\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential B5} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 13\\
-	& \textbf{1D Average Pooling} & pool size = 7\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential B6} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 16\\
-	& \textbf{1D Average Pooling} & pool size = 7\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential B7} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 19\\
-	& \textbf{1D Average Pooling} & pool size = 7\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Sequential B8} & input from & Input\\
-	& \textbf{1D Convolution} & kernel size = 22\\
-	& \textbf{1D Average Pooling} & pool size = 7\\
-	& output dimension & 3\\
-	[8pt]
-	\textbf{Concatenate} & input from & Sequential A1\\
-	& & Sequential A2\\
-	& & Sequential A3\\
-	& & Sequential A4\\
-	& & Sequential A5\\
-	& & Sequential A6\\
-	& & Sequential A7\\
-	& & Sequential A8\\
-	& & Sequential B1\\
-	& & Sequential B2\\
-	& & Sequential B3\\
-	& & Sequential B4\\
-	& & Sequential B5\\
-	& & Sequential B6\\
-	& & Sequential B7\\
-	& & Sequential B8\\
-	& output dimension & 48\\
-	[8pt]
-	\textbf{Dropout} & input from & Concatenate\\
-	& rate & 0.5\\
-	[8pt]
-	\textbf{Dense} & input from & Dropout\\
-	& output dimension & 20\\
-	& activation & softmax\\
-	\hline
-	\textbf{Training} & epochs & 10\\
-	& batch size & 60\\
-	\hline
-	\textbf{Pruning} & layers & Embedding\\
-	& & 1D Convolution\\
-	& & Dense\\
-	& amount & 20\%\\
-	& & 15\%\\
-	& & 20\%\\
-	& iterations & 10\\
-	& initial weights & 293.702.400\\
-	& & 165.648\\
-	& & 980\\
-	& remaining weights & \textasciitilde31.536.055\\
-	& & \textasciitilde32.611\\
-	& & \textasciitilde105\\
-	\hline
-	%\noalign{\hrule height 2pt}
-\end{tabularx}
+
 
 %\subsection*{Pruning}
