@@ -58,12 +58,12 @@ Figure \ref{fig:Example Control Flow} depicts a scheme of the framework during o
 
 \section{Backend}
 \subsection{Networks}
-Tensorflow 2.0 supplies a functional API capable of implementing all networks described in this thesis and many more.[cite] Also, it brings execution to other devices than the regular CPU core. Of particular interest to this work is the speed-up achieved through the usage of GPUs. 
+Tensorflow 2.0 supplies a functional API capable of implementing all networks described in this thesis and many more. It also brings execution to other devices than the regular CPU core.\cite{Tensorflow} Of particular interest to this work is the speed-up achieved through the usage of GPUs. 
 \subsection{Datasets and Preprocessing}
-MNIST and CIFAR10 have an interface in Tensorflow 2.0 [cite]. The corresponding modules of the supplied framework read out these interfaces, bring the data into the expected shape, and then split them canonically into training and test datapoints. 
-For 20Newsgroup and Reuters-21578, the backend integrates NLTK, an open-source natural language framework. NLTK also supplies a Word Tokenizer, which splits a raw text into word-like tokens.
+MNIST and CIFAR10 have an interface in Tensorflow 2.0. The corresponding modules of the supplied framework read out these interfaces, bring the data into the expected shape, and then split them canonically into training and test datapoints. 
+For 20Newsgroup and Reuters-21578, the backend integrates NLTK, an open-source natural language framework. NLTK also supplies a Word Tokenizer, which splits a raw text into word-like tokens.\cite{NLTK}
 \subsection{I/O-Elements}
-The supplied framework employs the object-serialization package pickle to save the history of an experiment directly. This type of storage is a solution for internal use only! On their website, the packages authors explicitly warn of untrusted pickle files.
+The supplied framework employs the object-serialization package pickle to save the history of an experiment directly. This type of storage is a solution for internal use only. On their website, the packages authors explicitly warn of untrusted pickle files.
 
 \section{Limitations}
 While the code available alongside this thesis is generally capable of unraveling and reproducing any architecture described in the functional API of Tensorflow 2.0, it only supports the masking of the layers described in chapter \ref{ch:design}. 

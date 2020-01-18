@@ -25,7 +25,7 @@ Finally, the layers in which pruning is applied are enumerated together with the
 \subsection*{Aim of the experiment}
 Pruning the most basic architecture examined by J. Frankle and M. Carbin served as a minimal working prototype for the codebase.
 \subsection*{Dataset and Preprocessing}
-For this experiment, we employed the image dataset MNIST. It contains gray-scale images of hand-written digits with a size of 28x28 pixels. [ref section 6.1]
+For this experiment, we employed the image dataset MNIST. It contains gray-scale images of hand-written digits with a size of 28x28 pixels. Chapter \ref{ch:datasets} contains a more detailed description.
 No preprocessing was applied.
 \subsection*{Task}
 The network was supposed to classify each image according to the digit it displays.
@@ -70,15 +70,15 @@ The network was supposed to classify each image according to the digit it displa
 The first network is the simplest example of architectures discussed by J.Frankle and M.Carbin. The "conv-6", they propose, utilizes an additional popular kind of trainable layer, the convolutional layer, and has an order of magnitude more weights than the previous network. Furthermore, it operates on an arguably more difficult dataset, CIFAR10. 
 In summary: This architecture uses close to all features present in the original paper, which makes it valuable for the validation of the code we produced.
 \subsection*{Dataset and Preprocessing}
-For this task, I utilized the image dataset CIFAR10. 
-In contrast to MNIST, CIFAR10 contains colored images with a size of 32x32 pixels. Additionally, each image is subdivided by gray-scale images for its share of red, blue, and green. The result is the final size of 3x32x32 pixels. [ref Section 6.2]
+For this task, we utilized the image dataset CIFAR10. 
+In contrast to MNIST, CIFAR10 contains colored images with a size of 32x32 pixels. Additionally, each image is subdivided by gray-scale images for its share of red, blue, and green. The result is the final size of 3x32x32 pixels. Chapter \ref{ch:datasets} contains a more detailed description.
 No preprocessing was applied.
 \subsection*{Task}
 The network was supposed to classify the image according to the common real-world objects displayed on them. The ten possible objects include different means of transportation and animals. 
 \subsection*{Architecture and Setup}
-J. Frankle and M. Carbin developed the "conv-6" based on the VGG-architectures and only note the parameters necessary to infer the remaining parts of the infrastructure. [cite LTH]
-I based my implementation on those parameters and the referenced paper of K. Simonyan and A. Zisserman [cite VGG], and the number of weights in the dense part differs from the number reported by J.Frankle and M.Carbin. Because they do not supply an openly accessible implementation of their experiments, it was not possible to cross-validate the code.
-As the most natural way, to prepare a multidimensional input for a dense layer, is flattening, I assume that J. Frankle and M. Carbin either reported the wrong number of weights or parameters in their description.
+J. Frankle and M. Carbin developed the "conv-6" based on the VGG-architectures and only note the parameters necessary to infer the remaining parts of the infrastructure.\cite{LTH}
+We based our implementation on those parameters and the referenced paper of K. Simonyan and A. Zisserman \cite{VGG16}, and the number of weights in the dense part differs from the number reported by J.Frankle and M.Carbin. Because they do not supply an openly accessible implementation of their experiments, it was not possible to cross-validate the code.
+As the most natural way, to prepare a multidimensional input for a dense layer, is flattening, we assume that J. Frankle and M. Carbin either reported the wrong number of weights or parameters in their description.
 	%\begin{tabularx}{\textwidth}[!h]{!{\vrule width 2pt}X|X|X!{\vrule width 2pt}}
 	\begin{tabularx}{\textwidth}[!h]{X X X}
 		% \caption{MNIST-Lenet-FCN}
@@ -157,12 +157,14 @@ As the most natural way, to prepare a multidimensional input for a dense layer, 
 \section{Transfer: Newsgroups-End2End-CNN}
 
 \subsection*{Aim of the Experiment}
-J. Frankle and M. Carbin report a desirable degree of pruning through the search for lottery tickets, but all their results pertain only to the field of image recognition. This experiment aspires to be a proof-of-concept for the search for lottery tickets in natural language applications. To this end, the code reproduces the network of an approach, of R. Pappagari et al.,  that achieved performance close to the state-of-the-art on a natural language processing task[cite End2End].
+J. Frankle and M. Carbin report a desirable degree of pruning through the search for lottery tickets, but all their results pertain only to the field of image recognition. This experiment aspires to be a proof-of-concept for the search for lottery tickets in natural language applications. To this end, the code reproduces the network of an approach, of R. Pappagari et al.,  that achieved performance close to the state-of-the-art on a natural language processing task.\cite{End-to-End-CNN}
 
 \subsection*{Dataset and Preprocessing}
-The natural language dataset used for this experiment is called "20 Newsgroups". It contains articles of varying lengths in plain text. As networks only handle numerical values, the documents had to be quantified. R. Pappagari et al. one-hot-encoded the documents on a word level, utilizing the vocabulary provided on the 20 newsgroup website. [footnote] 
-While they mention that they used the canonical split of training and test data, this is not enough to accurately define the setup. First, the documents should be stripped of any metadata. Afterward, a tokenizer, of which many different ones exist, is necessary to split the articles into single words. The code provided along this thesis utilizes the word tokenizer supplied by the framework nltk. [footnote] Furthermore, the provided vocabulary does not contain all tokens. For this experiment, all such weights were removed all such tokens as stopwords. 
-Lastly, the input length of a network cannot be variable. While a few documents have an extreme length of over 3000, most of them do not [footnote]. Thus simple zero-padding would overexert the computer memory and over parametrize the architecture. As such, the preprocess truncated all documents after the first 200 words and padded the rest.
+The natural language dataset used for this experiment is called "20 Newsgroups". It contains articles of varying lengths in plain text. As networks only handle numerical values, the documents had to be quantified. R. Pappagari et al. one-hot-encoded the documents on a word level, utilizing the vocabulary provided on the 20 newsgroup website.\footnote{
+	The vocabulary length they documented does not agree with the length of the vocabulary provide at the website, which might be due to an update from the website's author. 
+	}
+While they mention that they used the canonical split of training and test data, this is not enough to accurately define the setup. First, the documents should be stripped of any metadata. Afterward, a tokenizer, of which many different ones exist, is necessary to split the articles into single words. The code provided along this thesis utilizes the word tokenizer supplied by the framework nltk. Furthermore, the provided vocabulary does not contain all tokens. For this experiment, we removed all such tokens as stopwords. 
+Lastly, the input length of a network cannot be variable. While a few documents have an extreme length of over 3000, most of them do not. Thus simple zero-padding would overexert the computer memory and over parametrize the architecture. As such, the preprocess truncated all documents longer than 200 words and padded those shorter.
 
 
 \subsection*{Architecture and Setup}
@@ -187,8 +189,7 @@ Lastly, the input length of a network cannot be variable. While a few documents 
 As this experiment shares an architecture with the reproduction discussed earlier, redundant subsections are omitted. 
 \subsection*{Aim of the Experiment}
 In the introduction of this thesis, I remarked that there is no inherent necessity that one defines the structure of lottery tickets after full training of a network. Such a definition is natural, but in the end, J. Frankle and M. Carbin perform network architecture search on the initial network. The trained weights are only used to inform this search.
-In principle, searching for a performant architecture could be done without any training, using only the initialized weights, but H. Zhou et al. rule out that possibility in their ablation study. [cite Deconstruction]
-This experiment aims to study the behavior of lottery tickets dependent on the point in training when the weights are used to inform the pruning.
+In principle, searching for a performant architecture could be done without any training, using only the initialized weights, but H. Zhou et al. rule out that possibility in their ablation study.\cite{Deconstructing_LTH} This experiment aims to study the behavior of lottery tickets dependent on the point in training when the weights are used to inform the pruning.
 \subsection*{Pruning}
 The network converges no later than 15 epochs into training. Thus 15 experiments were performed, each being set to another epoch for pruning. 
 To ensure comparability all 15 networks share the same initialization, and each training is run for the full  50 epochs of the original experiment.

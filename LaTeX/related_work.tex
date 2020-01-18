@@ -2,13 +2,14 @@
 \chapter{Related Work}
 \label{ch:relatedwork}
 %*****************************************
-To quantify the goals previously defined the context of current research is needed. The importance of any work assuming an underlying architecture can not be correctly evaluated without knowledge about the quality of said architecture. As such this section shortly presents state-of-the-art approaches to the tasks relevant to this thesis. Additionally an overview over previous compression methods and their achievements is given.
-
+ The context of current research is needed to assess the utility of any results achieved during this thesis. As such, this section shortly presents the quality of state-of-the-art approaches that are covered in the following chapters.\footnote{The rankings presented in this chapter rely on the website: "Papers with Code".\\
+ 	https://paperswithcode.com/sota
+ } Additionally, it gives an overview of previous pruning methods and their achievements. 
 
 \section{State of the art: Image Classification}
 \begin{figure}
 	\begin{tabular}{c|c|c|c}
-		Accuracy \% & MNIST & CIFAR-10 & Published\\
+		Accuracy & MNIST & CIFAR-10 & Published\\
 		\hline
 		EnAET &  & 98.0 & 2019 \\
 		DirNAS &  & 97.9 & 2019 \\
@@ -20,17 +21,26 @@ To quantify the goals previously defined the context of current research is need
 		Multi-Column & 99.8 & 88.8 & 2012 \\
 		\hline
 		Lenet-FCN & \textasciitilde98 &  & LTH \\
-		VGG-19 &  & \textasciitilde90 & LTH \\
+		Conv-6 &  & \textasciitilde80 & LTH \\
 		
 	\end{tabular}
 	\caption{Performance for Image Classification}
 \end{figure}
-MNIST and CIFAR-10 are both datasets containing small images which are to be classified according to the object they display. While MNIST contains gray scale images of hand-written digits CIFAR-10 consists of colorful real-world images. State of the art approaches deliver superhuman accuracy on both data sets.\\
-For MNIST Kowasari et al. with their random multi-purpose deep learning ensemble report the nominal highest performance \cite{RMDL} although many others achieve similar results through varying means.\\
-Already in 2012 Ciresan et al. describe a deep and sparse convolutional architecture that resembles the visual cortex of mammal \cite{Multi-Column}. Later Sato et al. apply data-augmentation \cite{APAC}, Chang Jia-Ren \& Chen Yong-Sheng package whole architectures and treat them like layers \cite{Batch-Normalized} and Hasanpour et al. carefully design a small and simple convolutional network through the use of structural heuristics \cite{Keep-It-Simple} all reproducing the same performance.\\
-In contrast the three best-performing approaches to CIFAR-10 are all published in 2019. Currently an ensemble of auto-encoding transformations claims the highest performance. Wang et al. provide their model with a rich class of transformations to prepare abstraction of the input. \cite{EnAET}. Close second and third are Cai et al. with a direct network-architecture-search scheme \cite{Direct-NAS} and Hu et al. with a novel network building block that explicitly models interaction between channels \cite{Squee}. \\ 
-While Frankle \& Carbin do not provide exact values in the LTH-paper their figures indicate that they achieve roughly 98\% accuracy on MNIST and 90\% on CIFAR-10 \cite{LTH}.\footnote
-{State-of-the-Art architectures are presented only if no extra training data was used and as described on \href{https://paperswithcode.com/sota}{https://paperswithcode.com/sota}}
+MNIST and CIFAR-10 are the two image datasets covered in this thesis, containing small images displaying grey-scale images of digits and colored images of real-world objects, respectively. Chapter \ref{ch:datasets} describes them in more detail.
+The primary task on both of them demands a classification of their images into the ten corresponding classes. State of the art approaches delivers human or even superhuman accuracy on both data sets.\\
+In their paper "RMDL: Random Multimodel Deep Learning" Kowsari et al. combined dense neural networks, convolutional neural networks, and recurrent neural networks into an ensemble, that achieves an accuracy of 99.82 percent for MNIST image classification as well as good benchmarks on other tasks, including CIFAR10 image classification and natural language processing tasks.\cite{RMDL}\\
+The researchers of the next few approaches report accuracies of 99.8 percent, which equates to only two fewer misclassified images.\\
+Already in 2012, D. Ciresan et al. described a deep architecture that alternates between convolution and softmax layers before it closes with a short dense classification structure, similar to the VGG16 architecture described in chapter \ref{ch:background}. At the time, it improved on the state-of-the-art of image classification over multiple datasets, including MNIST. They also recorded that their networks are structurally similar to the neural connection between the retina and the visual cortex of mammals such as macaque monkeys.\cite{Multi-Column}\\
+Three years later, Later Sato et al. improved on approaches that use self-generated augmented data to increase the transformation invariance of their architecture in their paper "APAC: Augmented PAttern Classification with Neural Networks". They achieved the same results on MNIST image classification.\cite{APAC}\\
+In the same year, C. Jia-Ren and C. Yong-Sheng published "Batch-normalized Maxout Network in Network", a paper in which they explain how they adopted the newly developed "Network in Network" structure to avoid vanishing gradients.\cite{Batch-Normalized}\\
+ They also share second place alongside S. Hossein Hasanpour et alia.\cite{Keep-It-Simple}\\
+\\
+In contrast to MNIST, the three best-performing approaches for CIFAR-10 image classification were all published in the last two years. Currently, an automated reinforcement learning approach claims the highest performance of 98,3 percent.\footnote{Some researchers achieved better benchmarks but used additional data. Because most researchers, including J.Frankle and M. Carbin, did not use additional data on CIFAR10, we omitted those results.}
+Through the work presented in their paper "Fast AutoAugment", S. Lim et al. improved the results of multiple existing architectures through automatic data enhancement. They remark that such automation was previously posed as an important open question because the efficiency of any single data enhancement strategy is highly dependant on the dataset at hand.\cite{Auto-Augment}\\
+The second most accurate approach also utilizes data augmentation in addition to other techniques for the reduction of data dependency. Under the title "EnAET: Self-Trained Ensemble AutoEncoding Transformations for Semi-Supervised Learning", X. Wang et al. produced an approach very adept at handling tasks with little available data and very competitive when supplied by the same data as contemporary architectures. It achieves 98,01 percent accuracy.\cite{EnAET}\\
+With their publication "ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware", Cai et al. supplied a competitive technique much more closely related to the content of this thesis than any of the previously mentioned. They addressed issues of computational expense in the previous network architecture search algorithm allowing them to increase the search space drastically. As a result, they find competitive networks capable of accuracies as high as 97.02 and smaller than those presented in previous state-of-the-art publications.\cite{Direct-NAS}\\ 
+To complete the picture of performance measures figure [3.1] summarizes the state-of-the-art accuracies, as well the ones J. Frankle and M. Carbin, report for the two networks studied in this paper.   
+While they do not provide exact values in the LTH-paper, their figures indicate that their Lenet-FCN and Conv-6 architectures achieve roughly 98 percent accuracy on MNIST and 80 percent on CIFAR-10, respectively. \cite{LTH} Additionally, it displays the best available estimates for human accuracy on both datasets. The authors of MNIST supplied an estimate in one of their papers, and T. Ho-Phuoc conducted a study on human proficiency for CIFAR10 image recognition.\cite{MNIST-Human}\cite{CIFAR10-Human}
 
 
 \section{State of the art: Topic Classification}
