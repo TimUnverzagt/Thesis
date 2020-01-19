@@ -34,14 +34,14 @@ def main():
 
     no_experiments = 1
 
-    # task_description = 'Transfer'
+    task_description = 'Transfer'
     # task_description = 'Reproduction'
-    task_description = 'Early-Tickets'
+    # task_description = 'Early-Tickets'
 
     # architecture_description = 'CIFAR10-CNN-6'
-    architecture_description = 'MNIST-Lenet-FCN'
+    # architecture_description = 'MNIST-Lenet-FCN'
     # Only compatible with 'Transfer'
-    # architecture_description = 'Newsgroups-End2End-CNN'
+    architecture_description = 'Newsgroups-End2End-CNN'
 
     pruning_percentages = {'dense': 20, 'conv': 15}
 
@@ -127,8 +127,8 @@ def main():
 
     if visualize:
         # Values to be set manually
-        no_masking_iteration_provided = 10
-        # no_masking_iteration_provided = no_pruning_iterations
+        # no_masking_iteration_provided = 10
+        no_masking_iteration_provided = no_pruning_iterations
         measure_key = 'accuracy'
         # The convergence of the full network happens until:
         # epoch 10 (Reproduction-MNIST-Lenet-FCN)
@@ -293,24 +293,24 @@ def main():
                     network_history_dicts.append(
                         storage.load_experimental_history(path=folder_path, name=history_name)
                     )
-                    network_names.append(str(i+1) + 'x Masked Network')
+                    network_names.append('Network pruned ' + str(i+1) + ' times')
                 """
                 vis_dicts = []
                 vis_names = []
-                # colors = ["royalblue", "darkorange", "green"]
-                colors = ["royalblue", "green", "crimson", "mediumpurple", "saddlebrown"]
+                colors = ["royalblue", "darkorange", "green"]
+                # colors = ["royalblue", "green", "crimson", "mediumpurple", "saddlebrown"]
                 vis_dicts.append(network_history_dicts[0])
                 vis_names.append(network_names[0])
-                #vis_dicts.append(network_history_dicts[3])
-                #vis_names.append(network_names[3])
+                vis_dicts.append(network_history_dicts[3])
+                vis_names.append(network_names[3])
                 vis_dicts.append(network_history_dicts[7])
                 vis_names.append(network_names[7])
-                vis_dicts.append(network_history_dicts[12])
-                vis_names.append(network_names[12])
-                vis_dicts.append(network_history_dicts[15])
-                vis_names.append(network_names[15])
-                vis_dicts.append(network_history_dicts[18])
-                vis_names.append(network_names[18])
+                #vis_dicts.append(network_history_dicts[12])
+                #vis_names.append(network_names[12])
+                #vis_dicts.append(network_history_dicts[15])
+                #vis_names.append(network_names[15])
+                #vis_dicts.append(network_history_dicts[18])
+                #vis_names.append(network_names[18])
 
                 visualization.plot_measure_over_n_trainings(
                     histories=vis_dicts,
@@ -320,15 +320,15 @@ def main():
                     colors=colors
                 )
                 """
-                """
+                #"""
                 visualization.plot_measure_over_n_trainings(
                     histories=network_history_dicts,
                     history_names=network_names,
                     measure_key=measure_key,
                     y_limits=y_limits
                 )
-                """
                 #"""
+                """
                 visualization.plot_average_measure_after_convergence(
                     experiment_result=network_history_dicts,
                     history_names=network_names,
@@ -338,7 +338,7 @@ def main():
                     x_limits=x_limits,
                     remaining_ratio=compound_remaining_size
                 )
-                #"""
+                """
 
     return
 
