@@ -202,7 +202,11 @@ The aim of this experiment is purely explorative. If any patterns are recognized
 Figures \ref{fig:Early-Tickets-0} through \ref{fig:Early-Tickets-9} plot the mean accuracy achieved by implementations set to prune at the n-th epoch of training. To avoid visual clutter, the interval representing minimal and maximal values are omitted. 
 \subsection*{Evaluation Results}
 Because the accuracy of multiple graphs behaves erratically, it is challenging to discern a development over the training depth. The only certain observation is that all trials of earlier pruning degrade significantly faster than the original approach.
-\begin{figure}[h]
+\subsection*{Analysis of Results}
+While the original network converges in about ten epochs the same amount of training does not seem to suffice to achieve the full efficiency of the pruning algorithm implemented in our framework
+
+\newpage
+\begin{figure}
 	\begin{minipage}{\textwidth}
 		\centering
 		\includegraphics[width=100px]{gfx/7-Evaluation/LTH_5_legend.png}
@@ -258,5 +262,3 @@ Because the accuracy of multiple graphs behaves erratically, it is challenging t
 		\label{fig:Early-Tickets-9}
 	\end{minipage}
 \end{figure}
-\subsection*{Analysis of Results}
-While the original network converges in about ten epochs the same amount of training does not seem to suffice to achieve the full efficiency of the pruning algorithm implemented in our framework
