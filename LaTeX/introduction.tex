@@ -14,8 +14,10 @@ In their paper "The Lottery Ticket Hypothesis: Finding Sparse, Trainable Neural 
 The following chapters of this work explore the transfer of the Lottery Ticket Hypothesis to another field as well as earlier retrieval of lottery tickets on a previously studied architecture.
 
 \section{Problem Statement and Contribution}
-In the latter half of their paper, J. Frankle and M. Carbin also discuss the limitations of their work. First and foremost, they applied their method only to small datasets because iterative pruning is computationally expensive.\cite{LTH} Both datasets they studied are from the field of image recognition, and it is uncertain whether their results are transferable to other contexts such as natural language processing or voice recognition. This thesis aims to provide a proof-of-concept for the application of their algorithm on the task of document topic classification in the field of natural language processing.\\
-Furthermore, J. Frankle and M. Carbin acknowledge that pruning single connections instead of whole sections of a network does not line up well with modern frameworks, and thus, no actual speed-up is achieved. Finally, they state that they plan to research ways to find lottery tickets earlier or at smaller sizes.\cite{LTH} The third experiment of this work explores the possibility of finding small subnetworks earlier into training, which would speed up the pruning procedure.
+J. Frankle and M. Carbin's algorithm appears to be a new and efficient pruning tool for neural network applications, but there still is remains work to be done, as they also note in the latter part of their paper.\\
+First and Foremost, J. Frankle and M. Carbin applied their method only to small datasets because iterative pruning is computationally expensive. \cite{LTH} Additionally, both datasets they studied are from the field of image recognition, and it is uncertain whether their results are transferable to other contexts such as natural language processing or voice recognition.\\
+Furthermore, J. Frankle and M. Carbin acknowledge that pruning single connections instead of whole sections of a network does not line up well with modern frameworks, and thus achieves no actual speed-up. Finally, they stated that they plan to research ways to find lottery tickets earlier or at smaller sizes.\cite{LTH}\\
+The following chapters of this work explore the transfer of the Lottery Ticket Hypothesis to another field as well as earlier retrieval of lottery tickets on a previously studied architecture.
 
 
 \section{Outline}
