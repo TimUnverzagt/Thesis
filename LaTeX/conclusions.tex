@@ -8,18 +8,18 @@
 To conclude this thesis, this last section summarizes the accomplished work, assures results and records possibilities for future work.
 
 \section{Summary}
-Inspired by the paper J. Frankle and M. Corbin published at the beginning of 2019, we decided to research two applications of the pruning algorithm they proposed. With the help of Tensorflow 2.0, the natural language toolkit nltk, scikit-learn, and a few additional backend applications, we developed a framework to search different architectures for lottery tickets. Afterward, we designed four experiments: two to validate the framework, one to extend this kind of pruning to new datasets, and the last one to explore the emergence of actionable training experience in an architecture.  The reproduction was not successful, but the framework still pruned the MNIST-Lenet-FCN architecture by a factor of ten while loosing less than a percentage point. The second experiment was a definite success, and the exploration of early pruning possibilities yielded no starting points for further study.
+Inspired by the paper J. Frankle and M. Corbin published at the beginning of 2019, we decided to research two applications of the pruning algorithm they proposed. With the help of Tensorflow, the natural language toolkit nltk, scikit-learn, and a few additional backend applications, we developed a framework to search different architectures for lottery tickets. Afterward, we designed four experiments: two to validate the framework, one to extend this kind of pruning to new datasets, and the last one to explore the emergence of actionable training experience in an architecture.  The reproduction was not successful, but the framework still pruned the MNIST-Lenet-FCN architecture by a factor of ten while loosing less than a percentage point. The second experiment was a definite success, and the exploration of early pruning possibilities yielded no starting points for further study.
 
 \section{Contributions}
 The primary contribution of this thesis is the openly available framework we developed. While its reproduction experiments failed the, the framework achieved competitive pruning results on at least two architectures. Furthermore, the availability of source code enables any future researcher to check and rerun the tests themselves. Additionally, the success of the second experiment makes a good case for the application of the presented kind of pruning algorithm in the field of natural language processing.
 
 \section{Future Work}
 The developed framework could be a convenient tool to prune various networks, but at the moment, it is heavily limited by two factors:
-
-Firstly, some part of the workflow fills up the working memory once per pruning iteration. Experiments with massive architectures or great pruning depth may cause a memory failure resulting in the loss of all training data. Our best guess for a cause is the Tensorflow 2.0 backend. During the restoration of weight after one training procedure has finished, it might integrate the newly pruned model into its old execution graph instead of creating a new one.
-
+\\
+Firstly, some part of the workflow fills up the working memory once per pruning iteration. Experiments with massive architectures or great pruning depth may cause a memory failure resulting in the loss of all training data. Our best guess for a cause is the Tensorflow backend. During the restoration of weight after one training procedure has finished, it might integrate the newly pruned model into its old execution graph instead of creating a new one.
+\\
 Secondly, the lack of a fourth layer of abstraction overloads the main module. As described in chapter \ref{ch:implementation}, the framework function at three such layers, but none of them should handle the control flow between and visualization. The result is an inefficient way to interface with the framework.
-
+\\
 Finally, the success of the transfer experiment shows that the implemented pruning methodology can extend to non-image datasets. The next sensible point of order is a proof-of-concept that the method can also be extended to architectures more common in the natural language processing field, such as LSTMs.
 
 %\section{Final Remarks}
