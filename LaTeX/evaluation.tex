@@ -33,17 +33,25 @@ The comparison in figure 7.2 yields similar results. While the CIFAR10-CNN-6 imp
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/7-Evaluation/LTH_0.png}
-		\caption*{Lottery Ticket Hypothesis paper}
-		\label{?}
+		\caption{LTH: MNIST-Lenet-FCN}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			"The Lottery Ticket Hypothesis" \cite{LTH}
+		}
+		\label{fig:MNIST-Lenet-FCN-LTH}
 	\end{minipage}\hfill
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/Experiments/Reproduction-MNIST-FCN/accuracy/converged.png}
-		\caption*{Thesis Framework}
-		\label{?}
+		\caption{Thes: MNIST-Lenet-FCN}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author.
+		}
+		\label{fig:MNIST-Lenet-FCN-Thesis}
 	\end{minipage}
-	\caption{The accuracy of the MNIST-Lenet-FCN architecture after convergence.}
-	\label{fig:ABC}
 \end{figure}
 
 \begin{figure}
@@ -54,14 +62,24 @@ The comparison in figure 7.2 yields similar results. While the CIFAR10-CNN-6 imp
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/7-Evaluation/LTH_CNN_clean.png}
-		\caption*{LTH-paper: Accuracy after convergence}
-		\label{?}
+		\caption{LTH: CIFAR10-Conv6}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			"The Lottery Ticket Hypothesis" \cite{LTH}
+		}
+		\label{fig:CIFAR10-Conv6-LTH}
 	\end{minipage}\hfill
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/Experiments/Reproduction-CIFAR10-CNN/accuracy/LTH.png}
-		\caption*{Thesis-Framework: Accuracy after convergence}
-		\label{?}
+		\caption{Thesis: CIFAR10-Conv6}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author.
+		}
+		\label{fig:CIFAR10-Conv6-Thesis}
 	\end{minipage}
 \end{figure}
 
@@ -73,14 +91,24 @@ The comparison in figure 7.2 yields similar results. While the CIFAR10-CNN-6 imp
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/7-Evaluation/LTH_1.png}
-		\caption*{LTH-paper: pruned 0|3|7 times}
-		\label{?}
+		\caption{LTH: Slightly pruned Lenet-FCN}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			"The Lottery Ticket Hypothesis" \cite{LTH}
+		}
+		\label{fig:Slightly-Pruned-Lenet-LTH}
 	\end{minipage}\hfill
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/Experiments/Reproduction-MNIST-FCN/accuracy/LTH_1.png}
-		\caption*{Thesis-Framework: pruned 0|3|7 times}
-		\label{?}
+		\caption{Thesis: Slightly pruned Lenet-FCN}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author. \cite{LTH}
+		}
+		\label{fig:Slightly-Pruned-Lenet-Thesis}
 	\end{minipage}
 \end{figure}
 
@@ -92,16 +120,27 @@ The comparison in figure 7.2 yields similar results. While the CIFAR10-CNN-6 imp
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/7-Evaluation/LTH_2.png}
-		\caption*{LTH-paper: pruned 0|7|12|15|18 times}
-		\label{?}
+		\caption{LTH: Heavily pruned Lenet-FCN}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			"The Lottery Ticket Hypothesis" \cite{LTH}
+		}
+		\label{fig:Heavily-Pruned-Lenet-LTH}
 	\end{minipage}\hfill
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/Experiments/Reproduction-MNIST-FCN/accuracy/LTH_2.png}
-		\caption*{Thesis-Framework: pruned 0|7|12|15|18 times}
-		\label{?}
+		\caption{Thesis: Heavily pruned Lenet-FCN}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author.
+		}
+		\label{fig:Heavily-Pruned-Lenet-Thesis}
 	\end{minipage}
 \end{figure}
+
 \subsection*{Analysis of Results}
 The implementations of the provided framework do not reproduce the results presented in the Lottery Ticket Hypothesis paper, meaning that the framework is not validated. This poses the question of how to proceed with the remaining experiments, which we discuss in the corresponding "Goal and Benchmarks" subsections.
 While the framework did not fulfill the primary goal of the experiment, two phenomena remain unclear and intriguing:
@@ -129,14 +168,24 @@ The right side of figure 7.4 shows that the 20Newsgroups-End2End architecture re
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/Experiments/Transfer-20Newsgroups-CNN/accuracy/10_iterations.png}
-		\caption*{Accuracy on 20Newsgroups pruned 0-10 times}
-		\label{fig:CIFAR10accuracy15}
+		\caption{Training history on 20Newsgroups}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author.
+		}
+		\label{fig:20Newsgorups-Training}
 	\end{minipage}\hfill
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/Experiments/Transfer-20Newsgroups-CNN/accuracy/converged.png}
-		\caption*{Accuracy on 20Newsgroups after convergence}
-		\label{?}
+		\caption{Accuracy after convergence}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author.
+		}
+		\label{fig:20Newsgroups-Converged}
 	\end{minipage}
 \end{figure}
 
@@ -144,6 +193,7 @@ The right side of figure 7.4 shows that the 20Newsgroups-End2End architecture re
 According to the previously defined goal, the transfer was successful, which shows that non-image-recognition architectures can contain efficient subnetworks upon initialization.
 
 %*****************************************
+\newpage
 
 \section{Early Tickets}
 Independent of the ability to recover actual lottery tickets, the pruning implementation supplied by our framework finds small subnetworks in the initialization which are trainable to a nontrivial accuracy. H. Zhou et al. findings confirm that the utilization of trained weights, to calculate the pruning mask, is essential.\cite{Deconstructing_LTH} Information on the development of the quality of said weights is still of interest. 
@@ -153,22 +203,32 @@ The aim of this experiment is purely explorative. If any patterns are recognized
 Figure 7.4 and 7.5 plot the mean accuracy achieved by implementations set to prune at the n-th epoch of training. To avoid visual clutter, the interval representing minimal and maximal values are omitted. 
 \subsection*{Evaluation Results}
 Because the accuracy of multiple graphs behaves erratically, it is challenging to discern a development over the training depth. The only certain observation is that all trials of earlier pruning degrade significantly faster than the original approach.
-\begin{figure}
+\begin{figure}[h]
 	\begin{minipage}{\textwidth}
 		\centering
 		\includegraphics[width=100px]{gfx/7-Evaluation/LTH_5_legend.png}
 	\end{minipage}
-	\begin{minipage}{0.5\textwidth}
+	\begin{minipage}{0.45\textwidth}
 		\centering
 		\includegraphics[height=175px]{gfx/Experiments/EarlyTicket-MNIST-FCN/012.png}
-		\caption*{Ticket candidates pruned at epochs 0|1|2}
-		\label{?}
+		\caption{Networks pruned at epochs 0|1|2}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author.
+		}
+		\label{fig:Early-Tickets-0}
 	\end{minipage}\hfill
-	\begin{minipage}{0.5\textwidth}
+	\begin{minipage}{0.45\textwidth}
 		\centering
 		\includegraphics[height=175px]{gfx/Experiments/EarlyTicket-MNIST-FCN/345.png}
-		\caption*{Ticket candidates pruned at epochs 3|4|5}
-		\label{?}
+		\caption{Networks pruned at epochs 3|4|5}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author.
+		}
+		\label{fig:Early-Tickets-4}
 	\end{minipage}
 \end{figure}
 \begin{figure}
@@ -176,17 +236,27 @@ Because the accuracy of multiple graphs behaves erratically, it is challenging t
 		\centering
 		\includegraphics[width=100px]{gfx/7-Evaluation/LTH_6_legend.png}
 	\end{minipage}
-	\begin{minipage}{0.5\textwidth}
+	\begin{minipage}{0.45\textwidth}
 		\centering
 		\includegraphics[height=175px]{gfx/Experiments/EarlyTicket-MNIST-FCN/678.png}
-		\caption*{Ticket candidates pruned at epochs 6|7|8}
-		\label{?}
+		\caption{Networks pruned at epochs 6|7|8}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author.
+		}
+		\label{fig:Early-Tickets-6}
 	\end{minipage}\hfill
-	\begin{minipage}{0.5\textwidth}
+	\begin{minipage}{0.45\textwidth}
 		\centering
 		\includegraphics[height=175px]{gfx/Experiments/EarlyTicket-MNIST-FCN/910.png}
-		\caption*{Ticket candidates pruned at epochs 9 and 10}
-		\label{?}
+		\caption{Networks pruned at epochs 9 and 10}
+		\vspace{7pt}
+		\footnotesize{
+			Source:\\
+			This graph was produced by the author.
+		}
+		\label{fig:Early-Tickets-9}
 	\end{minipage}
 \end{figure}
 \subsection*{Analysis of Results}

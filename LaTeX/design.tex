@@ -157,7 +157,7 @@ As our framework employs the canonical way to prepare a multidimensional input f
 	%\noalign{\hrule height 2pt}
 	\hline
 	\textbf{Training} & epochs & 36\\
-	& iterations per epoch & ??\\
+	& iterations per epoch & \textasciitilde833\\
 	& batch size & 60\\
 	& loss & categorical cross entropy\\
 	& optimizer & Adam\\
@@ -165,9 +165,10 @@ As our framework employs the canonical way to prepare a multidimensional input f
 	\hline
 	\textbf{Pruning} & layers & Dense\\
 	& & 2D Convolution\\
-	& amount & 20\%\\
-	& & 15\%\\
 	& iterations & 25\\
+	& rate per iteration & 20 \%\\
+	& & 15 \%\\
+	& weighted rate & 17,46 \%\\
 	& initial weights & 1.117.194\\
 	& & 1.145.408\\
 	& remaining weights & \textasciitilde4220\\
@@ -189,26 +190,55 @@ The natural language dataset used for this experiment is called "20 Newsgroup". 
 	The vocabulary length they documented does not agree with the length of the vocabulary provide at the website, which might be due to an update from the website's author. 
 }\cite{End-to-End-CNN} 
 Otherwise, they only mention that they used the canonical split of training and test data, which is not sufficient to accurately define the setup. First, the documents should be stripped of any metadata. Afterward, a tokenizer, of which many different ones exist, is necessary to split the articles into single words. The code provided along this thesis utilizes the word tokenizer supplied by the framework nltk. Furthermore, the provided vocabulary does not contain all tokens. For this experiment, we implicitly interpreted all tokens not referenced in the vocabulary as stopwords and omitted them.\\
-Lastly, the input length of a network cannot be variable. While a few documents have an extreme length of over 3000, most of them do not. Simple zero-padding would overexert computer memory and overparametrize the architecture. Figure [?] shows the document length histograms of test and training split for 20Newsgroups. Our computation devices were able to support a few hundred tokens per document, dependant on the number of pruning iterations. Ten pruning iterations are necessary to achieve a competitive pruning rate and left us with about 200 hundred tokens per document. The red line in figure [?] visualizes the cut-off. It leaves about 70 percent of the documents at full length.
+Lastly, the input length of a network cannot be variable. While a few documents have an extreme length of over 3000, most of them do not. Simple zero-padding would overexert computer memory and overparametrize the architecture. Figures \ref{fig:Cut-Training} and \ref{fig:Cut-Training} show the document length histograms of test and training split for 20Newsgroups, respectively. Our computation devices were able to support a few hundred tokens per document, dependant on the number of pruning iterations. Ten pruning iterations are necessary to achieve a competitive pruning rate and left us with about 200 hundred tokens per document. The red line visualizes the cut-off. It leaves about 70 percent of the documents untruncated.
+
+\begin{figure}
+	\centering
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[height=180px]{gfx/4-Design/cut_training.png}
+		\caption{Histogram of 20Newsgroups training data with cut-off}
+		\label{fig:Cut-Training}
+	\end{minipage}\hfill
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[height=180px]{gfx/4-Design/cut_test.png}
+		\caption{Histogram of 20Newsgroups test data with cut-off}
+		\label{fig:Cut-Test}
+	\end{minipage}
+	\vspace{7pt}
+	\footnotesize{ 
+		\\
+		Source:\\
+		These figure were produced by the author.
+	}
+\end{figure}
 
 
 \subsection*{Task and Architecture}
 Each document in the 20Newsgroups dataset was collected in a Usenet repository with an associated topic. For each document, the architecture returns its topic in a 20-dimensional one-hot-encoding.\\
 \\
-The Newsgroups-End2End ensemble combines 16 very similar embedding architectures. First, each network employs a trainable word-embedding layer to reduce the dimensionality of the one-hot-encoded word tokens. Subsequently, a convolutional layer and a few processing layers embed the whole document into a three-dimensional space. The overarching ensemble then collects the three remaining features of each architecture and classifies them with a dropout-regularized dense layer. Figure [?] displays the single architectures on its left and the ensemble on its right.
+The Newsgroups-End2End ensemble combines 16 very similar embedding architectures. First, each network employs a trainable word-embedding layer to reduce the dimensionality of the one-hot-encoded word tokens. Subsequently, a convolutional layer and a few processing layers embed the whole document into a three-dimensional space. The overarching ensemble then collects the three remaining features of each architecture and classifies them with a dropout-regularized dense layer. Figure \ref{fig:Embedding-Network} and \ref{fig:Ensemble} display the single architectures and the ensemble, respectively.
 \begin{figure}
+	\centering
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/4-Design/base_module.png}
-		\caption*{Structure of one sequential subnetwork}
-		\label{?}
+		\caption{Layers of one embedding network}
+		\label{fig:Embedding-Network}
 	\end{minipage}\hfill
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[height=180px]{gfx/4-Design/combined_model.png}
-		\caption*{Architecture of the whole combined network}
-		\label{?}
+		\caption{Architecture of the whole network ensemble}
+		\label{fig:Ensemble}
 	\end{minipage}
+	\vspace{7pt}
+	\footnotesize{ 
+		\\
+		Source:\\
+		"Joint Verification-Identification in end-to-end Multi-Scale CNN Framework for Topic Identification" \cite{End-to-End-CNN}
+	}
 \end{figure}
 
 \subsection*{Training and Pruning}
@@ -223,7 +253,7 @@ Embedding layers are dense layers with one-hot input and special implementation.
 	%\noalign{\hrule height 2pt}
 	\hline
 	\textbf{Training} & epochs & 10\\
-	& iterations per epoch & ??\\
+	& iterations per epoch & \textasciitilde188\\
 	& batch size & 60\\
 	& loss & categorical cross entropy\\
 	& optimizer & Adam\\
@@ -231,10 +261,11 @@ Embedding layers are dense layers with one-hot input and special implementation.
 	\textbf{Pruning} & layers & Embedding\\
 	& & 1D Convolution\\
 	& & Dense\\
-	& amount & 20\%\\
+	& iterations & 10\\
+	& rate per iteration & 20\%\\
 	& & 15\%\\
 	& & 20\%\\
-	& iterations & 10\\
+	& weighted rate & \textasciitilde20 \%\\
 	& initial weights & 293.702.400\\
 	& & 165.648\\
 	& & 980\\
