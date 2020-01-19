@@ -1,16 +1,12 @@
 \begin{appendices}
-\chapter{Detailed Description of 20Newsgroups-End2End-CNN}
+\chapter{Detailed Description of the 20Newsgroups-End2End architecture}
 \begin{tabularx}{\textwidth}[!h]{X X X}
 	% \caption{MNIST-Lenet-FCN}
-	\multicolumn{3}{X}{\textbf{Newsgroup-End2End-CNN}}\\
+	\multicolumn{3}{X}{\textbf{Newsgroup-End2End}}\\
 	\\
 	\hline
 	\endhead
-	\textbf{Model} & loss & sparse categorical cross entropy\\
-	& Optimizer & Adam\\
-	%\noalign{\hrule height 2pt}
-	\hline
-	\textbf{Sequential Layers} & \textbf{Embedding} & input dimension = 61188\\
+	\textbf{Sequential Layer Defaults} & \textbf{Embedding} & input dimension = 61188\\
 	& & input length = 200\\
 	& & output dimension = 300\\
 	& \textbf{1D Convolution} & filters = 3\\
@@ -125,23 +121,6 @@
 	\textbf{Dense} & input from & Dropout\\
 	& output dimension & 20\\
 	& activation & softmax\\
-	\hline
-	\textbf{Training} & epochs & 10\\
-	& batch size & 60\\
-	\hline
-	\textbf{Pruning} & layers & Embedding\\
-	& & 1D Convolution\\
-	& & Dense\\
-	& amount & 20\%\\
-	& & 15\%\\
-	& & 20\%\\
-	& iterations & 10\\
-	& initial weights & 293.702.400\\
-	& & 165.648\\
-	& & 980\\
-	& remaining weights & \textasciitilde31.536.055\\
-	& & \textasciitilde32.611\\
-	& & \textasciitilde105\\
 	\hline
 	%\noalign{\hrule height 2pt}
 \end{tabularx}

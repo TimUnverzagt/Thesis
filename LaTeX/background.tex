@@ -51,15 +51,15 @@ The most fundamental building block of the human central nervous system is a \te
 \\
 The canonical mathematical model of a neuron, as seen in \ref{fig:neuron2}, is defined as:
 \begin{itemize}
-	\item \textbf{Inputs} $x_i$ \textbf{:}\\
+	\item \textbf{Inputs} $x_i$\\
 	All stimuli of a neuron are either referred to as its inputs or as the \textbf{features} of the data.\\
-	\item \textbf{Weights} $w_i$ \textbf{:}\\
+	\item \textbf{Weights} $w_i$\\
 	The ability to assign importance to specific stimuli is modeled as weights.\\
-	\item \textbf{Combined Weighted Inputs} $\sum_{i=1}^{n}w_i x_i$ \textbf{:}\\
+	\item \textbf{Combined Weighted Inputs} $\sum_{i=1}^{n}w_i x_i$\\
 	A summation superposes the inputs, scaled according to their respective weight, to form the total excitation of the neuron.\\
-	\item \textbf{Activation Function} $\Phi(\sum_{i=1}^{n}w_i x_i)$ \textbf{:}\\
+	\item \textbf{Activation Function} $\Phi(\sum_{i=1}^{n}w_i x_i)$\\
 	The monotonously ascending activation function defines the Correlation between excitation of the neuron and its output signal.\\
-	\item \textbf{Bias} $b$ \textbf{:}\\  
+	\item \textbf{Bias} $b$\\  
 	As different neurons display varying thresholds of activation, the previously mentioned summation includes an input independent base term. This term effectively shifts the activation of the modeled neuron.\\
 \end{itemize}
 
@@ -88,19 +88,19 @@ of neurons. Such a collection is called a \textbf{layer}, and especially a \text
 A layer is defined by the structure of connections it prescribes. The layers used in this thesis consist of:
 
 \begin{itemize}
-	\item \textbf{Input :}\\
+	\item \textbf{Input}\\
 	The numeric representation of data points can be thought of as outputs of an input-layer. In
 	applications, this layer primarily describes assumptions on the shape of the data points. \\
-	\item \textbf{Fully-Connected | Dense :}\\
+	\item \textbf{Fully-Connected | Dense}\\
 	In a fully connected layer, each neuron receives all features of the input, which renders it the most general layer.  In theory, it can learn to effectively drop any number of connections, thus reducing to any kind of the subsequent layers, but establishing such behavior through training might be unfeasible. Besides, it would produce enormous computational overhead. The need for more specialized layers motivated this way, is confirmed by their success throughout various fields.
 	Additionally and analogous to the naming of the matrices which implement the computation of neural networks, a fully-connected layer is also called dense.\\
 	The sole parameter of a dense layer is the number of neurons it contains. Nonetheless, the parameters of the neurons are still necessary during implementation.\\
-	\item \textbf{Convolution :}\\
+	\item \textbf{Convolution}\\
 	Inspired by the convolution kernels used in image processing, a convolutional layer combines features of a relatively small neighborhood into a single output.\footnote{In practice, many convolutional layers employ multiple kernels at the same time, meaning that one neighborhood produces numerous outputs. This procedure extends the dimension of the processed data by an additional axis, often called \textbf{channels}. These channels receive special treatment quite often.} This process needs a specification of the data's dimensionality and places an implicit bias on local features. \\
 	Convolutions primarily differ in the neighborhood size they define and through the fashion in which they handle missing values at the edges of their data. For example, points beyond the edge of an image could either be defined to be black, white, or even equal to the mean or median of the available part of the convolution. Additionally, contemporary networks utilize \textbf{striding}, where the neighborhods of some features are skipped.\\
-	\item \textbf{Pooling :}\\
+	\item \textbf{Pooling}\\
 	A pooling layer contains no trainable weights and functions more like a data-processing-step between other layers than anything else. It operates much like a convolutional layer with fixed weights and striding,  replacing a whole neighborhood by a single output, thus reducing the size of the data.\\
-	\item \textbf{Flatten :}\\  
+	\item \textbf{Flatten}\\  
 	Similar to the pooling, a flatten layer specifies a data-processing-step inside a network. It collapses all values of a data point into a single dimension and is the canonical method to prepare multidimensional data for a dense layer. Usually, no parameters are necessary to define a flatten layer.\\
 \end{itemize}
 

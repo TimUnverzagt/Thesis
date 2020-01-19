@@ -5,40 +5,42 @@
 
 %\hint{This chapter should describe the design of the own approach on a conceptional level without %mentioning the implementation details. The section should have a length of about five pages.}
 %The following section describes the process of this thesis from a high-level point of view. First, all %tasks performed before, during, or after the experiments are described. Afterward, these components are %used to describe the four experiments carried out for this thesis. For each experiment, a subsection %specifies its components and explains any choices made concerning hyperparameters.
-The following section describes the process of this thesis from a high-level point of view. First, all tasks performed before, during, or after the experiments are described. Afterward, these components are used to describe the four experiments carried out for this thesis. For each experiment, a subsection specifies its components and explains any choices made concerning hyperparameters.
+The following section describes the process of this thesis from a high-level point of view. First, we define the components that describe an experiment. The subsequent sections specify these components for each experiment, respectively.
+
 
 \section{Components}
-\subsection*{Aim of the Experiment}
-The performed experiments pursue different goals. At first, the validation of the code base, used in the remaining experiments, is necessary. Next, one experiment on the search for early lottery tickets is conducted and finally, a transfer to an NLP-task is attempted.
-\subsection*{Dataset and Preprocessing}
-Various Datasets are used for this thesis. A more thorough description of each one is given in section 6. If any preprocessing was used it is explained at this point.
-\subsection*{Task and Architecture}
-For each Dataset, multiple tasks are reasonable. A collection of text, for example, could either be classified by one network or compressed by another. The task informs the structure of the network's output, and possibly its entire design. Different Tasks might also vary greatly in difficulty.
-The specific shape of a network is called the \textbf{architecture}. A precise description of a network's architecture is vital to the reproducibility of any experiment. All parameters needed to implement the network in our framework are given here. Any parameters that were inferred,  because they are indiscernible from the referenced papers, are mentioned here. If we found parameters to be inconsistent or incompatible with each other it is discussed in this subsection.
-
-\subsection*{Experimental Setup}
-Not all architectures are pruned in the same fashion. In their paper, J. Frankle and M. Carbin used different pruning percentages for different kinds of layers.\cite{LTH} Additionally, their results show that the quality of different architectures degrades at different speeds concerning the number of weights pruned. Thus the number of pruning iterations varies over different experiments, which is discussed here shortly.
-Finally, the layers in which pruning is applied are enumerated together with their corresponding pruning percentages.
-
+With the following component structure, we intend to concisely communicate all parameters to understand and reproduce the presented experiments. For each experiment, we record the following components:
+\begin{itemize}
+	\item \textbf{Aim of the Experiment}\\
+	The performed experiments pursued different goals. This component records the motivation of the given experiment and thus prepares the evaluation found in chapter [7].\\
+	\item \textbf{Dataset and Preprocessing}\\
+	We deployed three different datasets during this thesis. While chapter [6] provides a more detailed description, this component concisely specifies the type and shape of data points the experiment handles. Additionally, we note any preprocessing applied to the data before our experiment.\\
+	\item \textbf{Task}\\
+	A dataset embodies the experience of a given network, but the task researches expect their architecture to solve may still differ. A collection of text, for example, could either be classified by one network or translated by another. The task primarily formulates expectancies on the structure of a network's output, but it also has a significant influence on its architecture. Different tasks might also vary in difficulty.\\
+	\item \textbf{Architecture}\\
+	An accurate description of a network's architecture is vital to the reproducibility of any experiment. This component contains all parameters necessary to implement the network structure at hand in our framework and presents them in the shape of chapter [2]. Any parameters that we inferred because we could not discern them from the referenced papers are mentioned here.
+	J. Frankle and M. Carbin recorded the number of weights present in their architectures, which we utilized to check our implementation. In one case, where our number of weights partially disagree, we suggest possible explanations.\\
+	\item \textbf{Training}\\  
+	During training, a network repeatedly classifies small collections of data-points, called [batches]. After each batch, the framework calculates the momentary classification error and updates the weights, thus concluding a [training iteration]. This kind of training forms a numerical optimizations algorithm and, as such, might not converge after utilizing each data point just once. A training pass over all data points is called an [epoch], and networks usually absolve it more than once. Our framework defines training in terms of epochs in contrast to J. Frankle and M. Carbin, who visualized their results in terms of iterations. For this reason, this component supplies the conversion rate between the two.\\
+	\item \textbf{Pruning}\\  
+	In their paper, J. Frankle and M. Carbin used different pruning percentages for different kinds of layers. Additionally, their results show that the quality of different architectures degrades at different speeds.\cite{LTH}
+	For this reason, we employ different numbers of pruning iterations for the experiments and record them in this component alongside any remaining information on the training the architectures absolve.\\
+\end{itemize}
 
 \section{Reproduction: Dense Network | MNIST-Lenet-FCN}
 \subsection*{Aim of the experiment}
-Pruning the most basic architecture examined by J. Frankle and M. Carbin served as a minimal working prototype for the codebase.
+The fully-connected Lenet network embodies the most basic architecture in the Lottery Ticket Hypothesis paper. Its reconstruction serves as a minimal working prototype for the codebase.
 \subsection*{Dataset and Preprocessing}
-For this experiment, we employed the image dataset MNIST. It contains gray-scale images of hand-written digits with a size of 28x28 pixels. Chapter \ref{ch:datasets} contains a more detailed description.
-No preprocessing was applied.
-\subsection*{Task}
-The network was supposed to classify each image according to the digit it displays.
-\subsection*{Architecture and Setup}
+For this experiment, we utilized the same data as J. Frankle and M. Carbin; the image set MNIST. It contains gray-scale images of hand-written digits with a size of 28x28 pixels.
+We applied no preprocessing and utilized no data augmentation on the MNIST dataset.
+\subsection*{Task and Architecture}
+The task J. Frankle and M. Carbin. chose for their research is topic classification. The network is expected to return a ten-dimensional one-hot-encoding recording the digit displayed on the image in question.
+
 \begin{tabularx}{\textwidth}[!h]{X X X}
-	\multicolumn{3}{c}{\textbf{MNIST-Lenet-FCN}}\\
+	\multicolumn{3}{c}{\textbf{MNIST-Lenet-FCN Architecture}}
 	\\
 	\hline
 	\endhead
-	\textbf{Model} & loss & categorical crossentropy\\
-	& Optimizer & Adam\\
-	Optimizer & learning rate & $1.2 \cdot 10^{-4}$\\
-	\hline
 	\textbf{Defaults} & Dense: activation & rectified linear unit\\
 	\hline
 	\textbf{Input} & output dimension & [28|28]\\
@@ -52,8 +54,20 @@ The network was supposed to classify each image according to the digit it displa
 	\textbf{Dense} & output dimension & 10\\
 	& activation & softmax\\
 	\hline
+\end{tabularx}
+
+\subsection*{Training and Pruning}
+\begin{tabularx}{\textwidth}[!h]{X X X}
+	\multicolumn{3}{c}{\textbf{MNIST-Lenet-FCN Schedule}}
+	\\
+	\hline
+	\endhead
 	\textbf{Training} & epochs & 50\\
+	& iterations per epoch & 1000\\
 	& batch size & 60\\
+	& loss & categorical crossentropy\\
+	& optimizer & Adam\\
+	& learning rate & $1.2 \cdot 10^{-4}$\\
 	\hline
 	\textbf{Pruning} & layers & Dense\\
 	& amount & 20\%\\
@@ -62,36 +76,31 @@ The network was supposed to classify each image according to the digit it displa
 	& remaining weights & \textasciitilde1007\\
 	\hline
 \end{tabularx}
-%\subsection{Pruning}
 
-\section{Reproduction: Convolutional Network | CIFAR10-CNN-6}
+\section{Reproduction: Convolutional Network | CIFAR10-Conv6}
+The Conv-6 architecture J. Frankle and M.Carbin developed for their paper, utilizes an additional popular kind of trainable layer, the convolutional layer, and has an order of magnitude more weights than the fully-connected Lenet architecture. Furthermore, it operates on an arguably more difficult dataset, CIFAR10. 
 
 \subsection*{Aim of the Experiment}
-The first network is the simplest example of architectures discussed by J.Frankle and M.Carbin. The "conv-6", they propose, utilizes an additional popular kind of trainable layer, the convolutional layer, and has an order of magnitude more weights than the previous network. Furthermore, it operates on an arguably more difficult dataset, CIFAR10. 
-In summary: This architecture uses close to all features present in the original paper, which makes it valuable for the validation of the code we produced.
+The reproduction of the result they present for Conv-6 is a strong argument for the validity of our network concerning convolutional layers and more challenging datasets. 
+
 \subsection*{Dataset and Preprocessing}
-For this task, we utilized the image dataset CIFAR10. 
-In contrast to MNIST, CIFAR10 contains colored images with a size of 32x32 pixels. Additionally, each image is subdivided by gray-scale images for its share of red, blue, and green. The result is the final size of 3x32x32 pixels. Chapter \ref{ch:datasets} contains a more detailed description.
-No preprocessing was applied.
-\subsection*{Task}
-The network was supposed to classify the image according to the common real-world objects displayed on them. The ten possible objects include different means of transportation and animals. 
-\subsection*{Architecture and Setup}
-J. Frankle and M. Carbin developed the "conv-6" based on the VGG-architectures and only note the parameters necessary to infer the remaining parts of the infrastructure.\cite{LTH}
-We based our implementation on those parameters and the referenced paper of K. Simonyan and A. Zisserman \cite{VGG16}, and the number of weights in the dense part differs from the number reported by J.Frankle and M.Carbin. Because they do not supply an openly accessible implementation of their experiments, it was not possible to cross-validate the code.
-As the most natural way, to prepare a multidimensional input for a dense layer, is flattening, we assume that J. Frankle and M. Carbin either reported the wrong number of weights or parameters in their description.
+For this task, we utilized the image dataset CIFAR10, as did J. Frankle and M. Carbin. In contrast to MNIST, CIFAR10 contains colored images with a size of 32x32 pixels. Three gray-scale images encode an image's color's share of red, blue, and green, respectively. The result is the final size of 3x32x32 pixels.
+The CIFAR10 dataset was neither preprocessed nor enhanced.
+
+\subsection*{Task and Architecture}
+As for the previous experiment, the task is image classification. While the number of classes remains the same as for MNIST, the complexity of possible objects increases, as they are composed of real-world objects, such as horses and cars.\\
+\\
+J. Frankle and M. Carbin developed Conv-6 based on the VGG architectures and only note the parameters necessary to infer the remaining parts of the infrastructure.\cite{LTH} We based our implementation on those parameters and the referenced paper of K. Simonyan and A. Zisserman.\cite{VGG16}\\
+After Inference, the number of weights in our dense part differs from the number reported by J.Frankle and M.Carbin. Because they do not supply an openly accessible implementation of their experiments, it was not possible to cross-validate the code.
+As our framework employs the canonical way to prepare a multidimensional input for a dense layer, a flattening layer, we assume that J. Frankle and M. Carbin either reported the wrong layer parameters or the wrong number of weights in their description.
+\newpage 
 	%\begin{tabularx}{\textwidth}[!h]{!{\vrule width 2pt}X|X|X!{\vrule width 2pt}}
 	\begin{tabularx}{\textwidth}[!h]{X X X}
 		% \caption{MNIST-Lenet-FCN}
-		\multicolumn{3}{c}{\textbf{CIFAR10-CNN-6}}\\
+		\multicolumn{3}{c}{\textbf{CIFAR10-Conv6 Architecture}}
 		\\
 		\hline
 		\endhead
-		%\noalign{\hrule height 2pt}
-		\textbf{Model} & loss & categorical cross entropy\\
-		& Optimizer & Adam\\
-		Optimizer & learning rate & $3 \cdot 10^{-4}$\\
-		%\noalign{\hrule height 2pt}
-		\hline
 		\textbf{Defaults} & \textbf{Dense}: activation & rectified linear unit\\
 		& \textbf{2D Convolution}: activation & rectified linear unit\\
 		& \textbf{2D Convolution}: kernel size & [3|3]\\
@@ -135,39 +144,58 @@ As the most natural way, to prepare a multidimensional input for a dense layer, 
 		\textbf{Dense} & output dimension & 10\\
 		& activation & softmax\\
 		\hline
-		\textbf{Training} & epochs & 36\\
-		& batch size & 60\\
-		\hline
-		\textbf{Pruning} & layers & Dense\\
-		& & 2D Convolution\\
-		& amount & 20\%\\
-		& & 15\%\\
-		& iterations & 25\\
-		& initial weights & 1.117.194\\
-		& & 1.145.408\\
-		& remaining weights & \textasciitilde4220\\
-		& & \textasciitilde19698\\
-		\hline
-		%\noalign{\hrule height 2pt}
 	\end{tabularx}
-%\subsection{Pruning}
+
+\subsection*{Training and Pruning}
+\begin{tabularx}{\textwidth}[!h]{X X X}
+	% \caption{MNIST-Lenet-FCN}
+	\multicolumn{3}{c}{\textbf{CIFAR10-Conv6  Schedule}}
+	\\
+	\hline
+	\endhead
+	%\noalign{\hrule height 2pt}
+	%\noalign{\hrule height 2pt}
+	\hline
+	\textbf{Training} & epochs & 36\\
+	& iterations per epoch & ??\\
+	& batch size & 60\\
+	& loss & categorical cross entropy\\
+	& optimizer & Adam\\
+	& learning rate & $3 \cdot 10^{-4}$\\
+	\hline
+	\textbf{Pruning} & layers & Dense\\
+	& & 2D Convolution\\
+	& amount & 20\%\\
+	& & 15\%\\
+	& iterations & 25\\
+	& initial weights & 1.117.194\\
+	& & 1.145.408\\
+	& remaining weights & \textasciitilde4220\\
+	& & \textasciitilde19698\\
+	\hline
+	%\noalign{\hrule height 2pt}
+\end{tabularx}
 
 %-----
 
-\section{Transfer: Newsgroups-End2End-CNN}
+\section{Transfer: Newsgroups-End2End}
 
 \subsection*{Aim of the Experiment}
-J. Frankle and M. Carbin report a desirable degree of pruning through the search for lottery tickets, but all their results pertain only to the field of image recognition. This experiment aspires to be a proof-of-concept for the search for lottery tickets in natural language applications. To this end, the code reproduces the network of an approach, of R. Pappagari et al.,  that achieved performance close to the state-of-the-art on a natural language processing task.\cite{End-to-End-CNN}
+J. Frankle and M. Carbin report a desirable degree of pruning through the search for lottery tickets, but all their results pertain only to the field of image recognition. This experiment aspires to be a proof-of-concept for the search for lottery tickets in natural language applications. To this end, the code reproduces the network of an approach, of R. Pappagari et al.,  that achieved performance close to the state-of-the-art on a natural language processing task.\cite{End-to-End-CNN}\\
+The architecture already performed quite well without the specific cost function they developed. To avoid problems with unique features and to increase the applicability of our findings, we omitted the special cost function. While the accuracy of our implementation dropped about ten percentage points, it still comes closer to the respective state-of-the-art than the Conv-6 architecture previously discussed.
 
 \subsection*{Dataset and Preprocessing}
-The natural language dataset used for this experiment is called "20 Newsgroups". It contains articles of varying lengths in plain text. As networks only handle numerical values, the documents had to be quantified. R. Pappagari et al. one-hot-encoded the documents on a word level, utilizing the vocabulary provided on the 20 newsgroup website.\footnote{
+The natural language dataset used for this experiment is called "20 Newsgroup". It contains articles of varying lengths in plain text. As networks only handle numerical values, the documents had to be quantified. R. Pappagari et al. one-hot-encoded the documents on a word level, utilizing the vocabulary provided on the 20 newsgroup website.\footnote{
 	The vocabulary length they documented does not agree with the length of the vocabulary provide at the website, which might be due to an update from the website's author. 
-	}
-While they mention that they used the canonical split of training and test data, this is not enough to accurately define the setup. First, the documents should be stripped of any metadata. Afterward, a tokenizer, of which many different ones exist, is necessary to split the articles into single words. The code provided along this thesis utilizes the word tokenizer supplied by the framework nltk. Furthermore, the provided vocabulary does not contain all tokens. For this experiment, we removed all such tokens as stopwords. 
-Lastly, the input length of a network cannot be variable. While a few documents have an extreme length of over 3000, most of them do not. Thus simple zero-padding would overexert the computer memory and over parametrize the architecture. As such, the preprocess truncated all documents longer than 200 words and padded those shorter.
+}\cite{End-to-End-CNN} 
+Otherwise, they only mention that they used the canonical split of training and test data, which is not sufficient to accurately define the setup. First, the documents should be stripped of any metadata. Afterward, a tokenizer, of which many different ones exist, is necessary to split the articles into single words. The code provided along this thesis utilizes the word tokenizer supplied by the framework nltk. Furthermore, the provided vocabulary does not contain all tokens. For this experiment, we implicitly interpreted all tokens not referenced in the vocabulary as stopwords and omitted them.\\
+Lastly, the input length of a network cannot be variable. While a few documents have an extreme length of over 3000, most of them do not. Simple zero-padding would overexert computer memory and overparametrize the architecture. Figure [?] shows the document length histograms of test and training split for 20Newsgroups. Our computation devices were able to support a few hundred tokens per document, dependant on the number of pruning iterations. Ten pruning iterations are necessary to achieve a competitive pruning rate and left us with about 200 hundred tokens per document. The red line in figure [?] visualizes the cut-off. It leaves about 70 percent of the documents at full length.
 
 
-\subsection*{Architecture and Setup}
+\subsection*{Task and Architecture}
+Each document in the 20Newsgroups dataset was collected in a Usenet repository with an associated topic. For each document, the architecture returns its topic in a 20-dimensional one-hot-encoding.\\
+\\
+The Newsgroups-End2End ensemble combines 16 very similar embedding architectures. First, each network employs a trainable word-embedding layer to reduce the dimensionality of the one-hot-encoded word tokens. Subsequently, a convolutional layer and a few processing layers embed the whole document into a three-dimensional space. The overarching ensemble then collects the three remaining features of each architecture and classifies them with a dropout-regularized dense layer. Figure [?] displays the single architectures on its left and the ensemble on its right.
 \begin{figure}
 	\begin{minipage}{0.5\textwidth}
 		\centering
@@ -183,25 +211,51 @@ Lastly, the input length of a network cannot be variable. While a few documents 
 	\end{minipage}
 \end{figure}
 
+\subsection*{Training and Pruning}
+Embedding layers are dense layers with one-hot input and special implementation. As such they are pruned like dense layers
+\begin{tabularx}{\textwidth}[!h]{X X X}
+	% \caption{MNIST-Lenet-FCN}
+	\multicolumn{3}{c}{\textbf{20Newsgroups-End2End Schedule}}
+	\\
+	\hline
+	\endhead
+	%\noalign{\hrule height 2pt}
+	%\noalign{\hrule height 2pt}
+	\hline
+	\textbf{Training} & epochs & 10\\
+	& iterations per epoch & ??\\
+	& batch size & 60\\
+	& loss & categorical cross entropy\\
+	& optimizer & Adam\\
+	\hline
+	\textbf{Pruning} & layers & Embedding\\
+	& & 1D Convolution\\
+	& & Dense\\
+	& amount & 20\%\\
+	& & 15\%\\
+	& & 20\%\\
+	& iterations & 10\\
+	& initial weights & 293.702.400\\
+	& & 165.648\\
+	& & 980\\
+	& remaining weights & \textasciitilde31.536.055\\
+	& & \textasciitilde32.611\\
+	& & \textasciitilde105\\
+	\hline
+	%\noalign{\hrule height 2pt}
+\end{tabularx}
+
 %-----
 
 \section{Early Ticket: MNIST-Lenet-FCN}
-As this experiment shares an architecture with the reproduction discussed earlier, redundant subsections are omitted. 
+As this experiment shares an architecture with the reproduction discussed earlier, we omit the redundant subsections about the dataset, preprocessing, task, and architecture. 
+
 \subsection*{Aim of the Experiment}
-In the introduction of this thesis, I remarked that there is no inherent necessity that one defines the structure of lottery tickets after full training of a network. Such a definition is natural, but in the end, J. Frankle and M. Carbin perform network architecture search on the initial network. The trained weights are only used to inform this search.
-In principle, searching for a performant architecture could be done without any training, using only the initialized weights, but H. Zhou et al. rule out that possibility in their ablation study.\cite{Deconstructing_LTH} This experiment aims to study the behavior of lottery tickets dependent on the point in training when the weights are used to inform the pruning.
+In the introduction of this thesis, we remarked that the search for a lottery ticket might be possible after less training. Essentially, J. Frankle and M. Carbin perform network architecture search on the initialized network.  Their algorithm uses the trained weights solely to inform this search. In principle, searching for a performant architecture could be done without any training.
+This experiment aims to study the behavior of lottery tickets dependent on the amount of training provided before the network is pruned and reinitialized.
+
 \subsection*{Pruning}
-The network converges no later than 15 epochs into training. Thus 15 experiments were performed, each being set to another epoch for pruning. 
-To ensure comparability all 15 networks share the same initialization, and each training is run for the full  50 epochs of the original experiment.
-
-
-
-\subsection*{Task}
-For each document, the network has to determine precisely one out of 30 possible topics.
-
-\subsection*{Architecture and Setup}
-% R. Pappagari et al. do not specify the dropout rate. 
-Embedding layers are dense layers with one-hot input and special implementation. As such they are pruned like dense layers
-
+The original network converges no later than 15 epochs into training. Thus we performed 15 experiments, each set to prune at a different epoch. The remaining pruning parameters remained as noted in the reproduction section.\\
+All 15 networks share the same initialization to ensure the comparability of the result data. To collect data for the evaluation, all networks receive the full training 50 epochs of the original experiment.
 
 %\subsection*{Pruning}
