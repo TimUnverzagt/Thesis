@@ -13,12 +13,12 @@ The following chapter presents the results achieved throughout this thesis and a
 
 \section{Reproduction}
 \subsection*{Goal and Benchmarks}
-As the latter sections evaluate explorative experiments, the validity of the framework which supports them is crucial. We trained the first two models described in sections \ref{ch:design} and \ref{ch:implementation} under the conditions J. Frankle and M. Corbin describe in their paper. The mismatch of weights previously described forms the only known difference.
+As the latter sections evaluate explorative experiments, the validity of the framework which supports them is crucial. We trained the first two models described in sections \ref{ch:design} and \ref{ch:implementation} under the conditions J. Frankle and M. Corbin describe in their paper. The previously described mismatch of weights forms the only known difference.
 J. Frankle and M. Corbin primarily report the accuracy achieved by their implementations at the epoch of a simple stopping criterion. They executed each experiment five times and plot the mean alongside the minimum and maximum, which are represented through error bars. Additionally, they reperformed the same experiments ten times, but applied the masks, found after each epoch, to randomly reinitialized networks. The results were visualized in the same manner. \cite{LTH}
-On the left side of figure 7.1 and figure 7.2, these measures are presented for the MNIST-FCN and the CIFAR10-CNN-6, respectively. Both plots are taken from the Lottery Ticket Hypothesis paper, but we cleaned up the latter one and brought it up to scale for improved legibility.\footnote{The original figure is available in the paper of J. Frankle and M. Carbin. \cite{LTH}}  The goal of this reproduction is to produce results within the reported confidence intervals of accuracy in the Lottery Ticket Hypothesis paper.  
+Figure \ref{fig:MNIST-Lenet-FCN-LTH} and figure \ref{fig:CIFAR10-Conv6-LTH} present these measures for the MNIST-FCN and CIFAR10-CNN-6, respectively. Both plots are taken from the Lottery Ticket Hypothesis paper, but we cleaned up the latter one and brought it up to scale for improved legibility.\footnote{The original figure is available in the paper of J. Frankle and M. Carbin. \cite{LTH}}  The goal of this reproduction is to produce results within the reported confidence intervals of accuracy in the Lottery Ticket Hypothesis paper.  
 
 \subsection*{Evaluation Setup}
-As the produced framework does not provide any early stopping criterion, we display the full range of accuracy a given architecture achieves after convergence. A line visualizes the mean, while a gray band denotes the interval between maximal and minimal achieved accuracy. As a positive side-effect, this setup increases the breadth of visualized data in the following explorative experiments because it is parameter-agnostic concerning the early stopping criterion. Finally,  as J. Frankle and M. Corbin present training accuracies for the MNIST-Lenet-FCN architecture, we visualize the same measure for additional points of comparison.\footnote{For the Conv6 architecture, the effective pruning rate per iteration amalgamate its dense and convolutional pruning rate. The disagreement in the number of weights in the dense layers between our framework and the Lottery Ticket Hypothesis paper also results in a different pruning rate per epoch. Furthermore J. Frankle and M. Carbin arrive at slightly different pruning rate after rounding.\\ While the labels nominally differ, we visualized our data with a grid corresponding to the same amount of training or pruning. It reduces legibility but increases ease of comparison.
+As our framework does not provide any early stopping criterion, we display the full range of accuracy a given architecture achieves after convergence. A line visualizes the mean, while a gray band denotes the interval between maximal and minimal achieved accuracy. As a positive side-effect, this setup increases the breadth of visualized data in the following explorative experiments because it is parameter-agnostic concerning the early stopping criterion. Finally,  as J. Frankle and M. Corbin present training accuracies for the MNIST-Lenet-FCN architecture, we visualize the same measure as additional points of comparison.\footnote{For the Conv6 architecture, the effective pruning rate per iteration amalgamates its dense and convolutional pruning rate. The disagreement in the number of weights in the dense layers between our framework and the Lottery Ticket Hypothesis paper also results in a different pruning rate per epoch. Furthermore J. Frankle and M. Carbin arrive at slightly different pruning rates after rounding.\\ While the labels nominally differ, we visualized our data with a grid corresponding to the same amount of training or pruning. It reduces legibility slightly in the case of Conv6 but increases ease of comparison across the board.
 } 
 \subsection*{Evaluation Results}
 As seen in figures \ref{fig:MNIST-Lenet-FCN-LTH} and \ref{fig:MNIST-Lenet-FCN-Thesis}, the MNIST-Lenet-FCN implementation we provide achieves a lower accuracy than reported by J. Frankle and M. Corbin. Additionally, it does not show an interim improvement and degrades significantly faster at advanced pruning iterations. Said degradation is qualitatively similar to the behavior of the randomly reinitialized networks.
@@ -105,7 +105,7 @@ The comparison between figure \ref{fig:CIFAR10-Conv6-LTH} and figure \ref{fig:CI
 		\vspace{7pt}
 		\footnotesize{
 			Source:\\
-			This graph was produced by the author. \cite{LTH}
+			This graph was produced by the author.
 		}
 		\label{fig:Slightly-Pruned-Lenet-Thesis}
 	\end{minipage}
@@ -143,15 +143,15 @@ The comparison between figure \ref{fig:CIFAR10-Conv6-LTH} and figure \ref{fig:CI
 \subsection*{Analysis of Results}
 The implementations of the provided framework do not reproduce the results presented in the Lottery Ticket Hypothesis paper, meaning that the framework is not validated. This poses the question of how to proceed with the remaining experiments, which we discuss in the corresponding "Goal and Benchmarks" subsections.
 While the framework did not fulfill the primary goal of the experiment, two phenomena remain unclear and intriguing:
-The MNIST-Lenet-FCN architecture produces through our implementation of the Lottery Ticket algorithm degrades only by one percentage point under compression of up to ten times. Such a result is comparable to various pruning methods discussed in chapter \ref{ch:relatedwork}. 
+The MNIST-Lenet-FCN architecture produced through our implementation of the Lottery Ticket algorithm degrades only by one percentage point under compression of up to ten times. Such a result is comparable to various pruning methods discussed in chapter \ref{ch:relatedwork}. 
 
 %*****************************************
 
 \section{Transfer}
 \subsection*{Goal and Benchmarks}
-While the reproduction experiments did not validate the framework, it still pruned the MNIST-Lenet-FCN to a degree comparable to contemporary work through, and it did so through the masking of networks with frozen initialization. As such, the transfer to another field still might yield another pruning tool for additional tasks and applications. If the framework prunes about 90 percent of weight without the sacrifice of prediction quality, we consider the transfer succesful.
+While the reproduction experiments did not validate the framework, it still pruned the MNIST-Lenet-FCN to a degree comparable to contemporary work and it did so through the masking of networks with frozen initialization. As such, the transfer to another field still might yield a new pruning tool for additional tasks and applications. If the framework prunes about 90 percent of weights without the sacrifice of prediction quality, we consider the transfer successful.
 \subsection*{Evaluation Setup}
-Figure \ref{fig:20Newsgroups-Converged} present benchmarks collected in the same manner as for the other architectures, but fewer pruning iterations are displayed. Additionally, figure \ref{fig:20Newsgroups-Training} provides the training accuracy we used to determine the amount of training necessary for convergence. The sheer size of the 20Newsgroups-End2End architecture severely limited the number of pruning iterations, a single experiment could afford to run without overflowing the memory of our computing devices. We managed to run experiments with ten pruning iterations, the minimal number to prune a network to a competitive degree. 
+Figure \ref{fig:20Newsgroups-Converged} presents benchmarks collected in the same manner as for the other architectures, but fewer pruning iterations are displayed. Additionally, figure \ref{fig:20Newsgroups-Training} provides the training accuracy we used to determine the amount of training necessary for convergence. The sheer size of the 20Newsgroups-End2End architecture severely limited the number of pruning iterations, a single experiment could afford to run without overflowing the memory of our computing devices. We managed to perform experiments with ten pruning iterations, the minimal number to prune a network to a competitive degree. 
 \subsection*{Evaluation Results}
 The right side of figure 7.4 shows that the 20Newsgroups-End2End architecture retains its accuracy even if about 90 percent of its weights are pruned. Additionally, the networks of the intermediate pruning epochs show an accuracy improvement of at least one percentage point.
 \begin{figure}
@@ -199,11 +199,11 @@ Independent of the ability to recover actual lottery tickets, the pruning implem
 \subsection*{Goal and Benchmarks}
 The aim of this experiment is purely explorative. If any patterns are recognized, they may inform experiments implemented with valid frameworks.
 \subsection*{Evaluation Setup}
-Figures \ref{fig:Early-Tickets-0} through \ref{fig:Early-Tickets-9} plot the mean accuracy achieved by implementations set to prune at the n-th epoch of training. To avoid visual clutter, the interval representing minimal and maximal values are omitted. 
+Figures \ref{fig:Early-Tickets-0} through \ref{fig:Early-Tickets-9} plot the mean accuracy achieved by implementations set to prune at the n-th epoch of training. To avoid visual clutter, the intervals representing minimal and maximal values are omitted. 
 \subsection*{Evaluation Results}
 Because the accuracy of multiple graphs behaves erratically, it is challenging to discern a development over the training depth. The only certain observation is that all trials of earlier pruning degrade significantly faster than the original approach.
 \subsection*{Analysis of Results}
-While the original network converges in about ten epochs the same amount of training does not seem to suffice to achieve the full efficiency of the pruning algorithm implemented in our framework
+While the original network converges in about ten epochs, the same amount of training does not seem to suffice to achieve the full efficiency of the pruning algorithm implemented in our framework
 
 \newpage
 \begin{figure}

@@ -71,11 +71,11 @@ Figure \ref{fig:Example Control Flow} depicts a scheme of the framework during o
 
 \subsection{Networks}
 \textbf{Tensorflow 2.0} supplies a functional API capable of implementing all networks described in this thesis and many more. It also distributes training to devices other than regulars CPU cores.\cite{Tensorflow} Of particular interest to this work is the speed-up achieved through the usage of GPUs.
-Because Tensorflow did not correctly handle the utilized multiclass data during the calculation of network accuracy, we also adopted, \textbf{scikit-learn}, an additional machine learning package for the on-line evaluation. 
+Because Tensorflow did not correctly handle the utilized multiclass data during the calculation of network accuracy, we also adopted, \textbf{scikit-learn}, an additional machine learning package, for the on-line evaluation. 
 Scikit-learn is an open-source python framework built on \textit{NumPy}, \textit{SciPy}, and \textit{matplotlib} that supplies a plethora of data analysis tools.\cite{scikit-learn}
 
 \subsection{Datasets and Preprocessing}
-The framework retrieves the datasets MNIST and CIFAR10 from a Tensorflow interface. The corresponding modules of the supplied framework read out these interfaces, bring the data into the expected shape, and return the canonical split of training and test data points. 
+The framework retrieves the datasets MNIST and CIFAR10 from a Tensorflow interface. The corresponding modules read out these interfaces, bring the data into the expected shape, and return the canonical split of training and test data points. 
 For the 20Newsgroups dataset, the framework utilizes a scikit-interface.\\
 We employ the Word Tokenizer of \textbf{NLTK}, an open-source natural language framework that also contains the Reuters-21578 dataset.\cite{NLTK}
 
@@ -83,4 +83,4 @@ We employ the Word Tokenizer of \textbf{NLTK}, an open-source natural language f
 The supplied framework employs the object-serialization package \textbf{pickle} to save the history of an experiment directly. This type of storage is meant \textbf{for internal use only}. On their website, the packages authors explicitly warn of untrusted data that was saved with pickle.
 
 \section{Limitations}
-While our codebase is generally capable of unraveling and reproducing any architecture described in the functional Tensorflow API, it only supports the masking of the layers described in chapter \ref{ch:design} so far. Additionally, Tensorflow itself does not support the pruning of single neural connections because they are bundled together in the tensors used to model layers. As it can only flag whole tensors as non-trainable, a different solution is necessary. Our framework utilizes the same workaround recorded by J. Frankle and M. Carbin and represents pruned weights through masks on the layers tensors.
+While our codebase is generally capable of unraveling and reproducing any architecture described in the functional Tensorflow API, at the moment it only supports the masking of the layers described in chapter \ref{ch:design}. Additionally, Tensorflow itself does not support the pruning of single neural connections because it bundles them into tensors to model layers. As it can only flag whole tensors as non-trainable, a different solution is necessary. Our framework utilizes the same workaround recorded by J. Frankle and M. Carbin and represents pruned weights through masks on the layers tensors.
