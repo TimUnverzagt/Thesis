@@ -1,0 +1,71 @@
+Rhein-Main-Verkehrsverbund
+Seite drucken <javascript:window.print(self)>Fenster schließen
+<javascript:window.close(self)>
+
+
+Ergebnisse
+
+Bahnhof / Haltestelle 	Zeit 	Dauer 	Umst. 	Verkehrsmittel 	Tarif*
+Bus & Bahn - Freitag, 31.01.20
+Darmstadt Hauptbahnhof
+Frankfurt (Main) Festhalle/Messe
+	
+17:05 ab
+17:46 an
+ 
+	0:44 	1 	[S3] [Tram 17] 	8,70 €
+5,10 €
+  	17:05 	ab 		Darmstadt Hauptbahnhof 	Gleis 3
+  	  	S3 		
+S-Bahn
+S3 	Richtung Bad Soden (Taunus) Bahnhof
+Fahrzeuggebundene Einstiegshilfe vorhanden, Klimaanlage;
+Betreiber: DB Regio AG S-Bahn Rhein-Main
+verkehrt im 30-Minuten-Takt.
+	 
+  	17:31 	an 		Frankfurt (Main) Stresemannallee Bahnhof - Umstieg 	Gleis 2
+17:35 	ab 		 
+  	  	Tram 17 		
+Niederflurstraßenbahn
+Tram 17 	Richtung Frankfurt (Main) Rebstockbad
+Türen mit Mehrzweckfläche sind mit gelbem Balken über der Tür
+gekennzeichnet;
+Betreiber: Stadtwerke Verkehrsgesellschaft Frankfurt
+verkehrt alle 7 - 10 Minuten.
+	 
+  	17:46 	an 		Frankfurt (Main) Festhalle/Messe - Ausstieg 	 
+17:46 	ab 		 
+  	  			
+Fußweg 	3 Min., ca. 232 m   	 
+  	17:49 	an 		Frankfurt (Main) Messe
+<https://www.rmv.de/auskunft/bin/jp/help.exe/dn?protocol=https:&tpl=poi_info&poi_name=Frankfurt%20(Main)%20Messe&poi_x=8651605&poi_y=50113208&poi_id=009000902>
+	 
+
+Dauer: *0:44*; Verbindung besteht: *Mo - Fr, nicht 4., 7., 20., 24. Feb,
+10., 13. Apr, 1., 21., 22. Mai, 1., 11., 12. Jun, 6. Jul bis 14. Aug 2020*
+
+*Hinweise zur Prognose:*
+
+Die folgenden Hinweissymbole zeigen an, dass aktuelle
+Zusatzinformationen (z.B. Verspätungen, Gleiswechsel) vorliegen.
+Bitte beachten Sie die Details dazu.
+pünktlich
+Als pünktlich gemeldet
+Dieses Symbol zeigt an, dass mit Verspätungen zu rechnen ist. Die
+voraussichtlichen An-/Abfahrtszeiten sind in der Detailansicht eingefügt.
+Mit Verspätung zu rechnen; Verspätung gemeldet, Anschluss gefährdet
+Bitte beachten Sie den Ausfall (siehe Details zur Verbindung).
+Ausfall der Fahrt, Ausfall eines Haltepunkts oder Ausfall mehrerer
+Haltepunkte.
+Wichtiger Hinweis! Bitte schauen Sie in die Verbindungsdetails
+Bitte beachten Sie den Gleis- bzw. Bussteigwechsel sowie Ansagen und
+Anzeigen in Bahnhöfen, Stationen und Haltestellen.
+Gleiswechsel, Bussteigwechsel
+Diese Verbindung bieten wir Ihnen als Alternative zu einer verspäteten
+Verbindung an.
+Alternative Verbindung
+Aktuelle Verkehrsinformationen liegen vor
+
+* Preise für Einzelfahrt Erwachsene/Kinder (6 bis einschließlich 14
+Jahre). Bitte beachten Sie: Lokale Regelungen können zu
+Fahrpreisabweichungen führen.
